@@ -4,8 +4,8 @@ script_dir="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
 
 sources="metadata"
 output="metadata/output"
-cadir="$PWD/dev-pki/main/resources/ca-certificates"
-certdir="$PWD/dev-pki/main/resources/dev-keys"
+cadir="$PWD/ca-certificates"
+certdir="$PWD/pki"
 
 mkdir -p "$sources/dev/idps"
 mkdir -p "$output"

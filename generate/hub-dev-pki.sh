@@ -21,7 +21,6 @@ pushd data >/dev/null
   rm -rf {pki,metadata,stub-fed-config}
   mkdir -p {pki,metadata,stub-fed-config}
 
-  mkdir -p dev-pki/main/resources/{ca-certificates,dev-keys}
   mkdir -p metadata/output/dev
   mkdir -p stub-fed-config
 
@@ -33,7 +32,5 @@ pushd data >/dev/null
   $script_dir/generate-truststores.sh
   $script_dir/generate-metadata.sh
 
-  cp dev-pki/main/resources/dev-keys/hub_{signing,encryption}_{primary,secondary}.{crt,pk8} pki/
-  cp dev-pki/main/resources/dev-keys/ocsp_responses pki/
   cp metadata/output/dev/metadata.signed.xml metadata/metadata.xml
 popd >/dev/null

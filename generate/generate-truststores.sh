@@ -10,7 +10,7 @@ createTruststore () {
   local certs="$@"
   
   for name in $certs; do
-    cert="$PWD/dev-pki/main/resources/ca-certificates/${name}.pem.test"
+    cert="$PWD/ca-certificates/${name}.pem.test"
     echo "$(tput setaf 3)Adding certificate $name to $store truststore$(tput sgr0)"
     keytool -import -noprompt -alias "$name" -file "$cert" -keystore "pki/${store}.ts" -storepass "$pass" >/dev/null
   done

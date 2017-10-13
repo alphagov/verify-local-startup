@@ -33,12 +33,11 @@ function createLeaf {
 PATH=$PATH:$GOPATH/bin/
 
 # Directories we create
-PKI_DIR="$PWD/dev-pki/main/resources"
-CA_CERTS_DIR="$PKI_DIR/ca-certificates"
-DEV_KEYS_DIR="$PKI_DIR/dev-keys"
+CA_CERTS_DIR="$PWD/ca-certificates"
+DEV_KEYS_DIR="$PWD/pki"
 
 # Recreate the directory structure
-rm -rf $PKI_DIR && mkdir -p $CA_CERTS_DIR $DEV_KEYS_DIR
+mkdir -p $CA_CERTS_DIR $DEV_KEYS_DIR
 
 # Create the CA certs
 pushd $CA_CERTS_DIR >/dev/null
