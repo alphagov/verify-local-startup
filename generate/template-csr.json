@@ -1,0 +1,16 @@
+{
+    "CN": "$COMMON_NAME",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "GB",
+            "ST": "London",
+            "L": "London",
+            "O": "Cabinet Office",
+            "OU": "GDS"
+        }
+    ]
+}

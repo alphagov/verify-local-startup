@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+port="${OCSP_RESPONDER_PORT:-58889}"
+responses="${OCSP_RESPONSES:-$PWD/data/pki/ocsp_responses}"
+
+echo "Starting CFSSL OCSP responder on port $port with responses file $responses"
+
+cfssl ocspserve \
+  -port "$port" \
+  -responses "$responses"

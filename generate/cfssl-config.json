@@ -1,0 +1,37 @@
+{
+    "signing": {
+        "default": {
+            "ocsp_url": "http://localhost:58889",
+            "expiry": "876000h"
+        },
+        "profiles": {
+            "ocsp": {
+                "usages": [
+                    "digital signature",
+                    "ocsp signing"
+                ],
+                "expiry": "876000h"
+            },
+            "intermediate": {
+                "usages": [
+                    "cert sign",
+                    "crl sign"
+                ],
+                "expiry": "876000h",
+                "is_ca": true
+            },
+            "signing": {
+                "usages": [
+                    "digital signature"
+                ],
+                "expiry": "876000h"
+            },
+            "encipherment": {
+                "usages": [
+                    "key encipherment"
+                ],
+                "expiry": "876000h"
+            }
+        }
+    }
+}
