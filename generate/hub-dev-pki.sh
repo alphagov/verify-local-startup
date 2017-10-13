@@ -14,10 +14,11 @@ EOF
 tput sgr0
 
 script_dir="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
+data_dir="$script_dir/../data"
 
-mkdir -p data
+mkdir -p "$data_dir"
 
-pushd data >/dev/null
+pushd "$data_dir" >/dev/null
   rm -rf {pki,metadata,stub-fed-config}
   mkdir -p {pki,metadata,stub-fed-config}
 
