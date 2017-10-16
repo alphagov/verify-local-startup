@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 set -u
 
+source lib/services.sh
+
 mkdir -p logs
 if test ! -d data; then
-    ./generate/hub-dev-pki.sh
+  command -v cfssl || brew install cfssl
+  ./generate/hub-dev-pki.sh
 fi
 pkill verify_metadata_server
-( METADATA_ROOT=data/metadata bin/metadata_server > logs/metadata_server.log 2>&1 & )
+( bin/metadata_server > logs/metadata_server.log 2>&1 & )
+
+build_service ../ida-msa
 
 pids=`ps aux | grep java | grep ida-msa.yml | awk '{print $2}'`
 for pid in $pids; do
   kill $pid
 done
-
-. lib/services.sh
 
 cp data/pki/identity_providers.ts ../ida-msa
 cp data/pki/metadata.ts ../ida-msa
