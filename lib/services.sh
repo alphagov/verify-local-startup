@@ -40,6 +40,7 @@ start_service() {
   local basedir="$2"
   local cfg="$3"
   local port="$4"
+  local java_args="${@:5}"
   local jar="${basedir}/build/output/*.jar"
   local log="logs/${service}_console.log"
 
@@ -49,7 +50,7 @@ start_service() {
   echo "Starting service: $(tput setaf 3)$service$(tput sgr0)"
 
   ( rm -f "$log"
-    java \
+    java $java_args \
       -Xms32m -Xmx32m \
       -jar $jar server "$cfg" >"$log" 2>&1 &
 
