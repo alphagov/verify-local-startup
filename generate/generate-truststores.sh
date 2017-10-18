@@ -19,6 +19,6 @@ createTruststore () {
 mkdir -p pki
 rm -f pki/*.ts
 
-createTruststore identity_providers dev-root-ca dev-idp-ca
+createTruststore hub                dev-root-ca dev-hub-ca dev-idp-ca
 createTruststore relying_parties    dev-root-ca dev-rp-ca
 createTruststore metadata           dev-root-ca dev-metadata-ca

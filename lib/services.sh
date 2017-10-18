@@ -45,6 +45,7 @@ start_service() {
   local log="logs/${service}_console.log"
 
   pids=`ps aux | grep java | grep "$cfg" | awk '{print $2}'`
+  #pids=`lsof -t -i:$port`
   for pid in $pids; do kill -9 $pid 2>/dev/null; done
 
   echo "Starting service: $(tput setaf 3)$service$(tput sgr0)"

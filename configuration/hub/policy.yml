@@ -1,0 +1,63 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${POLICY_PORT}
+  adminConnectors:
+    - type: http
+      port: 50111
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+
+
+infinispan:
+  bindAddress: 
+  initialHosts: 
+  clusterName: 
+  type: standalone
+  expiration: 8h
+  persistenceToFileEnabled: false
+
+eventSinkUri: http://localhost:${EVENT_SINK_PORT}
+
+samlEngineUri: http://localhost:${SAML_ENGINE_PORT}
+
+samlSoapProxyUri: http://localhost:${SAML_SOAP_PROXY_PORT}
+
+configUri: http://localhost:${CONFIG_PORT}
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+samlSoapProxyClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+serviceInfo:
+  name: policy
+
+timeoutPeriod: 60m
+assertionLifetime: 60m
+matchingServiceResponseWaitPeriod: 60s
+
+clientTrustStoreConfiguration:
+  path: data/pki/hub.ts
+  password: marshmallow
+
+eidas: false

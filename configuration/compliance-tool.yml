@@ -1,0 +1,69 @@
+server:
+  applicationConnectors:
+    - type: http
+      port:
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+
+serviceInfo:
+  name: compliance-tool
+
+assertionLifetime: 60m
+
+authnRequestIdExpirationDuration: 60m
+
+authnRequestValidityDuration: 5m
+
+saml:
+  entityId: https://dev-hub.local
+  expectedDestination: http://localhost
+
+privateSigningKeyConfiguration:
+  keyFile: data/pki/hub_signing_primary.pk8
+
+privateEncryptionKeyConfiguration:
+  keyFile: data/pki/hub_encryption_primary.pk8
+
+publicEncryptionKeyConfiguration:
+  certFile: data/pki/hub_encryption_primary.crt
+  name: https://local.signin.service.gov.uk
+
+publicSigningKeyConfiguration:
+  certFile: data/pki/hub_signing_primary.crt
+  name: https://local.signin.service.gov.uk
+
+idpSigningKeyConfiguration:
+  certFile: data/pki/stub_idp_signing_primary.crt
+  name: http://stub_idp.acme.org/post-office-test-rp/SSO/POST
+
+idpPrivateSigningKeyConfiguration:
+  keyFile: data/pki/stub_idp_signing_primary.pk8
+
+testIdpEntityId: http://stub-idp-one.local/SSO/POST
+
+testHubExternalUri: http://localhost:50270
+
+signatureMethodAlgorithm: RSA_SHA256
+digestMethodAlgorithm: SHA256
+
+soapHttpClient:
+  timeout: 5s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 5s
+  tls:
+    protocol: TLSv1.2
+    verifyHostname: false
+    trustSelfSignedCertificates: true
+
+featureFlagConfiguration: {}
+
+allowLocalEndpoints: true
+
+testRunLifeTime: 24h

@@ -1,0 +1,38 @@
+server:
+  shutdownGracePeriod: 10s
+  applicationConnectors:
+    - type: http
+      port: ${VERIFY_FRONTEND_API_PORT}
+  adminConnectors:
+    - type: http
+      port: 50191
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  retries: 3
+  validateAfterInactivityPeriod: 5s
+
+policyUri: http://localhost:${POLICY_PORT}
+
+eventSinkUri: http://localhost:${EVENT_SINK_PORT}
+
+samlProxyUri: http://localhost:${SAML_PROXY_PORT}
+
+configUri: http://localhost:${CONFIG_PORT}
+
+acceptSelfSignedCerts: true
+enableRetryTimeOutConnections: true
+
+serviceInfo:
+  name: frontend

@@ -1,0 +1,65 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${STUB_IDP_PORT}
+  adminConnectors:
+    - type: http
+      port: 50141
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+
+host: http://localhost:${STUB_IDP_PORT}
+
+assertionLifetime: 60m
+
+saml:
+  entityId: http://{0}.local/SSO/POST
+
+serviceInfo:
+  name: stub-idp
+
+clientTrustStoreConfiguration:
+  path: data/pki/hub.ts
+  password: marshmallow
+
+signingKeyPairConfiguration:
+  privateKeyConfiguration:
+    keyFile: data/pki/stub_idp_signing_primary.pk8
+  publicKeyConfiguration:
+    certFile: data/pki/stub_idp_signing_primary.crt
+    name: signing_primary
+
+basicAuthEnabledForUserResource: true
+
+stubIdpsYmlFileLocation: configuration/idps/stub-idps.yml
+stubIdpYmlFileRefresh: 10s
+
+infinispan:
+  type: standalone
+  persistenceToFileEnabled: false
+  persistenceFileLocation: apps-local-data/infinispanStubIdpCache
+
+assets:
+  overrides:
+    /assets: ../ida-stub-idp/build/resources/main/assets
+
+hubEntityId: https://dev-hub.local
+
+metadata:
+  uri: ${METADATA_URL:-http://localhost:55000/metadata.xml}
+  trustStorePath: data/pki/metadata.ts
+  trustStorePassword: marshmallow
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: https://dev-hub.local
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s

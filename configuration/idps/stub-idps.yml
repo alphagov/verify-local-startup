@@ -1,0 +1,25 @@
+stubIdps:
+  - friendlyId: stub-idp-one
+    displayName: Stub IDP One
+    assetId: stub-idp-one
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$4fHHh0Q8QbbcQ7E6sn4iJOkcGvyZBbsGD43fJdd318vDeee74Pti6
+  - friendlyId: stub-idp-two
+    displayName: Stub IDP Two
+    assetId: stub-idp-two
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$4fHHh0Q8QbbcQ7E6sn4iJOkcGvyZBbsGD43fJdd318vDeee74Pti6
+  - friendlyId: stub-idp-three
+    displayName: Stub IDP Three
+    assetId: stub-idp-three
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$4fHHh0Q8QbbcQ7E6sn4iJOkcGvyZBbsGD43fJdd318vDeee74Pti6
+  - friendlyId: stub-idp-four
+    displayName: Best IDP
+    assetId: stub-idp-demo
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$4fHHh0Q8QbbcQ7E6sn4iJOkcGvyZBbsGD43fJdd318vDeee74Pti6

@@ -26,9 +26,11 @@ idps = {
 
 rps = {
   'dev-rp' => {
+    'simpleId' => 'test-rp',
     'matchingProcess' => { 'cycle3AttributeName' => 'NationalInsuranceNumber' }
   },
   'dev-rp-no-eidas' => {
+    'simpleId' => 'test-rp',
     'eidasEnabled' => false
   }
 }
@@ -64,11 +66,12 @@ Dir::chdir(output_dir) do
   Dir::chdir('matching-services') do
     rps.each do |rp, _|
       File.open("#{rp}-ms.yml", 'w') do |f|
+        msa_url = "http://localhost:#{ENV.fetch('TEST_RP_MSA_PORT')}"
         f.write(YAML.dump(
           'entityId' => "http://#{rp}-ms.local/SAML2/MD",
           'healthCheckEnabled' => true,
-          'uri' => "http://#{rp}-ms.local/matching-service/POST",
-          'userAccountCreationUri' => "http://#{rp}-ms.local/unknown-user-attribute-query",
+          'uri' => "#{msa_url}/matching-service/POST",
+          'userAccountCreationUri' => "#{msa_url}/unknown-user-attribute-query",
           'signatureVerificationCertificates' => [ { 'x509' => inline_cert(msa_signing_cert) } ],
           'encryptionCertificate' => { 'x509' => inline_cert(msa_encryption_cert) }
         ))
@@ -83,7 +86,7 @@ Dir::chdir(output_dir) do
           'entityId' => "http://#{rp}.local/SAML2/MD",
           'simpleId' => rp,
           'assertionConsumerServices' => [
-            { 'uri' => "http://#{rp}.local/login", 'index' => 0, 'isDefault' => true }
+            { 'uri' => "http://localhost:#{ENV.fetch('TEST_RP_PORT')}/test-rp/login", 'index' => 0, 'isDefault' => true }
           ],
           'levelsOfAssurance' => [ 'LEVEL_2' ],
           'matchingServiceEntityId' => "http://#{rp}-ms.local/SAML2/MD",

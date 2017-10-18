@@ -16,7 +16,7 @@ source config/env.sh
 
 # Generate PKI and config if necessary
 if test ! -d data; then
-  command -v cfssl || brew install cfssl
+  command -v cfssl >/dev/null || brew install cfssl
   ./generate/hub-dev-pki.sh
 fi
 

@@ -1,0 +1,99 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${SAML_ENGINE_PORT}
+  adminConnectors:
+    - type: http
+      port: 50121
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
+
+saml:
+  entityId: https://dev-hub.local
+  expectedDestination: http://localhost
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  keepAlive: 60s
+  gzipEnabled: false
+  gzipEnabledForRequests: false
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+infinispan:
+  bindAddress: 
+  initialHosts: 
+  clusterName: 
+  type: standalone
+  expiration: 8h
+  persistenceToFileEnabled: false
+
+configUri: http://localhost:${CONFIG_PORT}
+
+serviceInfo:
+  name: saml-engine
+
+readKeysFromFileDescriptors: false
+
+privateSigningKeyConfiguration:
+  keyFile: data/pki/hub_signing_primary.pk8
+
+publicSigningCert:
+   certFile: data/pki/hub_signing_primary.crt
+   name: someId
+
+primaryPrivateEncryptionKeyConfiguration:
+  keyFile: data/pki/hub_encryption_primary.pk8
+
+primaryPublicEncryptionCert:
+   certFile: data/pki/hub_encryption_primary.crt
+   name: someId
+
+secondaryPrivateEncryptionKeyConfiguration:
+  keyFile: data/pki/hub_encryption_primary.pk8
+
+secondaryPublicEncryptionCert:
+   certFile: data/pki/hub_encryption_primary.crt
+   name: someId
+
+clientTrustStoreConfiguration:
+  path: data/pki/hub.ts
+  password: marshmallow
+
+rpTrustStoreConfiguration:
+  path: data/pki/relying_parties.ts
+  password: marshmallow
+
+authnRequestIdExpirationDuration: 60m
+
+authnRequestValidityDuration: 5m
+
+metadata:
+  uri: ${METADATA_URL:-http://localhost:55000/metadata.xml}
+  trustStorePath: data/pki/metadata.ts
+  trustStorePassword: marshmallow
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: https://dev-hub.local
+  jerseyClientName: verify-metadata-client
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+
+eidas: false
