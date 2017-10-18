@@ -2,6 +2,9 @@ server:
   applicationConnectors:
     - type: http
       port: ${TEST_RP_PORT}
+  adminConnectors:
+    - type: http
+      port: 50131
   requestLog:
     appenders:
       - type: console
