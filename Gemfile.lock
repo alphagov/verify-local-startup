@@ -1,5 +1,5 @@
 GIT
-  remote: https://github.com/alphagov/verify-metadata-generator
+  remote: git@github.com:alphagov/verify-metadata-generator
   revision: e96bf6156a8b8cfa60d9ee592b6b9c9025360172
   specs:
     verify-metadata-generator (0.0.2)
@@ -40,7 +40,8 @@ GEM
       pleaserun (~> 0.0.29)
       ruby-xz
       stud
-    i18n (0.8.6)
+    i18n (0.9.0)
+      concurrent-ruby (~> 1.0)
     insist (1.0.0)
     io-like (0.3.0)
     json (1.8.6)
