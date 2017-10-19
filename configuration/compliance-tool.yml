@@ -1,7 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port:
+      port: ${COMPLIANCE_TOOL_PORT:-50270}
+  adminConnectors:
+    - type: http
+      port: 50271
   requestLog:
     appenders:
       - type: console
@@ -32,22 +35,22 @@ privateEncryptionKeyConfiguration:
 
 publicEncryptionKeyConfiguration:
   certFile: data/pki/hub_encryption_primary.crt
-  name: https://local.signin.service.gov.uk
+  name: hub_encryption
 
 publicSigningKeyConfiguration:
   certFile: data/pki/hub_signing_primary.crt
-  name: https://local.signin.service.gov.uk
+  name: hub_signing
 
 idpSigningKeyConfiguration:
   certFile: data/pki/stub_idp_signing_primary.crt
-  name: http://stub_idp.acme.org/post-office-test-rp/SSO/POST
+  name: idp_signing
 
 idpPrivateSigningKeyConfiguration:
   keyFile: data/pki/stub_idp_signing_primary.pk8
 
 testIdpEntityId: http://stub-idp-one.local/SSO/POST
 
-testHubExternalUri: http://localhost:50270
+testHubExternalUri: http://localhost:${COMPLIANCE_TOOL_PORT:-50270}
 
 signatureMethodAlgorithm: RSA_SHA256
 digestMethodAlgorithm: SHA256
@@ -57,10 +60,6 @@ soapHttpClient:
   timeToLive: 10m
   cookiesEnabled: false
   connectionTimeout: 5s
-  tls:
-    protocol: TLSv1.2
-    verifyHostname: false
-    trustSelfSignedCertificates: true
 
 featureFlagConfiguration: {}
 

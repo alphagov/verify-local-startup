@@ -22,7 +22,7 @@ pushd "$data_dir" >/dev/null
   rm -rf {pki,metadata,stub-fed-config}
   mkdir -p {pki,metadata,stub-fed-config}
 
-  mkdir -p metadata/output/dev
+  mkdir -p metadata/output/{dev,compliance-tool}
   mkdir -p stub-fed-config
 
   env \
@@ -32,6 +32,4 @@ pushd "$data_dir" >/dev/null
 
   $script_dir/generate-truststores.sh
   $script_dir/generate-metadata.sh
-
-  cp metadata/output/dev/metadata.signed.xml metadata/metadata.xml
 popd >/dev/null
