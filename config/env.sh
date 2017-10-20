@@ -1,4 +1,4 @@
-export METADATA_PORT=55000
+export METADATA_PORT=55500
 export METADATA_URL=http://localhost:${METADATA_PORT}/dev.xml
 
 export POLICY_PORT=50110

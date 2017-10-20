@@ -2,6 +2,7 @@
 set -u
 
 source lib/services.sh
+source config/env.sh
 
 mkdir -p logs
 if test ! -d data; then
@@ -18,7 +19,7 @@ for pid in $pids; do
   kill $pid
 done
 
-cp data/pki/identity_providers.ts ../ida-msa
+cp data/pki/hub.ts ../ida-msa
 cp data/pki/metadata.ts ../ida-msa
 extra_java_args="-Ddw.signingKeys.primary.privateKey.key=$(base64 data/pki/sample_rp_msa_signing_primary.pk8) \
     -Ddw.signingKeys.primary.publicKey.cert=$(base64 data/pki/sample_rp_msa_signing_primary.crt) \
@@ -26,7 +27,7 @@ extra_java_args="-Ddw.signingKeys.primary.privateKey.key=$(base64 data/pki/sampl
     -Ddw.signingKeys.secondary.publicKey.cert=$(base64 data/pki/sample_rp_msa_signing_secondary.crt) \
     -Ddw.encryptionKeys[0].privateKey.key=$(base64 data/pki/sample_rp_msa_encryption_primary.pk8) \
     -Ddw.encryptionKeys[0].publicKey.cert=$(base64 data/pki/sample_rp_msa_encryption_primary.crt) \
-    -Ddw.hub.trustStore.path=identity_providers.ts \
+    -Ddw.hub.trustStore.path=hub.ts \
     -Ddw.metadata.trustStore.path=metadata.ts"
 
 pushd ../ida-msa > /dev/null

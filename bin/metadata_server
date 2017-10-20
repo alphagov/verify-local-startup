@@ -2,7 +2,7 @@
 
 require 'webrick'
 
-port = ENV.fetch('METADATA_PORT', 55000)
+port = ENV.fetch('METADATA_PORT', 55500)
 root = ENV.fetch('METADATA_ROOT', File.join(Dir.pwd, 'data', 'metadata'))
 
 puts("Metadata: serving on port #{port} from #{root}")
