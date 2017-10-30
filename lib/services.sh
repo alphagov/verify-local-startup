@@ -18,6 +18,7 @@ build_service() {
 start_service_checker() {
   local port="$1"
   local pid="$2"
+  local log="$3"
   local s=1
   local MAX_RETRIES=10
 
@@ -30,7 +31,7 @@ start_service_checker() {
   if test "$s" -eq 0; then
     printf "$(tput setaf 3)%-20s$(tput sgr0) $(tput setaf 2)STARTED$(tput sgr0) [pid: $pid | port: $port]\n" "$service"
   else
-    printf "$(tput setaf 3)%-20s$(tput sgr0) $(tput setaf 1)FAILED$(tput sgr0)  see $log\n" "$service"
+    printf "$(tput setaf 3)%-20s$(tput sgr0) $(tput setaf 1)FAILED$(tput sgr0) see $log\n" "$service"
     exit 1
   fi
 }
@@ -47,7 +48,6 @@ start_service() {
   local log="logs/${service}_console.log"
 
   pids=`ps aux | grep java | grep "$cfg" | awk '{print $2}'`
-  #pids=`lsof -t -i:$port`
   for pid in $pids; do kill -9 $pid 2>/dev/null; done
 
   echo "Starting service: $(tput setaf 3)$service$(tput sgr0)"
@@ -59,6 +59,6 @@ start_service() {
 
     pid=$!
 
-    start_service_checker $port $pid
+    start_service_checker $port $pid $log
   ) &
 }
