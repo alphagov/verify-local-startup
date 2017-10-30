@@ -40,7 +40,9 @@ start_service() {
   local basedir="$2"
   local cfg="$3"
   local port="$4"
+  local debug_port=$(($port+2))
   local java_args="${@:5}"
+  local debug="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$debug_port"
   local jar="${basedir}/build/output/*.jar"
   local log="logs/${service}_console.log"
 
@@ -51,7 +53,7 @@ start_service() {
   echo "Starting service: $(tput setaf 3)$service$(tput sgr0)"
 
   ( rm -f "$log"
-    java $java_args \
+    java $java_args $debug \
       -Xms32m -Xmx32m \
       -jar $jar server "$cfg" >"$log" 2>&1 &
 
