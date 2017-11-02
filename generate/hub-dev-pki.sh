@@ -14,6 +14,7 @@ EOF
 tput sgr0
 
 script_dir="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
+source "$script_dir"/../config/env.sh
 data_dir="$script_dir/../data"
 
 mkdir -p "$data_dir"
