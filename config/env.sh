@@ -1,5 +1,5 @@
 export METADATA_PORT=55500
-export METADATA_URL=http://localhost:${METADATA_PORT}/dev.xml
+export METADATA_URL=http://localhost:55000/dev.xml
 
 export POLICY_PORT=50110
 export CONFIG_PORT=50240
@@ -12,6 +12,6 @@ export TEST_RP_PORT=50130
 export STUB_IDP_PORT=50140
 export VERIFY_FRONTEND_API_PORT=50190
 export COMPLIANCE_TOOL_PORT=50270
-export FRONTEND_PORT=50300
 
-export FRONTEND_URI=http://localhost:$FRONTEND_PORT
+export FRONTEND_PORT=50300
+export FRONTEND_URI=http://localhost:50300
