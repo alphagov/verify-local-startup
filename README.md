@@ -1,4 +1,3 @@
-
 # Local startup
 
 Repository with useful scripts for creating PKI, building and starting Verify apps
@@ -21,11 +20,12 @@ This will add variables for all apps to the generated file. To add just the MSA 
 ## Run Hub locally
 To run hub locally, ensure all the following repositories are cloned as siblings to `verify-local-startup`:
 * ida-hub
-* ida-frontend
-* ida-frontend-api
+* verify-frontend
+* verify-frontend-api
 * ida-sample-rp
 * ida-stub-idp
 * verify-matching-service-adapter
+* verify-service-provider
 
 `startup.sh` will then build and run the applications with the generated PKI. By using `generate-env.sh` with the configuration files in `/configuration`, each app can be restarted individually for development purposes.
 

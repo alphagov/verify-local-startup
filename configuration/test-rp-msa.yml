@@ -17,11 +17,11 @@ logging:
 
 matchingServiceAdapter:
   entityId: http://dev-rp-ms.local/SAML2/MD
-  externalUrl: http://localhost:${TEST_RP_MSA_PORT}/matching-service/POST
+  externalUrl: http://localhost:3200/verify/response
 
 localMatchingService:
-  matchUrl: http://localhost:${TEST_RP_PORT}/test-rp/matching-service/POST
-  accountCreationUrl: http://localhost:${TEST_RP_PORT}/test-rp/unknown-user/POST
+  matchUrl: http://localhost:${TEST_RP_PORT}/local-matching/match
+  accountCreationUrl: http://localhost:${TEST_RP_PORT}/local-matching/match
 
 hub:
   ssoUrl: ${HUB_SSO_URL:-http://localhost:50300/SAML2/SSO}
