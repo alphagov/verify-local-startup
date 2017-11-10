@@ -15,3 +15,4 @@ export COMPLIANCE_TOOL_PORT=50270
 
 export FRONTEND_PORT=50300
 export FRONTEND_URI=http://localhost:50300
+
