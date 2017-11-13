@@ -36,9 +36,10 @@ serviceEntityIds: ${SERVICE_ENTITY_IDS:-["http://dev-rp.local/SAML2/MD"]}
 verifyHubConfiguration:
   environment: ${VERIFY_ENVIRONMENT:-COMPLIANCE_TOOL}
   ssoLocation: ${FRONTEND_URI}/SAML2/SSO
-  metadata:  
-    trustStorePath: data/pki/metadata.ts
-    trustStorePassword: marshmallow
+  metadata:
+    trustStore:
+      path: data/pki/metadata.ts
+      password: marshmallow
     uri: ${METADATA_URL}
     expectedEntityId: https://dev-hub.local
 
