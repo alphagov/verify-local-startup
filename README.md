@@ -9,12 +9,14 @@ Repository with useful scripts for creating PKI, building and starting Verify ap
 
 ## Create environment for running app locally
 
-`generate-env.sh` can generate a `local.env` file for running Verify apps locally. The script takes a path to output the generated .env file to.
+`generate-env.rb` can generate a `local.env` file for running Verify apps locally. The script takes a path to output the generated .env file to. It also, optionally, takes which apps (MSA or VSP) need variables added to the .env file.
 
 ### Example
 ```
-./generate-env.sh ../verify-matching-service-adapter/local.env
+ruby generate-env.rb -f ../verify-matching-service-adapter/local.env
 ```
+
+This will add variables for all apps to the generated file. To add just the MSA related variables, i.e. excluding the VSP ones, add the argument `-a msa`.
 
 ## Run Hub locally
 To run hub locally, ensure all the following repositories are cloned as siblings to `verify-local-startup`:
