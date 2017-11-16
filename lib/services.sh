@@ -16,22 +16,24 @@ build_service() {
 }
 
 start_service_checker() {
-  local port="$1"
-  local pid="$2"
-  local log="$3"
+  local service="$1"
+  local port="$2"
+  local pid="$3"
+  local log="$4"
+  local endpoint="$5"
   local s=1
   local MAX_RETRIES=10
 
   for i in $(seq 1 $MAX_RETRIES); do
-    curl --silent --output /dev/null "localhost:$port/service-status"
+    curl --silent --output /dev/null $endpoint
     s=$?
     test "$s" -eq 0 && break || sleep 5
   done
 
   if test "$s" -eq 0; then
-    printf "$(tput setaf 3)%-20s$(tput sgr0) $(tput setaf 2)STARTED$(tput sgr0) [pid: $pid | port: $port]\n" "$service"
+    printf "$(tput setaf 3)%-25s$(tput sgr0) $(tput setaf 2)STARTED$(tput sgr0) [pid: $pid | port: $port]\n" "$service"
   else
-    printf "$(tput setaf 3)%-20s$(tput sgr0) $(tput setaf 1)FAILED$(tput sgr0) see $log\n" "$service"
+    printf "$(tput setaf 3)%-25s$(tput sgr0) $(tput setaf 1)FAILED$(tput sgr0) see $log\n" "$service"
     exit 1
   fi
 }
@@ -59,6 +61,6 @@ start_service() {
 
     pid=$!
 
-    start_service_checker $port $pid $log
+    start_service_checker $service $port $pid $log "localhost:$port/service-status"
   ) &
 }
