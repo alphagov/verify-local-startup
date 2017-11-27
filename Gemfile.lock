@@ -10,6 +10,7 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
+    OptionParser (0.5.1)
     activemodel (5.1.4)
       activesupport (= 5.1.4)
     activesupport (5.1.4)
@@ -72,8 +73,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  OptionParser
+  dotenv
   fpm (>= 1.8.1)
   verify-metadata-generator!
 
 BUNDLED WITH
-   1.15.4
+   1.16.0
