@@ -5,11 +5,16 @@ require 'dotenv'
 
 Dotenv.load('config/env.sh')
 
+if not Dir.exists? 'data'
+  `command -v cfssl || brew install cfssl`
+  `./generate/hub-dev-pki.sh`
+end
+
 COMMON = <<~COMMON
     ### APPS
     export METADATA_TRUST_STORE=#{`base64 data/pki/metadata.ts`}
-
- COMMON
+    export METADATA_TRUST_STORE_PASSWORD=marshmallow
+  COMMON
 
 MSA = <<~MSA
     ### MSA
@@ -20,7 +25,6 @@ MSA = <<~MSA
     export MSA_SIGNING_CERT_SECONDARY=#{`base64 data/pki/sample_rp_msa_signing_secondary.crt`}
     export MSA_ENCRYPTION_KEY_PRIMARY=#{`base64 data/pki/sample_rp_msa_encryption_primary.pk8`}
     export MSA_ENCRYPTION_CERT_PRIMARY=#{`base64 data/pki/sample_rp_msa_encryption_primary.crt`}
-
   MSA
 
 VSP = <<~VSP
@@ -34,13 +38,24 @@ VSP = <<~VSP
 
   VSP
 
+IDP = <<~IDP
+    ### IDP
+    export IDP_SIGNING_PRIVATE_KEY=#{`base64 data/pki/stub_idp_signing_primary.pk8`}
+    export IDP_SIGNING_CERT=#{`base64 data/pki/stub_idp_signing_primary.crt`}
+    export HUB_ENTITY_ID=https://dev-hub.local
+    export STUB_IDPS_FILE_PATH="../verify-local-startup/configuration/idps/stub-idps.yml"
+  IDP
+
 applications = {
     MSA: MSA,
-    VSP: VSP
+    VSP: VSP,
+    IDP: IDP
 }
 
 apps = applications.keys
 file = 'local.env'
+ARGV << '-h' if ARGV.empty?
+
 OptionParser.new do |opts|
   opts.banner = "Usage: generate-env.rb [-a/apps]"
 
@@ -49,18 +64,13 @@ OptionParser.new do |opts|
     file = f
   end
 
-  opts.on("--apps a1,a2,a3", Array) do |a|
+  opts.on("-a a1,a2,a3", "--apps a1,a2,a3", Array) do |a|
     apps = a.map { |e| e.upcase.to_sym }
   end
 end.parse!
 
-if not Dir.exists? 'data'
-  `command -v cfssl || brew install cfssl`
-  `./generate/hub-dev-pki.sh`
-end
-
 unless apps.all? {|a| applications.has_key? a}
-  puts "No configuration exists for apps: #{apps}"
+  puts "No configuration exists for apps: #{apps} - valid choices are #{applications.keys}"
   exit 1
 end
 

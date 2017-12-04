@@ -30,7 +30,7 @@ build_service ../ida-stub-idp
 build_service ../verify-matching-service-adapter
 build_service ../verify-frontend-api
 
-start_service stub-event-sink ../ida-hub/stub-event-sink configuration/hub/stub-event-sink.yml $EVENT_SINK_PORT
+start_service stub-event-sink ../ida-hub/hub/stub-event-sink configuration/hub/stub-event-sink.yml $EVENT_SINK_PORT
 start_service config ../ida-hub/hub/config configuration/hub/config.yml $CONFIG_PORT
 start_service policy ../ida-hub/hub/policy configuration/hub/policy.yml $POLICY_PORT
 start_service saml-engine ../ida-hub/hub/saml-engine configuration/hub/saml-engine.yml $SAML_ENGINE_PORT
