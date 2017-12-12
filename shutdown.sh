@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-services=${@:-"config stub-event-sink policy saml-engine saml-proxy saml-soap-proxy verify-matching-service-adapter test-rp ida-sample-rp stub-idp ida-frontend frontend verify-service-provider-*"}
+services=${@:-"config stub-event-sink policy saml-engine saml-proxy saml-soap-proxy verify-matching-service-adapter test-rp ida-sample-rp stub-idp ida-frontend frontend"} 
 
 for service in $services; do
   pkill -9 -f "${service}.jar"
