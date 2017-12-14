@@ -3,23 +3,18 @@
 source lib/services.sh
 source config/env.sh
 
-rm -rf verify-service-provider-*/
-
 pushd ../verify-service-provider >/dev/null
-  ./gradlew clean build distZip
+  ./gradlew clean build installDist -x test
 popd >/dev/null
-cp ../verify-service-provider/build/distributions/*.zip .
-
-unzip "verify-service-provider-*.zip"
-
-cp ../verify-service-provider/local-running/local-config.yml verify-service-provider-local-config.yml
 
 export SAML_SIGNING_KEY="$(base64 data/pki/sample_rp_signing_primary.pk8)"
 export SAML_PRIMARY_ENCRYPTION_KEY="$(base64 data/pki/sample_rp_encryption_primary.pk8)"
 export SERVICE_ENTITY_IDS='["http://dev-rp.local/SAML2/MD"]'
 export METADATA_TRUST_STORE="$(base64 data/pki/metadata.ts)"
 
-./verify-service-provider-*/bin/verify-service-provider server verify-service-provider-local-config.yml &
+lsof -ti:$VSP_PORT | xargs kill
+
+./../verify-service-provider/build/install/verify-service-provider/bin/verify-service-provider server ../verify-service-provider/local-running/local-config.yml > logs/verify-service-provider_console.log &
 
 pid=$!
 

@@ -19,7 +19,7 @@ This will add variables for all apps to the generated file. To add just the MSA 
 
 ## Run Hub locally
 To run hub locally, ensure all the following repositories are cloned as siblings to `verify-local-startup`:
-* ida-hub
+* verify-hub
 * verify-frontend
 * verify-frontend-api
 * ida-sample-rp
