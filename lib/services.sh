@@ -49,6 +49,8 @@ start_service() {
   local jar="${basedir}/build/output/*.jar"
   local log="logs/${service}_console.log"
 
+  mkdir -p logs
+
   pids=`ps aux | grep java | grep "$cfg" | awk '{print $2}'`
   for pid in $pids; do kill -9 $pid 2>/dev/null; done
 
