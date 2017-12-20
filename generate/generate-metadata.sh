@@ -29,14 +29,14 @@ env FRONTEND_URL="http://localhost:${COMPLIANCE_TOOL_PORT}" \
   "$sources/compliance-tool" || exit 1
 
 echo "$(tput setaf 3)Generating metadata XML$(tput sgr0)"
-bundle exec generate_metadata -c "$sources" -e dev -w -o "$output" \
+bundle exec generate_metadata -c "$sources" -e dev -w -o "$output" --valid-until=36500 \
   --hubCA "$cadir"/dev-root-ca.pem.test \
   --hubCA "$cadir"/dev-hub-ca.pem.test \
   --idpCA "$cadir"/dev-root-ca.pem.test \
   --idpCA "$cadir"/dev-idp-ca.pem.test
 
 for src in dev compliance-tool; do
-  bundle exec generate_metadata -c "$sources" -e $src -w -o "$output" \
+  bundle exec generate_metadata -c "$sources" -e $src -w -o "$output" --valid-until=36500 \
     --hubCA "$cadir"/dev-root-ca.pem.test \
     --hubCA "$cadir"/dev-hub-ca.pem.test \
     --idpCA "$cadir"/dev-root-ca.pem.test \
