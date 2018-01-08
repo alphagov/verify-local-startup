@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: ${SAML_PROXY_PORT}
+      port: 80
   adminConnectors:
     - type: http
-      port: 50221
+      port: 81
   requestLog:
     appenders:
       - type: console
@@ -17,7 +17,7 @@ logging:
 
 saml:
   entityId: https://dev-hub.local
-  expectedDestination: http://localhost:50300
+  expectedDestination: ${FRONTEND_URL}
 
 httpClient:
   timeout: 2s
@@ -31,13 +31,13 @@ httpClient:
 
 enableRetryTimeOutConnections: true
 
-frontendExternalUri: http://localhost:50300
+frontendExternalUri: ${FRONTEND_URL}
 
-configUri: http://localhost:${CONFIG_PORT}
+configUri: ${CONFIG_URL}
 
-eventSinkUri: http://localhost:${EVENT_SINK_PORT}
+eventSinkUri: ${EVENT_SINK_URL}
 
-policyUri: http://localhost:${POLICY_PORT}
+policyUri: ${POLICY_URL}
 
 serviceInfo:
   name: saml-proxy
@@ -53,7 +53,7 @@ rpTrustStoreConfiguration:
 metadataValidDuration: 1h
 
 metadata:
-  uri: ${METADATA_URL:-http://localhost:55000/metadata.xml}
+  uri: ${METADATA_URL}
   trustStorePath: data/pki/metadata.ts
   trustStorePassword: marshmallow
   minRefreshDelay: 60000

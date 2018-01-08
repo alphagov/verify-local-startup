@@ -1,0 +1,11 @@
+FROM govukverify/java8
+
+RUN wget https://packages.ida.digital.cabinet-office.gov.uk/hub-release_14887/pool/main/s/saml-engine/saml-engine_15465_amd64.deb
+
+RUN dpkg -i saml-engine_15465_amd64.deb
+
+COPY configuration/hub/saml-engine.yml /ida/saml-engine/saml-engine.yml
+
+WORKDIR /ida/saml-engine
+
+CMD java -jar saml-engine.jar server saml-engine.yml 

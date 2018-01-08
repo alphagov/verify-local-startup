@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: ${SAML_SOAP_PROXY_PORT}
+      port: 80
   adminConnectors:
     - type: http
-      port: 50161
+      port: 81
   requestLog:
     appenders:
       - type: console
@@ -47,13 +47,13 @@ healthCheckSoapHttpClient:
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
-samlEngineUri: http://localhost:${SAML_ENGINE_PORT}
+samlEngineUri: ${SAML_ENGINE_URL}
 
-configUri: http://localhost:${CONFIG_PORT}
+configUri: ${CONFIG_URL}
 
-eventSinkUri: http://localhost:${EVENT_SINK_PORT}
+eventSinkUri: ${EVENT_SINK_URL}
 
-policyUri: http://localhost:${POLICY_PORT}
+policyUri: ${POLICY_URL}
 
 serviceInfo:
   name: saml-soap-proxy
@@ -72,7 +72,7 @@ rpTrustStoreConfiguration:
   password: marshmallow
 
 metadata:
-  uri: ${METADATA_URL:-http://localhost:55000/metadata.xml}
+  uri: ${METADATA_URL}
   trustStorePath: data/pki/metadata.ts
   trustStorePassword: marshmallow
   minRefreshDelay: 60000

@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+  config:
+    build:
+      context: .
+      dockerfile: Dockerfiles/config
+    volumes:
+      - ./data:/ida/config/data:ro
+
+  policy:
+    build:
+      context: .
+      dockerfile: Dockerfiles/policy
+    volumes:
+      - ./data:/ida/policy/data:ro
+    env_file:
+      - .env
+
+  saml-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfiles/saml-proxy
+    volumes:
+      - ./data:/ida/saml-proxy/data:ro
+    env_file:
+      - .env
+
+  saml-soap-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfiles/saml-soap-proxy
+    volumes:
+      - ./data:/ida/saml-soap-proxy/data:ro
+    env_file:
+      - .env
+
+  saml-engine:
+    build:
+      context: .
+      dockerfile: Dockerfiles/saml-engine
+    volumes:
+      - ./data:/ida/saml-engine/data:ro
+    env_file:
+      - .env
+
+  event-sink:
+    build:
+      context: .
+      dockerfile: Dockerfiles/stub-event-sink
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfiles/frontend
+    ports:
+      - "82:80"
+    environment:
+      CONFIG_API_HOST: ${CONFIG_URL}
+      POLICY_HOST: ${POLICY_URL}
+      SAML_PROXY_HOST: ${SAML_PROXY_URL}
+   
+  metadata:
+    image: nginx
+    volumes:
+      - ./data/metadata:/usr/share/nginx/html:ro
+

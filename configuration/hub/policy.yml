@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: ${POLICY_PORT}
+      port: 80
   adminConnectors:
     - type: http
-      port: 50111
+      port: 81
   requestLog:
     appenders:
       - type: console
@@ -23,13 +23,13 @@ infinispan:
   expiration: 8h
   persistenceToFileEnabled: false
 
-eventSinkUri: http://localhost:${EVENT_SINK_PORT}
+eventSinkUri: ${EVENT_SINK_URL}
 
-samlEngineUri: http://localhost:${SAML_ENGINE_PORT}
+samlEngineUri: ${SAML_ENGINE_URL}
 
-samlSoapProxyUri: http://localhost:${SAML_SOAP_PROXY_PORT}
+samlSoapProxyUri: ${SAML_SOAP_PROXY_URL}
 
-configUri: http://localhost:${CONFIG_PORT}
+configUri: ${CONFIG_URL}
 
 httpClient:
   timeout: 2s
@@ -57,7 +57,7 @@ assertionLifetime: 60m
 matchingServiceResponseWaitPeriod: 60s
 
 clientTrustStoreConfiguration:
-  path: data/pki/hub.ts
+  path: ${HUB_TRUST_STORE_PATH:-data/pki/hub.ts}
   password: marshmallow
 
 eidas: false

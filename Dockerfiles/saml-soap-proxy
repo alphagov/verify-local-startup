@@ -1,0 +1,11 @@
+FROM govukverify/java8
+
+RUN wget https://packages.ida.digital.cabinet-office.gov.uk/hub-release_14887/pool/main/s/saml-soap-proxy/saml-soap-proxy_15465_amd64.deb
+
+RUN dpkg -i saml-soap-proxy_15465_amd64.deb
+
+COPY configuration/hub/saml-soap-proxy.yml /ida/saml-soap-proxy/saml-soap-proxy.yml
+
+WORKDIR /ida/saml-soap-proxy
+
+CMD java -jar saml-soap-proxy.jar server saml-soap-proxy.yml 
