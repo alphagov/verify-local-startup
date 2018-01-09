@@ -1,0 +1,13 @@
+FROM govukverify/java8
+
+RUN apt-get install -y unzip
+
+RUN wget https://github.com/alphagov/verify-matching-service-adapter/releases/download/2_2_X-PRE/verify-matching-service-adapter-691.zip
+
+RUN unzip verify-matching-service-adapter-691.zip
+
+COPY configuration/test-rp-msa.yml verify-matching-service-adapter-691/msa.yml
+
+WORKDIR verify-matching-service-adapter-691
+
+CMD java -jar verify-matching-service-adapter.jar server msa.yml 

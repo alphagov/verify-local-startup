@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: ${TEST_RP_PORT}
+      port: 80
   adminConnectors:
     - type: http
-      port: 50131
+      port: 81
   requestLog:
     appenders:
       - type: console
@@ -14,7 +14,7 @@ logging:
   appenders:
     - type: console
 
-transactionHost: http://localhost:${TEST_RP_PORT}
+transactionHost: ${TEST_RP_URL}
 dontCacheFreemarkerTemplates: true
 
 cookieName: test-rp-session
@@ -29,7 +29,7 @@ httpClient:
   cookiesEnabled: false
   connectionTimeout: 1s
 
-msaMetadataUri: http://localhost:${TEST_RP_MSA_PORT}/matching-service/SAML2/metadata
+msaMetadataUri: ${MSA_METADATA_URL}
 
 allowInsecureMetadataLocation: true
 
@@ -62,7 +62,7 @@ clientTrustStoreConfiguration:
 
 assets:
   overrides:
-    /assets: ../ida-sample-rp/build/resources/main/assets
+    /assets: ${TEST_RP_ASSETS_LOCATION}
 
 javascriptPath: /assets/javascripts
 stylesheetsPath: /assets/stylesheets

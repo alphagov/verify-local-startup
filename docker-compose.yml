@@ -54,7 +54,9 @@ services:
       context: .
       dockerfile: Dockerfiles/frontend
     ports:
-      - "82:80"
+      - "${FRONTEND_EXTERNAL_PORT}:80"
+    env_file:
+      - configuration/frontend.env
     environment:
       CONFIG_API_HOST: ${CONFIG_URL}
       POLICY_HOST: ${POLICY_URL}
@@ -64,4 +66,49 @@ services:
     image: nginx
     volumes:
       - ./data/metadata:/usr/share/nginx/html:ro
+
+  stub-idp:
+    build:
+      context: .
+      dockerfile: Dockerfiles/stub-idp
+    ports:
+      - "${STUB_IDP_EXTERNAL_PORT}:80"
+    volumes:
+      - ./data:/ida-stub-idp/data:ro
+      - ../ida-stub-idp/build/resources/main/assets:/assets:ro
+      - ./configuration/idps:/idps:ro
+    env_file:
+      - .env
+    environment:
+      STUB_IDP_ASSET_LOCATION: /assets
+      STUB_IDP_YAML_FILE_LOCATION: /idps/stub-idps.yml
+
+  msa:
+    build:
+      context: .
+      dockerfile: Dockerfiles/msa
+    volumes:
+      - ./data:/verify-matching-service-adapter-691/data:ro
+    env_file:
+      - .env
+    environment:
+      ASSERTION_CONSUMER_SERVICE_URL: ${TEST_RP_URL}/matching-service/POST
+      LMS_MATCH_URL: ${TEST_RP_URL}/test-rp/matching-service/POST
+      LMS_UAC_URL: ${TEST_RP_URL}/test-rp/unknown-user/POST
+      HUB_SSO_URL: http://localhost:${FRONTEND_EXTERNAL_PORT}/SAML2/SSO
+
+  test-rp:
+    build:
+      context: .
+      dockerfile: Dockerfiles/test-rp
+    ports:
+      - "${TEST_RP_EXTERNAL_PORT}:80"
+    volumes:
+      - ./data:/ida/test-rp/data:ro
+      - ../ida-sample-rp/build/resources/main/assets:/assets:ro
+    env_file:
+      - .env
+    environment:
+      TEST_RP_ASSETS_LOCATION: /assets
+      MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata
 

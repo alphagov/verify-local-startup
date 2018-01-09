@@ -1,0 +1,13 @@
+FROM govukverify/java8
+
+RUN apt-get install -y unzip
+
+COPY stub-idp.zip stub-idp.zip
+
+RUN unzip stub-idp.zip
+
+COPY configuration/stub-idp.yml ida-stub-idp/stub-idp.yml
+
+WORKDIR ida-stub-idp
+
+CMD bin/ida-stub-idp server stub-idp.yml 
