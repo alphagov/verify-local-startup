@@ -5,4 +5,5 @@ group :development do
   gem 'OptionParser'
   gem 'fpm', '>= 1.8.1'
   gem 'dotenv'
+  gem 'tty-spinner'
 end

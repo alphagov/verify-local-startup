@@ -1,16 +1,5 @@
 #!/usr/bin/env bash
 
-tput setaf 4
-cat << 'EOF'
-__     __        _  __         _   _       _        ____  ___  
-\ \   / /__ _ __(_)/ _|_   _  | | | |_   _| |__    / ___|/ _ \ 
- \ \ / / _ \ '__| | |_| | | | | |_| | | | | '_ \  | |  _| | | |
-  \ V /  __/ |  | |  _| |_| | |  _  | |_| | |_) | | |_| | |_| |
-   \_/ \___|_|  |_|_|  \__, | |_| |_|\__,_|_.__/   \____|\___/ 
-                       |___/                                   
-EOF
-tput sgr0
-
 cat << EOF > hub.env
 HUB_ENCRYPTION_KEY=$(base64 data/pki/hub_encryption_primary.pk8)
 HUB_ENCRYPTION_CERT=$(base64 data/pki/hub_encryption_primary.crt)

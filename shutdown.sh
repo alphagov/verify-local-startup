@@ -13,6 +13,6 @@ tput sgr0
 
 docker-compose down
 
-for app in config policy saml-engine saml-proxy saml-soap-proxy stub-event-sink; do
-  unlink $app.zip
+for app in config policy saml-engine saml-proxy saml-soap-proxy stub-event-sink msa stub-idp test-rp; do
+  rm $app.zip 2>/dev/null
 done
