@@ -43,22 +43,23 @@ serviceInfo:
   name: ${IDA_TESTRP_SERVICENAME:-"test-rp"}
 
 privateSigningKeyConfiguration:
-  keyFile: data/pki/sample_rp_signing_primary.pk8
+  key: ${TEST_RP_SIGNING_KEY}
 
 publicSigningCert:
-  certFile: data/pki/sample_rp_signing_primary.crt
+  cert: ${TEST_RP_SIGNING_CERT}
   name: someId
 
 privateEncryptionKeyConfiguration:
-  keyFile: data/pki/sample_rp_encryption_primary.pk8
+  key: ${TEST_RP_ENCRYPTION_KEY}
 
 publicEncryptionCert:
-  certFile: data/pki/sample_rp_encryption_primary.crt
+  cert: ${TEST_RP_ENCRYPTION_CERT}
   name: someId
 
 clientTrustStoreConfiguration:
-  path: data/pki/hub.ts
-  password: marshmallow
+  type: encoded
+  store: ${HUB_TRUSTSTORE}
+  password: ${HUB_TRUSTSTORE_PASSWORD}
 
 assets:
   overrides:

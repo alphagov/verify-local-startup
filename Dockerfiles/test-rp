@@ -1,11 +1,11 @@
 FROM govukverify/java8
 
-RUN wget https://packages.ida.digital.cabinet-office.gov.uk/aptly/pool/main/t/test-rp/test-rp_330_amd64.deb
+ADD ida-sample-rp.zip ida-sample-rp.zip
 
-RUN dpkg -i test-rp_330_amd64.deb
+RUN apt-get install -y unzip
+RUN unzip ida-sample-rp.zip
 
-COPY configuration/test-rp.yml /ida/test-rp/test-rp.yml
+WORKDIR ida-sample-rp-0.1.local 
+ADD configuration/test-rp.yml test-rp.yml
 
-WORKDIR /ida/test-rp
-
-CMD java -jar test-rp.jar server test-rp.yml 
+CMD ./bin/ida-sample-rp server test-rp.yml 

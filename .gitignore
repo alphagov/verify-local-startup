@@ -1,4 +1,4 @@
 data/
 logs/
-verify-service-provider*
-local.env
+*.zip
+*.env

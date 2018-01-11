@@ -1,0 +1,14 @@
+FROM govukverify/java8
+
+ARG config_location
+ARG app_name
+
+WORKDIR /app
+
+COPY $app_name.zip $app_name.zip
+COPY $config_location config.yml
+
+RUN apt-get install unzip
+RUN unzip $app_name.zip
+
+CMD ${APP_NAME}-0.1.local/bin/${APP_NAME} server config.yml
