@@ -1,6 +1,6 @@
 FROM govukverify/java8
 
-ADD verify-matching-service-adapter.zip msa.zip
+ADD msa.zip msa.zip
 
 RUN apt-get install -y unzip
 RUN unzip msa.zip

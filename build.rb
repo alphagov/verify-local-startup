@@ -56,4 +56,5 @@ apps.each do |app, details|
 end
 
 threads.each do |thread| thread.join end
+`ln -f ../verify-frontend/Gemfile Gemfile`
 

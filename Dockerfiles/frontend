@@ -1,8 +1,9 @@
-FROM ruby:2.4.2
+FROM frontend_gem:latest 
+
+ADD Gemfile Gemfile
+
+RUN bundle install
 
 WORKDIR /verify-frontend
-
-RUN rm .env
-RUN bundle check || bundle install --path=/gems
 
 CMD bundle exec puma -e development -p 80

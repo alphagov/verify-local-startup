@@ -1,6 +1,6 @@
 FROM govukverify/java8
 
-ADD ida-sample-rp.zip ida-sample-rp.zip
+ADD test-rp.zip ida-sample-rp.zip
 
 RUN apt-get install -y unzip
 RUN unzip ida-sample-rp.zip

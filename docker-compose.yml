@@ -110,8 +110,8 @@ services:
     ports:
       - "${STUB_IDP_EXTERNAL_PORT}:80"
     volumes:
-      - ./data:/ida-stub-idp/data:ro
-      - ../ida-stub-idp/build/resources/main/assets:/assets:ro
+      - ./data:/ida-stub-idp-local/data:ro
+      - ../ida-stub-idp-local/build/resources/main/assets:/assets:ro
       - ./configuration/idps:/idps:ro
     env_file:
       - .env
@@ -124,7 +124,7 @@ services:
       context: .
       dockerfile: Dockerfiles/msa
     volumes:
-      - ./data:/verify-matching-service-adapter-691/data:ro
+      - ./data:/verify-matching-service-adapter-local/data:ro
     env_file:
       - .env
     environment:
