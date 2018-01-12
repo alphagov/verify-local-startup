@@ -1,9 +1,0 @@
-FROM frontend_gem:latest 
-
-ADD Gemfile Gemfile
-
-RUN bundle install
-
-WORKDIR /verify-frontend
-
-CMD bundle exec puma -e development -p 80

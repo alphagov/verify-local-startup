@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'tty-spinner'
+require 'yaml'
 
 puts <<-'BANNER'
     ____        _ __    ___                ___
@@ -11,37 +12,21 @@ puts <<-'BANNER'
                               /____/         /_/   /_/👉 😎 👉 Zoop!
 BANNER
 
-script_dir = File.expand_path(File.dirname(__FILE__))
-
 success_marks = ["✊","🙌","🙇","👌","👍","👏"]
 error_mark = "❌ 😤 ❌ 😤 ❌ "
 loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: "#{success_marks.join(" ")} ", error_mark: error_mark)
+images = ""
 
-apps = {
-  "stub-idp" => { :folder => "../ida-stub-idp", :build => "./gradlew clean distZip -Pversion=local -x test", :zip => "/build/distributions/ida-stub-idp-local.zip" },
-  "test-rp" => { :folder => "../ida-sample-rp", :build => "./gradlew clean distZip -Pversion=local -x test", :zip => "/build/distributions/ida-sample-rp-0.1.local.zip" },
-  "msa" => { :folder => "../verify-matching-service-adapter", :build => "./gradlew clean distZip -Pversion=local -x test", :zip => "/build/distributions/verify-matching-service-adapter-local.zip" },
-  "config" => { :folder => "../verify-hub", :build => "./gradlew :hub:config:clean :hub:config:distZip -Pversion=local -x test", :zip => "/hub/config/build/distributions/config-0.1.local.zip" },
-  "policy" => { :folder => "../verify-hub", :build => "./gradlew :hub:policy:clean :hub:policy:distZip -Pversion=local -x test", :zip => "/hub/policy/build/distributions/policy-0.1.local.zip" },
-  "saml-proxy" => { :folder => "../verify-hub", :build => "./gradlew :hub:saml-proxy:clean :hub:saml-proxy:distZip -Pversion=local -x test", :zip => "/hub/saml-proxy/build/distributions/saml-proxy-0.1.local.zip" },
-  "saml-soap-proxy" => { :folder => "../verify-hub", :build => "./gradlew :hub:saml-soap-proxy:clean :hub:saml-soap-proxy:distZip -Pversion=local -x test", :zip => "/hub/saml-soap-proxy/build/distributions/saml-soap-proxy-0.1.local.zip" },
-  "saml-engine" => { :folder => "../verify-hub", :build => "./gradlew :hub:saml-engine:clean :hub:saml-engine:distZip -Pversion=local -x test", :zip => "/hub/saml-engine/build/distributions/saml-engine-0.1.local.zip" },
-  "stub-event-sink" => { :folder => "../verify-hub", :build => "./gradlew :hub:stub-event-sink:clean :hub:stub-event-sink:distZip -Pversion=local -x test", :zip => "/hub/stub-event-sink/build/distributions/stub-event-sink-0.1.local.zip" }
-  }
-
-def build_thread(app, details, spinners, script_dir)
+def build_thread(app, cmd, spinners, images)
   success_marks = ["✊","🙌","🙇","👌","👍","👏"]
   spinner = spinners.register("[:spinner] #{app}", format: :dots, success_mark: "#{success_marks.sample} ", error_mark: "😡 ")
   spinner.auto_spin
+
   thread = Thread.new{
-    Dir.chdir details[:folder]
-    output = `#{details[:build]} 2>&1`
-    result = $?.success?
-    Dir.chdir script_dir
-    output += "\n" + `ln -f #{details[:folder]}#{details[:zip]} #{app}.zip 2>&1`
-    result = result && $?.success?
-    if result
+    output = `#{cmd} 2>&1`
+    if $?.success?
       spinner.success
+      images << "#{app.gsub('-', '_').upcase}_IMAGE=#{output.split("\n")[-1]}\n"
     else
       File.write("#{script_dir}/logs/#{app}_build.log", output, mode: "w")
       spinner.error(" - see logs/#{app}_build.log")
@@ -49,12 +34,13 @@ def build_thread(app, details, spinners, script_dir)
   }
 end
 
+apps = YAML.load(File.read('apps.yml'))
 threads = []
-apps.each do |app, details|
-  thread = build_thread(app, details, loading_spinners, script_dir)
+apps.each do |app, cmd|
+  thread = build_thread(app, cmd, loading_spinners, images)
   threads.push thread
 end
 
 threads.each do |thread| thread.join end
-`ln -f ../verify-frontend/Gemfile Gemfile`
-
+urls = File.read('urls.env')
+File.write(".env", "#{urls}\n#{images}", mode: 'w')

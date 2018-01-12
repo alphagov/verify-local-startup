@@ -2,95 +2,61 @@ version: '3'
 
 services:
   config:
-    build:
-      context: .
-      dockerfile: Dockerfiles/hub-app
-      args:
-        config_location: configuration/hub/config.yml
-        app_name: config
+    image: ${CONFIG_IMAGE}
     env_file:
-      - .env
+      - urls.env
     environment:
       APP_NAME: config
     volumes:
       - ./data:/app/data:ro
 
   policy:
-    build:
-      context: .
-      dockerfile: Dockerfiles/hub-app
-      args:
-        config_location: configuration/hub/policy.yml
-        app_name: policy
+    image: ${POLICY_IMAGE}
     env_file:
-      - .env
+      - urls.env
     environment:
       APP_NAME: policy
     volumes:
       - ./data:/app/data:ro
 
   saml-engine:
-    build:
-      context: .
-      dockerfile: Dockerfiles/hub-app
-      args:
-        config_location: configuration/hub/saml-engine.yml
-        app_name: saml-engine
+    image: ${SAML_ENGINE_IMAGE} 
     env_file:
-      - .env
+      - urls.env
     environment:
       APP_NAME: saml-engine
     volumes:
       - ./data:/app/data:ro
 
   saml-proxy:
-    build:
-      context: .
-      dockerfile: Dockerfiles/hub-app
-      args:
-        config_location: configuration/hub/saml-proxy.yml
-        app_name: saml-proxy
+    image: ${SAML_PROXY_IMAGE}
     env_file:
-      - .env
+      - urls.env
     environment:
       APP_NAME: saml-proxy
     volumes:
       - ./data:/app/data:ro
 
   saml-soap-proxy:
-    build:
-      context: .
-      dockerfile: Dockerfiles/hub-app
-      args:
-        config_location: configuration/hub/saml-soap-proxy.yml
-        app_name: saml-soap-proxy
+    image: ${SAML_SOAP_PROXY_IMAGE}
     env_file:
-      - .env
+      - urls.env
     environment:
       APP_NAME: saml-soap-proxy
     volumes:
       - ./data:/app/data:ro
 
   stub-event-sink:
-    build:
-      context: .
-      dockerfile: Dockerfiles/hub-app
-      args:
-        config_location: configuration/hub/stub-event-sink.yml
-        app_name: stub-event-sink
+    image: ${SAML_SOAP_PROXY_IMAGE}
     environment:
       APP_NAME: stub-event-sink
     volumes:
       - ./data:/app/data:ro
 
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfiles/frontend
+    image: ${FRONTEND_IMAGE}
     ports:
       - "${FRONTEND_EXTERNAL_PORT}:80"
-    volumes:
-      - ../verify-frontend/:/verify-frontend/:rw
     env_file:
       - configuration/frontend.env
     environment:
@@ -104,29 +70,25 @@ services:
       - ./data/metadata:/usr/share/nginx/html:ro
 
   stub-idp:
-    build:
-      context: .
-      dockerfile: Dockerfiles/stub-idp
+    image: ${STUB_IDP_IMAGE}
     ports:
       - "${STUB_IDP_EXTERNAL_PORT}:80"
     volumes:
-      - ./data:/ida-stub-idp-local/data:ro
-      - ../ida-stub-idp-local/build/resources/main/assets:/assets:ro
+      - ./data:/app/data:ro
+      - ../ida-stub-idp/build/resources/main/assets:/assets:ro
       - ./configuration/idps:/idps:ro
     env_file:
-      - .env
+      - urls.env
     environment:
       STUB_IDP_ASSET_LOCATION: /assets
       STUB_IDP_YAML_FILE_LOCATION: /idps/stub-idps.yml
 
   msa:
-    build:
-      context: .
-      dockerfile: Dockerfiles/msa
+    image: ${MSA_IMAGE}
     volumes:
-      - ./data:/verify-matching-service-adapter-local/data:ro
+      - ./data:/app/data:ro
     env_file:
-      - .env
+      - urls.env
     environment:
       ASSERTION_CONSUMER_SERVICE_URL: ${TEST_RP_URL}/matching-service/POST
       LMS_MATCH_URL: ${TEST_RP_URL}/test-rp/matching-service/POST
@@ -134,15 +96,13 @@ services:
       HUB_SSO_URL: http://localhost:${FRONTEND_EXTERNAL_PORT}/SAML2/SSO
 
   test-rp:
-    build:
-      context: .
-      dockerfile: Dockerfiles/test-rp
+    image: ${TEST_RP_IMAGE}
     ports:
       - "${TEST_RP_EXTERNAL_PORT}:80"
     volumes:
       - ../ida-sample-rp/build/resources/main/assets:/assets:ro
     env_file:
-      - .env
+      - urls.env
       - test-rp.env
     environment:
       TEST_RP_ASSETS_LOCATION: /assets

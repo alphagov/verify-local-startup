@@ -22,6 +22,6 @@ fi
 bundle check || bundle install
 bundle exec ./build.rb
 
-docker-compose up -d --build
+docker-compose up -d
 
 echo "$(tput setaf 2)Started - visit $(tput setaf 6)http://localhost:94/test-rp$(tput setaf 2) to start a journey (may take some time to spin up)$(tput sgr0)"

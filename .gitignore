@@ -2,3 +2,5 @@ data/
 logs/
 *.zip
 *.env
+.env
+!urls.env
