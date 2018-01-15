@@ -17,4 +17,4 @@ export VSP_PORT=50400
 
 export FRONTEND_PORT=50300
 export FRONTEND_URI=http://localhost:50300
-
+export RULES_DIRECTORY="$(pwd -P)/configuration/idp-rules"
