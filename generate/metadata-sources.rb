@@ -52,7 +52,7 @@ Dir::chdir(output_dir) do
     yaml = idp_yaml.update(
       'organization' => { 'name' => id, 'url' => "http://#{id}.local", 'display_name' => name},
       'entity_id' => "http://#{id}.local/SSO/POST",
-      'sso_uri' => "http://localhost:#{ENV.fetch('STUB_IDP_PORT')}/#{id}/SAML2/SSO",
+      'sso_uri' => "#{ENV.fetch('STUB_IDP_URI')}/#{id}/SAML2/SSO",
       'id' => id
     )
     File.open(File.join('idps', "#{id}.yml"), 'w') { |f| f.write(YAML.dump(yaml)) }

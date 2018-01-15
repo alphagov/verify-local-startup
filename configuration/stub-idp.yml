@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: ${STUB_IDP_PORT}
+      port: 80
   adminConnectors:
     - type: http
-      port: 50141
+      port: 81
   requestLog:
     appenders:
       - type: console
@@ -13,8 +13,6 @@ logging:
   level: INFO
   appenders:
     - type: console
-
-host: http://localhost:${STUB_IDP_PORT}
 
 assertionLifetime: 60m
 
@@ -37,7 +35,7 @@ signingKeyPairConfiguration:
 
 basicAuthEnabledForUserResource: true
 
-stubIdpsYmlFileLocation: configuration/idps/stub-idps.yml
+stubIdpsYmlFileLocation: ${STUB_IDP_YAML_FILE_LOCATION}
 stubIdpYmlFileRefresh: 10s
 
 infinispan:
@@ -47,12 +45,12 @@ infinispan:
 
 assets:
   overrides:
-    /assets: ../ida-stub-idp/build/resources/main/assets
+    /assets: ${STUB_IDP_ASSET_LOCATION}
 
 hubEntityId: https://dev-hub.local
 
 metadata:
-  uri: ${METADATA_URL:-http://localhost:55000/metadata.xml}
+  uri: ${METADATA_URL}
   trustStore:
     path: data/pki/metadata.ts
     password: marshmallow

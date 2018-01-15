@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: ${SAML_ENGINE_PORT}
+      port: 80
   adminConnectors:
     - type: http
-      port: 50121
+      port: 81
   requestLog:
     appenders:
       - type: console
@@ -38,7 +38,7 @@ infinispan:
   expiration: 8h
   persistenceToFileEnabled: false
 
-configUri: http://localhost:${CONFIG_PORT}
+configUri: ${CONFIG_URL}
 
 serviceInfo:
   name: saml-engine
@@ -79,7 +79,7 @@ authnRequestIdExpirationDuration: 60m
 authnRequestValidityDuration: 5m
 
 metadata:
-  uri: ${METADATA_URL:-http://localhost:55000/metadata.xml}
+  uri: ${METADATA_URL}
   trustStorePath: data/pki/metadata.ts
   trustStorePassword: marshmallow
   minRefreshDelay: 60000

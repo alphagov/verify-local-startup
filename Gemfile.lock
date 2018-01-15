@@ -66,6 +66,9 @@ GEM
       io-like (~> 0.3)
     stud (0.0.23)
     thread_safe (0.3.6)
+    tty-cursor (0.5.0)
+    tty-spinner (0.7.0)
+      tty-cursor (>= 0.5.0)
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
 
@@ -76,6 +79,7 @@ DEPENDENCIES
   OptionParser
   dotenv
   fpm (>= 1.8.1)
+  tty-spinner
   verify-metadata-generator!
 
 BUNDLED WITH

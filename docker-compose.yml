@@ -1,0 +1,109 @@
+version: '3'
+
+services:
+  config:
+    image: ${CONFIG_IMAGE}
+    env_file:
+      - urls.env
+    environment:
+      APP_NAME: config
+    volumes:
+      - ./data:/app/data:ro
+
+  policy:
+    image: ${POLICY_IMAGE}
+    env_file:
+      - urls.env
+    environment:
+      APP_NAME: policy
+    volumes:
+      - ./data:/app/data:ro
+
+  saml-engine:
+    image: ${SAML_ENGINE_IMAGE} 
+    env_file:
+      - urls.env
+    environment:
+      APP_NAME: saml-engine
+    volumes:
+      - ./data:/app/data:ro
+
+  saml-proxy:
+    image: ${SAML_PROXY_IMAGE}
+    env_file:
+      - urls.env
+    environment:
+      APP_NAME: saml-proxy
+    volumes:
+      - ./data:/app/data:ro
+
+  saml-soap-proxy:
+    image: ${SAML_SOAP_PROXY_IMAGE}
+    env_file:
+      - urls.env
+    environment:
+      APP_NAME: saml-soap-proxy
+    volumes:
+      - ./data:/app/data:ro
+
+  stub-event-sink:
+    image: ${SAML_SOAP_PROXY_IMAGE}
+    environment:
+      APP_NAME: stub-event-sink
+    volumes:
+      - ./data:/app/data:ro
+
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    ports:
+      - "${FRONTEND_EXTERNAL_PORT}:80"
+    env_file:
+      - configuration/frontend.env
+    environment:
+      CONFIG_API_HOST: ${CONFIG_URL}
+      POLICY_HOST: ${POLICY_URL}
+      SAML_PROXY_HOST: ${SAML_PROXY_URL}
+
+  metadata:
+    image: nginx
+    volumes:
+      - ./data/metadata:/usr/share/nginx/html:ro
+
+  stub-idp:
+    image: ${STUB_IDP_IMAGE}
+    ports:
+      - "${STUB_IDP_EXTERNAL_PORT}:80"
+    volumes:
+      - ./data:/app/data:ro
+      - ../ida-stub-idp/build/resources/main/assets:/assets:ro
+      - ./configuration/idps:/idps:ro
+    env_file:
+      - urls.env
+    environment:
+      STUB_IDP_ASSET_LOCATION: /assets
+      STUB_IDP_YAML_FILE_LOCATION: /idps/stub-idps.yml
+
+  msa:
+    image: ${MSA_IMAGE}
+    volumes:
+      - ./data:/app/data:ro
+    env_file:
+      - urls.env
+    environment:
+      ASSERTION_CONSUMER_SERVICE_URL: ${TEST_RP_URL}/matching-service/POST
+      LMS_MATCH_URL: ${TEST_RP_URL}/test-rp/matching-service/POST
+      LMS_UAC_URL: ${TEST_RP_URL}/test-rp/unknown-user/POST
+      HUB_SSO_URL: http://localhost:${FRONTEND_EXTERNAL_PORT}/SAML2/SSO
+
+  test-rp:
+    image: ${TEST_RP_IMAGE}
+    ports:
+      - "${TEST_RP_EXTERNAL_PORT}:80"
+    volumes:
+      - ../ida-sample-rp/build/resources/main/assets:/assets:ro
+    env_file:
+      - urls.env
+      - test-rp.env
+    environment:
+      TEST_RP_ASSETS_LOCATION: /assets
+      MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata

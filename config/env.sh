@@ -16,5 +16,7 @@ export COMPLIANCE_TOOL_PORT=50270
 export VSP_PORT=50400
 
 export FRONTEND_PORT=50300
-export FRONTEND_URI=http://localhost:50300
-
+export FRONTEND_URI=http://localhost:90
+export STUB_IDP_URI=http://localhost:92
+export TEST_RP_URI=http://localhost:94
+export MSA_URI=http://msa
