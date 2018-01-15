@@ -12,9 +12,11 @@ puts <<-'BANNER'
                               /____/         /_/   /_/👉 😎 👉 Zoop!
 BANNER
 
-success_marks = ["✊","🙌","🙇","👌","👍","👏"]
+script_dir = File.expand_path(File.dirname(__FILE__))
+
+success_marks = "✊ 🙌 🙇 👌 👍 👏 "
 error_mark = "❌ 😤 ❌ 😤 ❌ "
-loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: "#{success_marks.join(" ")} ", error_mark: error_mark)
+loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: "#{success_marks} ", error_mark: error_mark)
 images = ""
 
 def build_thread(app, cmd, spinners, images)
@@ -34,7 +36,7 @@ def build_thread(app, cmd, spinners, images)
   }
 end
 
-apps = YAML.load(File.read('apps.yml'))
+apps = YAML.load(File.read(ARGV[0]))
 threads = []
 apps.each do |app, cmd|
   thread = build_thread(app, cmd, loading_spinners, images)
