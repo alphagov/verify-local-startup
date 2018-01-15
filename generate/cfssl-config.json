@@ -18,7 +18,10 @@
                     "crl sign"
                 ],
                 "expiry": "876000h",
-                "is_ca": true
+                "is_ca": true,
+                "ca_constraint": {
+                    "is_ca": true
+                }
             },
             "signing": {
                 "usages": [
