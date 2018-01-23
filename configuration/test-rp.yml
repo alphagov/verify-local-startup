@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: 80
+      port: ${TEST_RP_PORT}
   adminConnectors:
     - type: http
-      port: 81
+      port: 50131
   requestLog:
     appenders:
       - type: console
@@ -14,7 +14,7 @@ logging:
   appenders:
     - type: console
 
-transactionHost: ${TEST_RP_URL}
+transactionHost: http://localhost:${TEST_RP_PORT}
 dontCacheFreemarkerTemplates: true
 
 cookieName: test-rp-session
@@ -29,7 +29,7 @@ httpClient:
   cookiesEnabled: false
   connectionTimeout: 1s
 
-msaMetadataUri: ${MSA_METADATA_URL}
+msaMetadataUri: http://localhost:${TEST_RP_MSA_PORT}/matching-service/SAML2/metadata
 
 allowInsecureMetadataLocation: true
 
@@ -43,27 +43,26 @@ serviceInfo:
   name: ${IDA_TESTRP_SERVICENAME:-"test-rp"}
 
 privateSigningKeyConfiguration:
-  key: ${TEST_RP_SIGNING_KEY}
+  keyFile: data/pki/sample_rp_signing_primary.pk8
 
 publicSigningCert:
-  cert: ${TEST_RP_SIGNING_CERT}
+  certFile: data/pki/sample_rp_signing_primary.crt
   name: someId
 
 privateEncryptionKeyConfiguration:
-  key: ${TEST_RP_ENCRYPTION_KEY}
+  keyFile: data/pki/sample_rp_encryption_primary.pk8
 
 publicEncryptionCert:
-  cert: ${TEST_RP_ENCRYPTION_CERT}
+  certFile: data/pki/sample_rp_encryption_primary.crt
   name: someId
 
 clientTrustStoreConfiguration:
-  type: encoded
-  store: ${HUB_TRUSTSTORE}
-  password: ${HUB_TRUSTSTORE_PASSWORD}
+  path: data/pki/hub.ts
+  password: marshmallow
 
 assets:
   overrides:
-    /assets: ${TEST_RP_ASSETS_LOCATION}
+    /assets: ../ida-sample-rp/build/resources/main/assets
 
 javascriptPath: /assets/javascripts
 stylesheetsPath: /assets/stylesheets
