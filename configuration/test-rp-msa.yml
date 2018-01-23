@@ -17,7 +17,7 @@ logging:
 
 matchingServiceAdapter:
   entityId: http://dev-rp-ms.local/SAML2/MD
-  externalUrl: http://localhost:3200/verify/response
+  externalUrl: http://localhost:${TEST_RP_MSA_PORT}/matching-service/POST
 
 localMatchingService:
   matchUrl: http://localhost:${TEST_RP_PORT}/test-rp/matching-service/POST
