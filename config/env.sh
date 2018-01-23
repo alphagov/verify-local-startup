@@ -22,3 +22,8 @@ export STUB_IDP_URI=http://localhost:${STUB_IDP_PORT}
 export TEST_RP_URI=http://localhost:${TEST_RP_PORT}
 
 export MSA_URI=http://msa
+
+export HUB_CONNECTOR_ENTITY_ID="http://localhost:55000/local-connector/metadata.xml"
+export COUNTRY_METADATA_URI="http://localhost:56002/ServiceMetadata"
+export COUNTRY_EXPECTED_ENTITY_ID="http://localhost:56002/ServiceMetadata"
+export EUROPEAN_IDENTITY_ENABLED=false
