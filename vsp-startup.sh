@@ -4,7 +4,7 @@ source lib/services.sh
 source config/env.sh
 
 pushd ../verify-service-provider >/dev/null
-  ./gradlew clean build installDist -x test
+  ./gradlew -Dorg.gradle.daemon=false clean build installDist -x test
 popd >/dev/null
 
 BASE64="base64 -w0" # Linux

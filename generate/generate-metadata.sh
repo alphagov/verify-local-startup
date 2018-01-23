@@ -48,13 +48,26 @@ for src in dev compliance-tool; do
   fi
   
   # sign
+  XMLSECTOOL="xmlsectool"
   if test -z `which xmlsectool`; then
-    echo "$(tput setaf 3)Installing xmlsectool$(tput sgr0)"
-    brew install xmlsectool
+      if [ "$(uname)" == "Darwin" ]; then
+          echo "$(tput setaf 3)Detected macOS - installing xmlsectool via brew$(tput sgr0)"
+          brew install xmlsectool
+      else
+          echo "$(tput setaf 3)Detected a host OS that is not macOS - installing xmlsectool manually$(tput sgr0)"
+          if [ ! -f xmlsectool-2.0.0-bin.zip ]; then
+              set -e
+              curl -o xmlsectool-2.0.0-bin.zip http://shibboleth.net/downloads/tools/xmlsectool/latest/xmlsectool-2.0.0-bin.zip >/dev/null 2>/dev/null
+              echo "9169b27479d9d8c4fcbf31434cb1567c  xmlsectool-2.0.0-bin.zip" > xmlsectool-2.0.0-bin.zip.md5
+              md5sum -c xmlsectool-2.0.0-bin.zip.md5
+              unzip -n xmlsectool-2.0.0-bin.zip >/dev/null 2>/dev/null
+          fi
+          XMLSECTOOL="xmlsectool-2.0.0/xmlsectool.sh"
+      fi
   fi
   
   echo "$(tput setaf 3)Signing metadata$(tput sgr0)"
-  xmlsectool \
+  $XMLSECTOOL \
     --sign \
     --inFile "$output"/$src/metadata.xml \
     --outFile "$output"/$src/metadata.signed.xml \

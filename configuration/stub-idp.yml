@@ -19,7 +19,7 @@ host: http://localhost:${STUB_IDP_PORT}
 assertionLifetime: 60m
 
 saml:
-  entityId: http://{0}.local/SSO/POST
+  entityId: http://%s.local/SSO/POST
 
 serviceInfo:
   name: stub-idp
@@ -64,3 +64,36 @@ metadata:
     timeToLive: 10m
     cookiesEnabled: false
     connectionTimeout: 1s
+
+europeanIdentity:
+  enabled: false
+  hubConnectorEntityId: http://DefaultNotUsed
+  stubCountryBaseUrl: https://DefaultNotUsed
+  metadata:
+    jerseyClientName: connector-metadata-client
+    client:
+      timeout: 60s
+      timeToLive: 10m
+      connectionTimeout: 4s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+    uri: http://DefaultNotUsed
+    trustStore:
+      type: ${TRUSTSTORE_TYPE:-file}
+      store: ${METADATA_TRUSTSTORE}
+      password: ${TRUSTSTORE_PASSWORD}
+    minRefreshDelay: 30000
+    maxRefreshDelay: 1800000
+    expectedEntityId: http://DefaultNotUsed
+  signingKeyPairConfiguration:
+    privateKeyConfiguration:
+      type: file
+      key: data/pki/stub_idp_signing_primary.pk8
+    publicKeyConfiguration:
+      type: file
+      cert: data/pki/stub_idp_signing_primary.crt
+      name: stub_country_signing_cert
+
+database:
+  url: jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password

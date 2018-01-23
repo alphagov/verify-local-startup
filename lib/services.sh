@@ -6,7 +6,7 @@ build_service() {
   pushd "$basedir" >/dev/null
     if test -x "./gradlew"; then
       echo -n "Building in $(tput setaf 3)$basedir$(tput sgr0) ... "
-      if ./gradlew --parallel build copyToLib -x test > build-output.log 2>&1; then
+      if ./gradlew -Dorg.gradle.daemon=false --parallel build copyToLib zip -x test > build-output.log 2>&1; then
         echo "$(tput setaf 2)done$(tput sgr0)"
       else
         echo "$(tput setaf 1)failed$(tput sgr0) - see build-output.log"
