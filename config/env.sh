@@ -20,3 +20,8 @@ export FRONTEND_URI=http://localhost:90
 export STUB_IDP_URI=http://localhost:92
 export TEST_RP_URI=http://localhost:94
 export MSA_URI=http://msa
+
+export HUB_CONNECTOR_ENTITY_ID="http://localhost:55000/local-connector/metadata.xml"
+export COUNTRY_METADATA_URI="http://localhost:56002/ServiceMetadata"
+export COUNTRY_EXPECTED_ENTITY_ID="http://localhost:56002/ServiceMetadata"
+export EUROPEAN_IDENTITY_ENABLED=false

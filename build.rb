@@ -14,13 +14,13 @@ BANNER
 
 script_dir = File.expand_path(File.dirname(__FILE__))
 
-success_marks = "✊ 🙌 🙇 👌 👍 👏 "
+success_marks = "✊ 🙌 💪 👌 👍 👏 "
 error_mark = "❌ 😤 ❌ 😤 ❌ "
 loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: "#{success_marks} ", error_mark: error_mark)
 images = ""
 
 def build_thread(app, cmd, spinners, images)
-  success_marks = ["✊","🙌","🙇","👌","👍","👏"]
+  success_marks = ["✊","🙌","💪","👌","👍","👏"]
   spinner = spinners.register("[:spinner] #{app}", format: :dots, success_mark: "#{success_marks.sample} ", error_mark: "😡 ")
   spinner.auto_spin
 
