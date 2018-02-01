@@ -8,7 +8,7 @@ function createInterCa {
   echo -n "$(tput setaf 3)createInterCa $name $commonName $(tput sgr0) ... "
   sed "s/\$COMMON_NAME/$commonName/" $CSR_TEMPLATE |
 
-  cfssl -loglevel 3 gencert -config $CFSSL_CONFIG -profile intermediate -ca ./dev-root-ca.pem -ca-key ./dev-root-ca-key.pem /dev/stdin \
+  cfssl gencert -loglevel 3 -config $CFSSL_CONFIG -profile intermediate -ca ./dev-root-ca.pem -ca-key ./dev-root-ca-key.pem /dev/stdin \
     | cfssljson -bare $name
 
   test 0 -eq $? && echo "$(tput setaf 2)DONE$(tput sgr0)" || echo "$(tput setaf 1)FAILED$(tput sgr0)"
@@ -23,7 +23,7 @@ function createLeaf {
   echo -n "$(tput setaf 3)createLeaf $name $ca $profile $commonName $(tput sgr0) ... "
   sed "s/\$COMMON_NAME/$commonName/" $CSR_TEMPLATE |
 
-  cfssl -loglevel 3 gencert -config $CFSSL_CONFIG -profile $profile -ca $CA_CERTS_DIR/$ca.pem.test -ca-key $CA_CERTS_DIR/$ca-key.pem.test /dev/stdin \
+  cfssl gencert -loglevel 3 -config $CFSSL_CONFIG -profile $profile -ca $CA_CERTS_DIR/$ca.pem.test -ca-key $CA_CERTS_DIR/$ca-key.pem.test /dev/stdin \
     | cfssljson -bare $name
 
   test 0 -eq $? && echo "$(tput setaf 2)DONE$(tput sgr0)" || echo "$(tput setaf 1)FAILED$(tput sgr0)"
@@ -42,7 +42,7 @@ mkdir -p $CA_CERTS_DIR $DEV_KEYS_DIR
 # Create the CA certs
 pushd $CA_CERTS_DIR >/dev/null
   echo -n "$(tput setaf 3)Initialising Dev Root CA $(tput sgr0) ... "
-  sed 's/$COMMON_NAME/Dev Root CA/' $CSR_TEMPLATE | cfssl -loglevel 3 genkey -initca /dev/stdin | cfssljson -bare dev-root-ca
+  sed 's/$COMMON_NAME/Dev Root CA/' $CSR_TEMPLATE | cfssl genkey -loglevel 3 -initca /dev/stdin | cfssljson -bare dev-root-ca
   test 0 -eq $? && echo "$(tput setaf 2)DONE$(tput sgr0)" || echo "$(tput setaf 1)FAILED$(tput sgr0)"
 
   createInterCa dev-hub-ca 'Dev Hub CA'

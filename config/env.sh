@@ -21,7 +21,11 @@ export FRONTEND_URI=http://localhost:${FRONTEND_PORT}
 export STUB_IDP_URI=http://localhost:${STUB_IDP_PORT}
 export TEST_RP_URI=http://localhost:${TEST_RP_PORT}
 
-export MSA_URI=http://msa
+if [ "$VLS_TYPE" = "localhost" ]; then
+    export MSA_URI=http://localhost:${TEST_RP_MSA_PORT}
+else
+    export MSA_URI=http://msa
+fi
 
 export HUB_CONNECTOR_ENTITY_ID="http://localhost:55000/local-connector/metadata.xml"
 export COUNTRY_METADATA_URI="http://localhost:56002/ServiceMetadata"
