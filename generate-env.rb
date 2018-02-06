@@ -3,7 +3,7 @@
 require 'optparse'
 require 'dotenv'
 
-Dotenv.load('config/env.sh')
+Dotenv.load('config/ports.env')
 
 if not Dir.exists? 'data'
   `command -v cfssl || brew install cfssl`
