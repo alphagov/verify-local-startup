@@ -12,38 +12,46 @@ end
 
 COMMON = <<~COMMON
     ### APPS
-    export METADATA_TRUST_STORE=#{`base64 data/pki/metadata.ts`}
-    export METADATA_TRUST_STORE_PASSWORD=marshmallow
+    METADATA_TRUST_STORE=#{`base64 data/pki/metadata.ts`}
+    METADATA_TRUST_STORE_PASSWORD=marshmallow
   COMMON
 
 MSA = <<~MSA
     ### MSA
-    export HUB_TRUST_STORE=#{`base64 data/pki/hub.ts`}
-    export MSA_SIGNING_KEY_PRIMARY=#{`base64 data/pki/sample_rp_msa_signing_primary.pk8`}
-    export MSA_SIGNING_CERT_PRIMARY=#{`base64 data/pki/sample_rp_msa_signing_primary.crt`}
-    export MSA_SIGNING_KEY_SECONDARY=#{`base64 data/pki/sample_rp_msa_signing_secondary.pk8`}
-    export MSA_SIGNING_CERT_SECONDARY=#{`base64 data/pki/sample_rp_msa_signing_secondary.crt`}
-    export MSA_ENCRYPTION_KEY_PRIMARY=#{`base64 data/pki/sample_rp_msa_encryption_primary.pk8`}
-    export MSA_ENCRYPTION_CERT_PRIMARY=#{`base64 data/pki/sample_rp_msa_encryption_primary.crt`}
+    HUB_TRUST_STORE=#{`base64 data/pki/hub.ts`}
+    MSA_SIGNING_KEY_PRIMARY=#{`base64 data/pki/sample_rp_msa_signing_primary.pk8`}
+    MSA_SIGNING_CERT_PRIMARY=#{`base64 data/pki/sample_rp_msa_signing_primary.crt`}
+    MSA_SIGNING_KEY_SECONDARY=#{`base64 data/pki/sample_rp_msa_signing_secondary.pk8`}
+    MSA_SIGNING_CERT_SECONDARY=#{`base64 data/pki/sample_rp_msa_signing_secondary.crt`}
+    MSA_ENCRYPTION_KEY_PRIMARY=#{`base64 data/pki/sample_rp_msa_encryption_primary.pk8`}
+    MSA_ENCRYPTION_CERT_PRIMARY=#{`base64 data/pki/sample_rp_msa_encryption_primary.crt`}
   MSA
 
 VSP = <<~VSP
     ### VSP
-    export MSA_METADATA_URL=http://localhost:#{ENV['TEST_RP_MSA_PORT']}/matching-service/SAML2/metadata
-    export MSA_ENTITY_ID=http://dev-rp-ms.local/SAML2/MD
-    export SERVICE_ENTITY_IDS='["http://dev-rp.local/SAML2/MD"]'
-    export VERIFY_ENVIRONMENT=COMPLIANCE_TOOL
-    export SAML_SIGNING_KEY=#{`base64 data/pki/sample_rp_signing_primary.pk8`}
-    export SAML_PRIMARY_ENCRYPTION_KEY=#{`base64 data/pki/sample_rp_encryption_primary.pk8`}
+    MSA_METADATA_URL=http://localhost:#{ENV['TEST_RP_MSA_PORT']}/matching-service/SAML2/metadata
+    MSA_ENTITY_ID=http://dev-rp-ms.local/SAML2/MD
+    SERVICE_ENTITY_IDS='["http://dev-rp.local/SAML2/MD"]'
+    VERIFY_ENVIRONMENT=COMPLIANCE_TOOL
+    SAML_SIGNING_KEY=#{`base64 data/pki/sample_rp_signing_primary.pk8`}
+    SAML_PRIMARY_ENCRYPTION_KEY=#{`base64 data/pki/sample_rp_encryption_primary.pk8`}
 
   VSP
 
 IDP = <<~IDP
     ### IDP
-    export IDP_SIGNING_PRIVATE_KEY=#{`base64 data/pki/stub_idp_signing_primary.pk8`}
-    export IDP_SIGNING_CERT=#{`base64 data/pki/stub_idp_signing_primary.crt`}
-    export HUB_ENTITY_ID=https://dev-hub.local
-    export STUB_IDPS_FILE_PATH="../verify-local-startup/configuration/idps/stub-idps.yml"
+    LOG_PATH=logs
+    KEY_TYPE=encoded
+    STUB_IDP_SIGNING_PRIVATE_KEY=#{`base64 data/pki/stub_idp_signing_primary.pk8`}
+    CERT_TYPE=encoded
+    STUB_IDP_SIGNING_CERT=#{`base64 data/pki/stub_idp_signing_primary.crt`}
+    STUB_IDP_BASIC_AUTH=false
+    METADATA_ENTITY_ID=https://dev-hub.local
+    STUB_IDPS_FILE_PATH="../verify-local-startup/configuration/idps/stub-idps.yml"
+    INFINISPAN_PERSISTENCE=false
+    TRUSTSTORE_TYPE=encoded
+    METADATA_TRUSTSTORE=#{`base64 data/pki/metadata.ts`}
+    TRUSTSTORE_PASSWORD=marshmallow
   IDP
 
 applications = {
@@ -75,7 +83,7 @@ unless apps.all? {|a| applications.has_key? a}
 end
 
 open(file, 'w') { |f|
-  f.puts(File.read('config/env.sh'))
+  f.puts(File.read('config/ports.env'))
   f.puts COMMON
   for app in apps
     f.puts applications[app]
