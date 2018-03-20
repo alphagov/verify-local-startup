@@ -52,6 +52,10 @@ IDP = <<~IDP
     TRUSTSTORE_TYPE=encoded
     METADATA_TRUSTSTORE=#{`base64 data/pki/metadata.ts`}
     TRUSTSTORE_PASSWORD=marshmallow
+    EUROPEAN_IDENTITY_ENABLED=true
+    STUB_COUNTRY_SIGNING_PRIVATE_KEY="$STUB_IDP_SIGNING_PRIVATE_KEY"
+    STUB_COUNTRY_SIGNING_CERT="$STUB_IDP_SIGNING_CERT"
+    DB_URI="jdbc:postgresql://localhost:5432/postgres?user=postgres"
   IDP
 
 applications = {
