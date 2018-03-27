@@ -2,6 +2,10 @@
 
 Repository with useful scripts for creating PKI, building and starting Verify apps
 
+## Before you start
+
+You'll need to install [cfssl](https://github.com/cloudflare/cfssl) which is used to generate the PKI.
+
 ## Generate PKI
 
 `verify-local-startup` can be used to generate an entire PKI federation. Run `./generate/hub-dev-pki.sh` to create the required keys, certificates, federation config data and trust stores in `/data`.
