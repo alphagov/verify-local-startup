@@ -38,6 +38,19 @@ VSP = <<~VSP
 
   VSP
 
+TESTRP = <<~TESTRP
+    ### TESTRP
+
+    # WARNING: re-uses some VSP config
+    
+    TEST_RP_ENTITY_ID="http://dev-rp.local/SAML2/MD" # perhaps we want a different one from VSP?
+    TEST_RP_SIGNING_KEY=#{`base64 data/pki/sample_rp_signing_primary.pk8`}
+    TEST_RP_SIGNING_CERT=#{`base64 data/pki/sample_rp_signing_primary.crt`}
+    TEST_RP_ENCRYPTION_KEY=#{`base64 data/pki/sample_rp_encryption_primary.pk8`}
+    TEST_RP_ENCRYPTION_CERT=#{`base64 data/pki/sample_rp_encryption_primary.crt`}
+
+TESTRP
+
 IDP = <<~IDP
     ### IDP
     LOG_PATH=logs
@@ -61,7 +74,8 @@ IDP = <<~IDP
 applications = {
     MSA: MSA,
     VSP: VSP,
-    IDP: IDP
+    IDP: IDP,
+    TESTRP: TESTRP
 }
 
 apps = applications.keys
