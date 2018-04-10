@@ -5,7 +5,7 @@ saml-soap-proxy: ../verify-hub/docker-run.sh saml-soap-proxy
 saml-engine: ../verify-hub/docker-run.sh saml-engine
 stub-event-sink: ../verify-hub/docker-run.sh stub-event-sink
 
-stub-idp: ../ida-stub-idp/docker-run.sh
-test-rp: ../ida-sample-rp/docker-run.sh
+stub-idp: ../verify-stub-idp/docker-run.sh
+test-rp: ../verify-test-rp/docker-run.sh
 msa: ../verify-matching-service-adapter/docker-run.sh
 frontend: ../verify-frontend/docker-run.sh
