@@ -62,7 +62,7 @@ clientTrustStoreConfiguration:
 
 assets:
   overrides:
-    /assets: ../ida-sample-rp/build/resources/main/assets
+    /assets: ../verify-test-rp/build/resources/main/assets
 
 javascriptPath: /assets/javascripts
 stylesheetsPath: /assets/stylesheets

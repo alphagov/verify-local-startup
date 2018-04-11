@@ -28,13 +28,13 @@ mkdir -p logs
 ( bin/ocsp_responder >logs/ocsp_responder.log 2>&1 & )
 
 build_service ../verify-matching-service-adapter
-build_service ../ida-stub-idp
-build_service ../ida-sample-rp
+build_service ../verify-stub-idp
+build_service ../verify-test-rp
 build_service ../ida-compliance-tool
 
 start_service verify-matching-service-adapter ../verify-matching-service-adapter configuration/test-rp-msa.yml $TEST_RP_MSA_PORT
-start_service stub-idp ../ida-stub-idp configuration/stub-idp.yml $STUB_IDP_PORT
-start_service test-rp ../ida-sample-rp configuration/test-rp.yml $TEST_RP_PORT
+start_service stub-idp ../verify-stub-idp configuration/stub-idp.yml $STUB_IDP_PORT
+start_service test-rp ../verify-test-rp configuration/test-rp.yml $TEST_RP_PORT
 start_service compliance-tool ../ida-compliance-tool/compliance-tool configuration/compliance-tool.yml $COMPLIANCE_TOOL_PORT
 
 wait

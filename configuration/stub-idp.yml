@@ -47,7 +47,7 @@ infinispan:
 
 assets:
   overrides:
-    /assets: ../ida-stub-idp/build/resources/main/assets
+    /assets: ../verify-stub-idp/build/resources/main/assets
 
 hubEntityId: https://dev-hub.local
 
