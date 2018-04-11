@@ -46,6 +46,7 @@ start_service saml-soap-proxy ../verify-hub/hub/saml-soap-proxy configuration/hu
 start_service stub-idp ../verify-stub-idp configuration/stub-idp.yml $STUB_IDP_PORT
 start_service test-rp ../verify-test-rp configuration/test-rp.yml $TEST_RP_PORT
 start_service test-rp-msa ../verify-matching-service-adapter configuration/test-rp-msa.yml $TEST_RP_MSA_PORT
+start_service vsp-msa ../verify-matching-service-adapter configuration/vsp-msa.yml $VSP_MSA_PORT
 
 pushd ../verify-frontend >/dev/null
   ./startup.sh

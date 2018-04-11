@@ -25,13 +25,26 @@ idps = {
 }
 
 rps = {
-  'dev-rp' => {
+  'test-rp.dev-rp' => {
     'simpleId' => 'test-rp',
-    'matchingProcess' => { 'cycle3AttributeName' => 'NationalInsuranceNumber' }
+    'matchingProcess' => { 'cycle3AttributeName' => 'NationalInsuranceNumber' },
   },
-  'dev-rp-no-eidas' => {
+  'vsp.dev-rp' => {
     'simpleId' => 'test-rp',
-    'eidasEnabled' => false
+    'matchingProcess' => { 'cycle3AttributeName' => 'NationalInsuranceNumber' },
+    'assertionConsumerServices' => [
+      { 'uri' => "http://localhost:3200/verify/response", 'index' => 0, 'isDefault' => true }
+    ]
+  },
+}
+
+matching_services = {
+  'test-rp.dev-rp-ms' => {
+    'uri' => "http://localhost:#{ENV.fetch('TEST_RP_MSA_PORT')}/matching-service/POST",
+    'userAccountCreationUri' => "http://localhost:#{ENV.fetch('TEST_RP_MSA_PORT')}/unknown-user-attribute-query"
+  },
+  'vsp.dev-rp-ms' => {
+    'uri' => "http://localhost:#{ENV.fetch('VSP_MSA_PORT')}/matching-service/POST"
   }
 }
 
@@ -64,17 +77,15 @@ Dir::chdir(output_dir) do
   end
 
   Dir::chdir('matching-services') do
-    rps.each do |rp, _|
-      File.open("#{rp}-ms.yml", 'w') do |f|
-        msa_url = "#{ENV.fetch('MSA_URI')}"
-        f.write(YAML.dump(
-          'entityId' => "http://#{rp}-ms.local/SAML2/MD",
+    matching_services.each do |ms, overrides|
+      File.open("#{ms}.yml", 'w') do |f|
+        f.write(YAML.dump({
+          'entityId' => "http://#{ms}.local/SAML2/MD",
           'healthCheckEnabled' => true,
-          'uri' => "#{msa_url}/matching-service/POST",
-          'userAccountCreationUri' => "#{msa_url}/unknown-user-attribute-query",
           'signatureVerificationCertificates' => [ { 'x509' => inline_cert(msa_signing_cert) } ],
-          'encryptionCertificate' => { 'x509' => inline_cert(msa_encryption_cert) }
-        ))
+          'encryptionCertificate' => { 'x509' => inline_cert(msa_encryption_cert)
+                                    }
+                          }.update(overrides)))
       end
     end
   end
