@@ -75,7 +75,7 @@ services:
       - "${STUB_IDP_EXTERNAL_PORT}:80"
     volumes:
       - ./data:/app/data:ro
-      - ../ida-stub-idp/build/resources/main/assets:/assets:ro
+      - ../verify-stub-idp/build/resources/main/assets:/assets:ro
       - ./configuration/idps:/idps:ro
     env_file:
       - urls.env
@@ -100,7 +100,7 @@ services:
     ports:
       - "${TEST_RP_EXTERNAL_PORT}:80"
     volumes:
-      - ../ida-sample-rp/build/resources/main/assets:/assets:ro
+      - ../verify-test-rp/build/resources/main/assets:/assets:ro
     env_file:
       - urls.env
       - test-rp.env
