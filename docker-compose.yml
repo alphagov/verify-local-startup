@@ -79,6 +79,7 @@ services:
       - ./configuration/idps:/idps:ro
     env_file:
       - urls.env
+      - stub-idp.env
     environment:
       STUB_IDP_ASSET_LOCATION: /assets
       STUB_IDP_YAML_FILE_LOCATION: /idps/stub-idps.yml
@@ -107,3 +108,6 @@ services:
     environment:
       TEST_RP_ASSETS_LOCATION: /assets
       MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata
+
+  stub-idp-db:
+    image: postgres

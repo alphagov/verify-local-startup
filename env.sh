@@ -24,3 +24,20 @@ TEST_RP_MSA_ENCRYPTION_CERT=$($BASE64 data/pki/sample_rp_msa_encryption_primary.
 HUB_TRUSTSTORE=$($BASE64 data/pki/hub.ts)
 HUB_TRUSTSTORE_PASSWORD=marshmallow
 EOF
+
+cat << EOF > stub-idp.env
+PORT=80
+KEY_TYPE=encoded
+STUB_IDP_SIGNING_PRIVATE_KEY=$($BASE64 data/pki/stub_idp_signing_primary.pk8)
+CERT_TYPE=encoded
+STUB_IDP_SIGNING_CERT=$($BASE64 data/pki/stub_idp_signing_primary.crt)
+STUB_IDP_BASIC_AUTH=false
+STUB_IDPS_FILE_PATH=/idps/stub-idps.yml
+METADATA_ENTITY_ID=https://dev-hub.local
+TRUSTSTORE_TYPE=encoded
+METADATA_TRUSTSTORE=$($BASE64 data/pki/metadata.ts)
+TRUSTSTORE_PASSWORD=marshmallow
+STUB_COUNTRY_SIGNING_PRIVATE_KEY=$($BASE64 data/pki/stub_idp_signing_primary.pk8)
+STUB_COUNTRY_SIGNING_CERT=$($BASE64 data/pki/stub_idp_signing_primary.crt)
+LOG_PATH=/app/logs
+EOF
