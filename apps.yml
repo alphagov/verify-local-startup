@@ -9,3 +9,5 @@ stub-idp: ../verify-stub-idp/docker-run.sh
 test-rp: ../verify-test-rp/docker-run.sh
 msa: ../verify-matching-service-adapter/docker-run.sh
 frontend: ../verify-frontend/docker-run.sh
+vsp: ../verify-service-provider/docker-run.sh
+

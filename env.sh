@@ -24,3 +24,10 @@ TEST_RP_MSA_ENCRYPTION_CERT=$($BASE64 data/pki/sample_rp_msa_encryption_primary.
 HUB_TRUSTSTORE=$($BASE64 data/pki/hub.ts)
 HUB_TRUSTSTORE_PASSWORD=marshmallow
 EOF
+
+cat << EOF > vsp.env
+export SAML_SIGNING_KEY="$($BASE64 data/pki/sample_rp_signing_primary.pk8)"
+export SAML_PRIMARY_ENCRYPTION_KEY="$($BASE64 data/pki/sample_rp_encryption_primary.pk8)"
+export SERVICE_ENTITY_IDS='["http://dev-rp.local/SAML2/MD"]'
+export METADATA_TRUST_STORE="$($BASE64 data/pki/metadata.ts)"
+EOF

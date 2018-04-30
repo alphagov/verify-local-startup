@@ -95,6 +95,20 @@ services:
       LMS_UAC_URL: ${TEST_RP_URL}/test-rp/unknown-user/POST
       HUB_SSO_URL: http://localhost:${FRONTEND_EXTERNAL_PORT}/SAML2/SSO
 
+  vsp:
+    image: ${VSP_IMAGE}
+    ports:
+      - "50400"
+    volumes:
+      - ./data:/app/data:ro
+    env_file:
+      - urls.env
+      - vsp.env
+    environment:
+      VERIFY_ENVIRONMENT: "COMPLIANCE_TOOL"
+      MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata
+      MSA_ENTITY_ID: "http://dev-rp-ms.local/SAML2/MD"
+
   test-rp:
     image: ${TEST_RP_IMAGE}
     ports:
