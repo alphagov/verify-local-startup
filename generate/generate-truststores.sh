@@ -20,5 +20,7 @@ mkdir -p pki
 rm -f pki/*.ts
 
 createTruststore hub                dev-root-ca dev-hub-ca dev-idp-ca
+createTruststore hub_federation     dev-root-ca dev-hub-ca
+createTruststore idp_federation     dev-root-ca dev-idp-ca
 createTruststore relying_parties    dev-root-ca dev-rp-ca
 createTruststore metadata           dev-root-ca dev-metadata-ca

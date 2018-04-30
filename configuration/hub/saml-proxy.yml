@@ -59,6 +59,12 @@ metadata:
   trustStore:
     path: data/pki/metadata.ts
     password: marshmallow
+  hubTrustStore:
+    path: data/pki/hub_federation.ts
+    password: marshmallow
+  idpTrustStore:
+    path: data/pki/idp_federation.ts
+    password: marshmallow
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
   expectedEntityId: https://dev-hub.local

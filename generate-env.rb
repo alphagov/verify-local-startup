@@ -14,6 +14,10 @@ COMMON = <<~COMMON
     ### APPS
     METADATA_TRUST_STORE=#{`base64 data/pki/metadata.ts`}
     METADATA_TRUST_STORE_PASSWORD=marshmallow
+    HUB_FEDERATION_TRUST_STORE=#{`base64 data/pki/hub_federation.ts`}
+    HUB_FEDERATION_TRUST_STORE_PASSWORD=marshmallow
+    IDP_FEDERATION_TRUST_STORE=#{`base64 data/pki/idp_federation.ts`}
+    IDP_FEDERATION_TRUST_STORE_PASSWORD=marshmallow
   COMMON
 
 MSA = <<~MSA
