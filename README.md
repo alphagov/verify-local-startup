@@ -4,11 +4,17 @@ Repository with useful scripts for creating PKI, building and starting Verify ap
 
 ## Before you start
 
-You'll need to install [cfssl](https://github.com/cloudflare/cfssl) which is used to generate the PKI.
+If you don't already have Go, you'll need to install it.
+
+`brew install go`
+
+Standard practice is to use one directory as your Go workspace and define an environment variable $GOPATH pointing to it. In that directory there should be sub directories *bin, src & pkg*. The $GOPATH/bin directory should be added to your $PATH.
+
+You'll need to install [cfssl](https://github.com/cloudflare/cfssl) which is used to generate the PKI. In addition to this, you'll also need to install `cfssljson`, which is available from the same location.
 
 ## Generate PKI
 
-`verify-local-startup` can be used to generate an entire PKI federation. Run `./generate/hub-dev-pki.sh` to create the required keys, certificates, federation config data and trust stores in `/data`.
+`verify-local-startup` can be used to generate an entire PKI federation. Run `./generate/hub-dev-pki.sh` from the parent directory to create the required keys, certificates, federation config data and trust stores in `/data`; if you receive errors about incompatible libraries, use your Ruby version manager to use a newer version of Ruby and try again.
 
 ## Create environment for running app locally
 
