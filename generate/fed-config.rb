@@ -66,7 +66,7 @@ Dir::chdir(output_dir) do
   Dir::chdir('matching-services') do
     rps.each do |rp, _|
       File.open("#{rp}-ms.yml", 'w') do |f|
-        msa_url = "#{ENV.fetch('MSA_URI')}"
+        msa_url = "#{ENV.fetch('MSA_URL')}"
         f.write(YAML.dump(
           'entityId' => "http://#{rp}-ms.local/SAML2/MD",
           'healthCheckEnabled' => true,
@@ -86,7 +86,7 @@ Dir::chdir(output_dir) do
           'entityId' => "http://#{rp}.local/SAML2/MD",
           'simpleId' => rp,
           'assertionConsumerServices' => [
-            { 'uri' => "#{ENV.fetch('TEST_RP_URI')}/test-rp/login", 'index' => 0, 'isDefault' => true }
+            { 'uri' => "#{ENV.fetch('TEST_RP_URL')}/test-rp/login", 'index' => 0, 'isDefault' => true }
           ],
           'levelsOfAssurance' => [ 'LEVEL_2' ],
           'matchingServiceEntityId' => "http://#{rp}-ms.local/SAML2/MD",

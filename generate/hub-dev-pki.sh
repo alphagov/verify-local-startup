@@ -13,8 +13,13 @@ cat <<EOF
 EOF
 tput sgr0
 
+unset_message="should be set to the runtime location (for metadata/fed config setting)"
+test -z $FRONTEND_URL || echo "FRONTEND_URL $unset_message"
+test -z $STUB_IDP_URL || echo "STUB_IDP_URL $unset_message"
+test -z $TEST_RP_URL || echo "TEST_RP_URL $unset_message"
+test -z $MSA_URL || echo "MSA_URL $unset_message"
+
 script_dir="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
-source "$script_dir"/../config/env.sh
 data_dir="$script_dir/../data"
 
 mkdir -p "$data_dir"

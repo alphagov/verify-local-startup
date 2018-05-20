@@ -14,6 +14,9 @@ tput sgr0
 # Generate PKI and config if necessary
 if test ! -d data; then
   command -v cfssl >/dev/null || brew install cfssl
+  set -a
+  source urls.env
+  set +a
   ./generate/hub-dev-pki.sh
 fi
 

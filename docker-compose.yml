@@ -55,8 +55,6 @@ services:
 
   frontend:
     image: ${FRONTEND_IMAGE}
-    ports:
-      - "${FRONTEND_EXTERNAL_PORT}:80"
     env_file:
       - configuration/frontend.env
     environment:
@@ -71,8 +69,6 @@ services:
 
   stub-idp:
     image: ${STUB_IDP_IMAGE}
-    ports:
-      - "${STUB_IDP_EXTERNAL_PORT}:80"
     volumes:
       - ./data:/app/data:ro
       - ../verify-stub-idp/build/resources/main/assets:/assets:ro
@@ -101,12 +97,10 @@ services:
       ASSERTION_CONSUMER_SERVICE_URL: ${TEST_RP_URL}/matching-service/POST
       LMS_MATCH_URL: ${TEST_RP_URL}/test-rp/matching-service/POST
       LMS_UAC_URL: ${TEST_RP_URL}/test-rp/unknown-user/POST
-      HUB_SSO_URL: http://localhost:${FRONTEND_EXTERNAL_PORT}/SAML2/SSO
+      HUB_SSO_URL: ${FRONTEND_URL}/SAML2/SSO
 
   test-rp:
     image: ${TEST_RP_IMAGE}
-    ports:
-      - "${TEST_RP_EXTERNAL_PORT}:80"
     volumes:
       - ../verify-test-rp/build/resources/main/assets:/assets:ro
     env_file:

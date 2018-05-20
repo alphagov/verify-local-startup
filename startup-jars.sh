@@ -14,8 +14,6 @@ __     __        _  __         _   _       _        ____  ___
 EOF
 tput sgr0
 
-export VLS_TYPE="localhost"
-
 source lib/services.sh
 source config/env.sh
 
