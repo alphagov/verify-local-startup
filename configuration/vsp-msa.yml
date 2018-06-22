@@ -27,9 +27,6 @@ hub:
   ssoUrl: ${HUB_SSO_URL:-http://localhost:50300/SAML2/SSO}
   republishHubCertificatesInLocalMetadata: true
   hubEntityId: https://dev-hub.local
-  trustStore:
-    path: data/pki/hub.ts
-    password: marshmallow
 
 metadata:
   url: ${METADATA_URL:-http://localhost:55000/metadata.xml}
@@ -40,6 +37,12 @@ metadata:
   maxRefreshDelay: 600000
   hubEntityId: https://dev-hub.local
   hubFederationId: VERIFY-FEDERATION
+  hubTrustStore:
+    path: data/pki/hub_federation.ts
+    password: marshmallow
+  idpTrustStore:
+    path: data/pki/idp_federation.ts
+    password: marshmallow
 
 signingKeys:
   primary:
