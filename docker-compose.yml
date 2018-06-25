@@ -61,6 +61,8 @@ services:
       CONFIG_API_HOST: ${CONFIG_URL}
       POLICY_HOST: ${POLICY_URL}
       SAML_PROXY_HOST: ${SAML_PROXY_URL}
+    volumes:
+      - ./configuration/stub-frontend-fed-config:/fed-config:ro
 
   metadata:
     image: nginx
