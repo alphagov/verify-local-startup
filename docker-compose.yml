@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 
 services:
   config:
@@ -47,7 +47,7 @@ services:
       - ./data:/app/data:ro
 
   stub-event-sink:
-    image: ${SAML_SOAP_PROXY_IMAGE}
+    image: ${STUB_EVENT_SINK_IMAGE}
     environment:
       APP_NAME: stub-event-sink
     volumes:
@@ -69,8 +69,13 @@ services:
     volumes:
       - ./data/metadata:/usr/share/nginx/html:ro
 
+  metadata-aggregator:
+    image: ${AGGREGATOR_IMAGE}
+
   stub-idp:
     image: ${STUB_IDP_IMAGE}
+    depends_on:
+      - stub-idp-db
     volumes:
       - ./data:/app/data:ro
       - ../verify-stub-idp/build/resources/main/assets:/assets:ro
