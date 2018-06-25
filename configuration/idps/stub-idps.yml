@@ -23,3 +23,9 @@ stubIdps:
     idpUserCredentials:
         - user: ida
           password: $2a$10$4fHHh0Q8QbbcQ7E6sn4iJOkcGvyZBbsGD43fJdd318vDeee74Pti6
+  - friendlyId: stub-idp-demo
+    displayName: Stub IDP Demo
+    assetId: stub-idp-demo
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$4fHHh0Q8QbbcQ7E6sn4iJOkcGvyZBbsGD43fJdd318vDeee74Pti6
