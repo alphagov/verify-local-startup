@@ -20,6 +20,8 @@ if test ! -d data; then
   ./generate/hub-dev-pki.sh
 fi
 
+# Generate env files for 12-factored apps
+./generate-env.rb -a IDP -f stub-idp.env
 ./env.sh
 
 bundle check || bundle install

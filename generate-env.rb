@@ -3,7 +3,7 @@
 require 'optparse'
 require 'dotenv'
 
-Dotenv.load('config/ports.env')
+Dotenv.load('urls.env')
 
 if not Dir.exists? 'data'
   `command -v cfssl || brew install cfssl`
@@ -59,20 +59,19 @@ IDP = <<~IDP
     ### IDP
     LOG_PATH=logs
     KEY_TYPE=encoded
-    STUB_IDP_SIGNING_PRIVATE_KEY=#{`base64 data/pki/stub_idp_signing_primary.pk8`}
     CERT_TYPE=encoded
+    TRUSTSTORE_TYPE=encoded
+    STUB_IDP_SIGNING_PRIVATE_KEY=#{`base64 data/pki/stub_idp_signing_primary.pk8`}
     STUB_IDP_SIGNING_CERT=#{`base64 data/pki/stub_idp_signing_primary.crt`}
+    STUB_COUNTRY_SIGNING_PRIVATE_KEY=#{`base64 data/pki/stub_idp_signing_primary.pk8`}
+    STUB_COUNTRY_SIGNING_CERT=#{`base64 data/pki/stub_idp_signing_primary.crt`}
+    METADATA_TRUSTSTORE=#{`base64 data/pki/metadata.ts`}
+    METADATA_ENTITY_ID=http://metadata/dev-connector.xml
     STUB_IDP_BASIC_AUTH=false
-    METADATA_ENTITY_ID=https://dev-hub.local
     STUB_IDPS_FILE_PATH="../verify-local-startup/configuration/idps/stub-idps.yml"
     INFINISPAN_PERSISTENCE=false
-    TRUSTSTORE_TYPE=encoded
-    METADATA_TRUSTSTORE=#{`base64 data/pki/metadata.ts`}
     TRUSTSTORE_PASSWORD=marshmallow
     EUROPEAN_IDENTITY_ENABLED=true
-    STUB_COUNTRY_SIGNING_PRIVATE_KEY="$STUB_IDP_SIGNING_PRIVATE_KEY"
-    STUB_COUNTRY_SIGNING_CERT="$STUB_IDP_SIGNING_CERT"
-    DB_URI="jdbc:postgresql://localhost:5432/postgres?user=postgres"
   IDP
 
 applications = {
@@ -105,7 +104,7 @@ unless apps.all? {|a| applications.has_key? a}
 end
 
 open(file, 'w') { |f|
-  f.puts(File.read('config/ports.env'))
+  f.puts(File.read('urls.env'))
   f.puts COMMON
   for app in apps
     f.puts applications[app]
