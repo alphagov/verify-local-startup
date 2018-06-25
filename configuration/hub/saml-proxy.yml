@@ -14,7 +14,6 @@ logging:
   appenders:
     - type: console
 
-
 saml:
   entityId: https://dev-hub.local
   expectedDestination: http://localhost:50300
@@ -75,4 +74,27 @@ metadata:
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
 
-eidas: false
+eidas: true
+country:
+  metadata:
+    trustAnchorUri: http://localhost:55500/trust-anchor
+    metadataSourceUri: http://localhost:55500/aggregator
+    trustStore:
+      store: data/pki/metadata.ts
+      password: marshmallow
+    minRefreshDelay: 5000
+    maxRefreshDelay: 1800000
+    jerseyClientName: saml-proxy-country-metadata-client
+    client:
+      timeout: 2s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 1s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true

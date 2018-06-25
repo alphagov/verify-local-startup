@@ -49,10 +49,11 @@ matching_services = {
 }
 
 countries = {
-  'reference' => { 'simpleId' => 'ZZ' },
-  'netherlands' => { 'simpleId' => 'NL' },
-  'spain' => { 'simpleId' => 'ES', 'overriddenSsoUrl' => 'http://spain.country/sso-override' },
-  'sweden' => { 'simpleId' => 'SE', 'enabled' => false },
+  'stub-country' => { 'entityId' => 'http://localhost:50140/stub-country/ServiceMetadata', 'simpleId' => 'YY' },
+#  'reference' => { 'simpleId' => 'ZZ', 'enabled' => false },
+#  'netherlands' => { 'simpleId' => 'NL', 'enabled' => false },
+#  'spain' => { 'simpleId' => 'ES', 'overriddenSsoUrl' => 'http://spain.country/sso-override', 'enabled' => false },
+#  'sweden' => { 'simpleId' => 'SE', 'enabled' => false },
 }
 
 Dir::mkdir(output_dir) unless Dir::exist?(output_dir)

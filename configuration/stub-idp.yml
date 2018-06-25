@@ -66,11 +66,12 @@ metadata:
     connectionTimeout: 1s
 
 europeanIdentity:
-  enabled: false
-  hubConnectorEntityId: http://DefaultNotUsed
-  stubCountryBaseUrl: https://DefaultNotUsed
+  enabled: true
+  hubConnectorEntityId: http://localhost:55500/dev-connector.xml
+  # do not add an ending slash to stubCountryBaseUrl
+  stubCountryBaseUrl: http://localhost:50140
   metadata:
-    jerseyClientName: connector-metadata-client
+    jerseyClientName: stub-idp-connector-metadata-client
     client:
       timeout: 60s
       timeToLive: 10m
@@ -78,14 +79,14 @@ europeanIdentity:
       tls:
         protocol: TLSv1.2
         verifyHostname: false
-    uri: http://DefaultNotUsed
+    uri: http://localhost:55500/dev-connector.xml
     trustStore:
-      type: ${TRUSTSTORE_TYPE:-file}
-      store: ${METADATA_TRUSTSTORE}
-      password: ${TRUSTSTORE_PASSWORD}
+      type: file
+      store: data/pki/metadata.ts
+      password: marshmallow
     minRefreshDelay: 30000
     maxRefreshDelay: 1800000
-    expectedEntityId: http://DefaultNotUsed
+    expectedEntityId: http://localhost:55500/dev-connector.xml
   signingKeyPairConfiguration:
     privateKeyConfiguration:
       type: file

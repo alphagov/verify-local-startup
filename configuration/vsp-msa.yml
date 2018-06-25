@@ -60,3 +60,29 @@ encryptionKeys:
       keyFile: data/pki/sample_rp_msa_encryption_primary.pk8
 
 returnStackTraceInResponse: true
+
+europeanIdentity:
+  enabled: true
+  hubConnectorEntityId: http://localhost:55500/dev-connector.xml
+  aggregatedMetadata:
+    trustAnchorUri: http://localhost:55500/trust-anchor
+    metadataSourceUri: http://localhost:55500/aggregator
+    trustStore:
+      path: data/pki/metadata.ts
+      password: marshmallow
+    minRefreshDelay: 5000
+    maxRefreshDelay: 600000
+    jerseyClientName: vsp-msa-trust-anchor-client
+    client:
+      timeout: 2s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 1s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true

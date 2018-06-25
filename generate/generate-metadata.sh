@@ -8,6 +8,7 @@ cadir="$PWD/ca-certificates"
 certdir="$PWD/pki"
 
 mkdir -p "$sources/dev/idps"
+mkdir -p "$sources/dev-connector"
 mkdir -p "$sources/compliance-tool/idps"
 rm -f "$output/*"
 
@@ -21,6 +22,11 @@ $script_dir/metadata-sources.rb \
   "$certdir"/stub_idp_signing_primary.crt \
   "$sources/dev" || exit 1
 
+$script_dir/connector-metadata-sources.rb \
+  "$certdir"/hub_signing_primary.crt \
+  "$certdir"/hub_encryption_primary.crt \
+  "$sources/dev-connector" || exit 1
+
 env FRONTEND_URL="http://localhost:${COMPLIANCE_TOOL_PORT}" \
   $script_dir/metadata-sources.rb \
   "$certdir"/hub_signing_primary.crt \
@@ -28,20 +34,28 @@ env FRONTEND_URL="http://localhost:${COMPLIANCE_TOOL_PORT}" \
   "$certdir"/stub_idp_signing_primary.crt \
   "$sources/compliance-tool" || exit 1
 
-echo "$(tput setaf 3)Generating metadata XML$(tput sgr0)"
+echo "$(tput setaf 3)Generating Verify Hub federation metadata XML$(tput sgr0)"
 bundle exec generate_metadata -c "$sources" -e dev -w -o "$output" --valid-until=36500 \
   --hubCA "$cadir"/dev-root-ca.pem.test \
   --hubCA "$cadir"/dev-hub-ca.pem.test \
   --idpCA "$cadir"/dev-root-ca.pem.test \
   --idpCA "$cadir"/dev-idp-ca.pem.test
 
-for src in dev compliance-tool; do
-  bundle exec generate_metadata -c "$sources" -e $src -w -o "$output" --valid-until=36500 \
+echo "$(tput setaf 3)Generating eIDAS federation metadata XML$(tput sgr0)"
+bundle exec generate_metadata --connector -c "$sources" -e dev-connector -w -o "$output" --valid-until=36500 \
+  --hubCA "$cadir"/dev-root-ca.pem.test \
+  --hubCA "$cadir"/dev-hub-ca.pem.test \
+  --idpCA "$cadir"/dev-root-ca.pem.test \
+  --idpCA "$cadir"/dev-idp-ca.pem.test
+
+echo "$(tput setaf 3)Generating compliance-tool federation metadata XML$(tput sgr0)"
+bundle exec generate_metadata -c "$sources" -e compliance-tool -w -o "$output" --valid-until=36500 \
     --hubCA "$cadir"/dev-root-ca.pem.test \
     --hubCA "$cadir"/dev-hub-ca.pem.test \
     --idpCA "$cadir"/dev-root-ca.pem.test \
     --idpCA "$cadir"/dev-idp-ca.pem.test
-  
+
+for src in dev dev-connector compliance-tool; do
   if test ! -f "$output"/$src/metadata.xml; then
     echo "$(tput setaf 1)Failed to generate metadata$(tput sgr0)"
     exit 1
