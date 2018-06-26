@@ -49,11 +49,14 @@ matching_services = {
 }
 
 countries = {
-  'stub-country' => { 'entityId' => 'http://localhost:50140/stub-country/ServiceMetadata', 'simpleId' => 'YY' },
-#  'reference' => { 'simpleId' => 'ZZ', 'enabled' => false },
-#  'netherlands' => { 'simpleId' => 'NL', 'enabled' => false },
-#  'spain' => { 'simpleId' => 'ES', 'overriddenSsoUrl' => 'http://spain.country/sso-override', 'enabled' => false },
-#  'sweden' => { 'simpleId' => 'SE', 'enabled' => false },
+  'stub-country' => { },
+  'stub-cef-reference' => { 'simpleId' => 'ZZ' },
+  # these are disabled because they won't work (they aren't displayed by the frontend)
+  'netherlands' => { 'simpleId' => 'NL', 'enabled' => 'false' },
+  'spain' => { 'simpleId' => 'ES', 'enabled' => 'false' },
+  'sweden' => { 'simpleId' => 'SE', 'enabled' => 'false' },
+  'france' => { 'simpleId' => 'FR', 'enabled' => 'false' },
+  'germany' => { 'simpleId' => 'DE', 'enabled' => 'false' },
 }
 
 Dir::mkdir(output_dir) unless Dir::exist?(output_dir)
@@ -134,8 +137,8 @@ Dir::chdir(output_dir) do
     countries.each do |country, overrides|
       File.open("#{country}.yml", 'w') do |f|
         f.write(YAML.dump({
-          'entityId' => "http://#{country}.country/metadata",
-          'simpleId' => 'AA',
+          'entityId' => "http://localhost:50140/#{country}/ServiceMetadata",
+          'simpleId' => 'YY',
           'enabled' => true
         }.update(overrides)))
       end
