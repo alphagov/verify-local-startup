@@ -20,7 +20,7 @@ serviceInfo:
 
 rootDataDirectory: data/stub-fed-config
 
-translationsDirectory: ../../display-locales/transactions
+translationsDirectory: ../display-locales/transactions
 
 clientTrustStoreConfiguration:
   path: data/pki/hub.ts
