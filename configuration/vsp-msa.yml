@@ -62,7 +62,7 @@ encryptionKeys:
 returnStackTraceInResponse: true
 
 europeanIdentity:
-  enabled: true
+  enabled: false
   hubConnectorEntityId: http://localhost:55500/dev-connector.xml
   aggregatedMetadata:
     trustAnchorUri: http://localhost:55500/trust-anchor
