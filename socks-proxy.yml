@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  socks:
+    image: wernight/dante
+    ports:
+      - "1080:1080"
