@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 tput setaf 4
 cat << 'EOF'
@@ -12,7 +13,8 @@ EOF
 tput sgr0
 
 # Generate PKI and config if necessary
-if test ! -d data; then
+data_version="$(./generate/get-version.sh)"
+if test ! -d data -o ! "$(cat data/.version 2>/dev/null)" == $data_version; then
   command -v cfssl >/dev/null || brew install cfssl
   ./generate/hub-dev-pki.sh
 fi
