@@ -1,0 +1,4 @@
+# As repos get multi-stage builds, migrate them into build-local
+stub-idp:
+  context: ../verify-stub-idp
+  image_env_var: STUB_IDP_IMAGE
