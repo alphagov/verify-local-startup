@@ -24,13 +24,14 @@ idps = {
   'Stub IDP One' => 'stub-idp-one',
   'Stub IDP Two' => 'stub-idp-two',
   'Stub IDP Three' => 'stub-idp-three',
-  'Stub IDP Four' => 'stub-idp-four'
+  'Stub IDP Four' => 'stub-idp-four',
+  'Stub IDP Demo' => 'stub-idp-demo'
 }
 
 hub_yaml = {
   'id' => 'VERIFY-HUB',
-  'entity_id' => 'https://dev-hub.local',
-  'assertion_consumer_service_uri' => "#{ENV.fetch('FRONTEND_URI')}/SAML2/SSO/Response/POST",
+  'entity_id' => "#{ENV.fetch('HUB_CONNECTOR_ENTITY_ID')}",
+  'assertion_consumer_service_uri' => "#{ENV.fetch('FRONTEND_URL')}/SAML2/SSO/Response/POST",
   'organization' => { 'name' => 'Hub', 'url' => 'http://localhost', 'display_name' => 'Hub' },
   'signing_certificates' => [
     { 'name' => 'signing_primary', 'x509' => block_cert(hub_signing_cert) }
@@ -57,4 +58,9 @@ Dir::chdir(output_dir) do
     )
     File.open(File.join('idps', "#{id}.yml"), 'w') { |f| f.write(YAML.dump(yaml)) }
   end
+end
+
+Dir::chdir(output_dir + "-connector") do
+  hub_yaml.update('assertion_consumer_service_uri' => "#{ENV.fetch('FRONTEND_URL')}/SAML2/SSO/EidasResponse/POST")
+  File.open('hub.yml', 'w') { |f| f.write(YAML.dump(hub_yaml)) }
 end
