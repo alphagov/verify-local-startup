@@ -24,8 +24,11 @@ fi
 ./generate-env.rb -a IDP -f stub-idp.env
 ./env.sh
 
-bundle check || bundle install
-bundle exec ./build.rb ${APPS_YML:-apps.yml}
+if test ! "$1" == "skip-build"; then
+  bundle check || bundle install
+  bundle exec ./build.rb ${APPS_YML:-apps.yml}
+  bundle exec ./build-local.rb repos.yml
+fi
 
 docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} up -d
 
