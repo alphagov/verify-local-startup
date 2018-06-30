@@ -14,10 +14,16 @@ EOF
 tput sgr0
 
 unset_message="should be set to the runtime location (for metadata/fed config setting)"
-test -z $FRONTEND_URL || echo "FRONTEND_URL $unset_message"
-test -z $STUB_IDP_URL || echo "STUB_IDP_URL $unset_message"
-test -z $TEST_RP_URL || echo "TEST_RP_URL $unset_message"
-test -z $MSA_URL || echo "MSA_URL $unset_message"
+quit() {
+  echo $1
+  exit 1
+}
+test -z $HUB_CONNECTOR_ENTITY_ID && quit "HUB_CONNECTOR_ENTITY_ID $unset_message"
+test -z $FRONTEND_URL && quit "FRONTEND_URL $unset_message"
+test -z $STUB_IDP_URL && quit "STUB_IDP_URL $unset_message"
+test -z $TEST_RP_URL && quit "TEST_RP_URL $unset_message"
+test -z $MSA_URL && quit "MSA_URL $unset_message"
+test -z $COUNTRY_METADATA_URI && quit "COUNTRY_METADATA_URI $unset_message"
 
 script_dir="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
 data_dir="$script_dir/../data"
@@ -28,7 +34,7 @@ pushd "$data_dir" >/dev/null
   rm -rf {pki,metadata,stub-fed-config}
   mkdir -p {pki,metadata,stub-fed-config}
 
-  mkdir -p metadata/output/{dev,compliance-tool}
+  mkdir -p metadata/output/{dev,dev-connector}
   mkdir -p stub-fed-config
 
   env \
@@ -38,4 +44,5 @@ pushd "$data_dir" >/dev/null
 
   $script_dir/generate-truststores.sh
   $script_dir/generate-metadata.sh
+  $script_dir/generate-trust-anchor.sh
 popd >/dev/null

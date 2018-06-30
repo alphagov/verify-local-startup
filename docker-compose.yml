@@ -90,9 +90,9 @@ services:
       STUB_IDP_BASIC_AUTH: "false"
       STUB_IDPS_FILE_PATH: /idps/stub-idps.yml
       ENTITY_ID: http://%s.local/SSO/POST
-      METADATA_ENTITY_ID: https://dev-hub.local
       STUB_IDP_ASSET_LOCATION: /assets
       STUB_IDP_YAML_FILE_LOCATION: /idps/stub-idps.yml
+      STUB_IDP_HOSTNAME: ${STUB_IDP_URL}
 
   msa:
     image: ${MSA_IMAGE}
@@ -101,10 +101,12 @@ services:
     env_file:
       - urls.env
     environment:
+      MSA_ENTITY_ID: http://test-rp-ms.local/SAML2/MD
       ASSERTION_CONSUMER_SERVICE_URL: ${TEST_RP_URL}/matching-service/POST
       LMS_MATCH_URL: ${TEST_RP_URL}/test-rp/matching-service/POST
       LMS_UAC_URL: ${TEST_RP_URL}/test-rp/unknown-user/POST
       HUB_SSO_URL: ${FRONTEND_URL}/SAML2/SSO
+      EUROPEAN_IDENTITY_ENABLED: "true"
 
   test-rp:
     image: ${TEST_RP_IMAGE}
@@ -118,9 +120,8 @@ services:
       TEST_RP_PORT: 80
       LOG_PATH: /app/logs
       TEST_RP_PRIVATE_BETA_USER_ACCESS_RESTRICTION_ENABLED: "false"
-      TEST_RP_ENTITY_ID: http://dev-rp.local/SAML2/MD
-      MSA_ENTITY_ID: http://dev-rp-ms.local/SAML2/MD
-      METADATA_ENTITY_ID: https://dev-hub.local
+      TEST_RP_ENTITY_ID: http://%s.local/SAML2/MD
+      MSA_ENTITY_ID: http://test-rp-ms.local/SAML2/MD
       MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata
 
   stub-idp-db:

@@ -21,22 +21,26 @@ idps = {
   'stub-idp-one' => { 'enabled' => false },
   'stub-idp-two' => { 'useExactComparisonType' => false },
   'stub-idp-three' => {},
-  'stub-idp-four' => {}
+  'stub-idp-four' => {},
+  'stub-idp-demo' => {}
 }
 
 rps = {
-  'dev-rp' => {
+  'test-rp' => {
     'simpleId' => 'test-rp',
     'matchingProcess' => { 'cycle3AttributeName' => 'NationalInsuranceNumber' }
   },
-  'dev-rp-no-eidas' => {
+  'test-rp-non-eidas' => {
     'simpleId' => 'test-rp',
     'eidasEnabled' => false
+  },
+  'test-rp-noc3' => {
+    'simpleId' => 'test-rp'
   }
 }
 
 countries = {
-  'reference' => { 'simpleId' => 'ZZ' },
+  'stub' => { 'simpleId' => 'YY', 'entityId' => "#{ENV.fetch('COUNTRY_METADATA_URI')}" },
   'netherlands' => { 'simpleId' => 'NL' },
   'spain' => { 'simpleId' => 'ES', 'overriddenSsoUrl' => 'http://spain.country/sso-override' },
   'sweden' => { 'simpleId' => 'SE', 'enabled' => false },
@@ -64,18 +68,16 @@ Dir::chdir(output_dir) do
   end
 
   Dir::chdir('matching-services') do
-    rps.each do |rp, _|
-      File.open("#{rp}-ms.yml", 'w') do |f|
-        msa_url = "#{ENV.fetch('MSA_URL')}"
-        f.write(YAML.dump(
-          'entityId' => "http://#{rp}-ms.local/SAML2/MD",
-          'healthCheckEnabled' => true,
-          'uri' => "#{msa_url}/matching-service/POST",
-          'userAccountCreationUri' => "#{msa_url}/unknown-user-attribute-query",
-          'signatureVerificationCertificates' => [ { 'x509' => inline_cert(msa_signing_cert) } ],
-          'encryptionCertificate' => { 'x509' => inline_cert(msa_encryption_cert) }
-        ))
-      end
+    File.open("test-rp-ms.yml", 'w') do |f|
+      msa_url = "#{ENV.fetch('MSA_URL')}"
+      f.write(YAML.dump(
+        'entityId' => "http://test-rp-ms.local/SAML2/MD",
+        'healthCheckEnabled' => true,
+        'uri' => "#{msa_url}/matching-service/POST",
+        'userAccountCreationUri' => "#{msa_url}/unknown-user-attribute-query",
+        'signatureVerificationCertificates' => [ { 'x509' => inline_cert(msa_signing_cert) } ],
+        'encryptionCertificate' => { 'x509' => inline_cert(msa_encryption_cert) }
+      ))
     end
   end
 
@@ -89,7 +91,7 @@ Dir::chdir(output_dir) do
             { 'uri' => "#{ENV.fetch('TEST_RP_URL')}/test-rp/login", 'index' => 0, 'isDefault' => true }
           ],
           'levelsOfAssurance' => [ 'LEVEL_2' ],
-          'matchingServiceEntityId' => "http://#{rp}-ms.local/SAML2/MD",
+          'matchingServiceEntityId' => "http://test-rp-ms.local/SAML2/MD",
           'displayName' => 'Register for an identity profile',
           'otherWaysDescription' => 'access Dev RP',
           'serviceHomepage' => "http://#{rp}.local/home",
