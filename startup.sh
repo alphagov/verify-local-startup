@@ -12,9 +12,9 @@ __     __        _  __         _   _       _        ____  ___
 EOF
 tput sgr0
 
+cd "$(dirname "$0")"
 # Generate PKI and config if necessary
-data_version="$(./generate/get-version.sh)"
-if test ! -d data -o ! "$(cat data/.version 2>/dev/null)" == $data_version; then
+if test ! -d data || ! ./data-version.sh data/.version >/dev/null; then
   command -v cfssl >/dev/null || brew install cfssl
   ./generate/hub-dev-pki.sh
 fi

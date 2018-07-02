@@ -34,5 +34,5 @@ pushd "$data_dir" >/dev/null
   $script_dir/generate-truststores.sh
   $script_dir/generate-metadata.sh
 
-  $script_dir/get-version.sh > .version
+  $script_dir/../data-version.sh > .version
 popd >/dev/null
