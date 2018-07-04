@@ -20,6 +20,8 @@ serviceInfo:
 
 rootDataDirectory: data/stub-fed-config
 
+translationsDirectory: ../display-locales/transactions
+
 clientTrustStoreConfiguration:
   path: data/pki/hub.ts
   password: marshmallow
