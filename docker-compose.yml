@@ -8,7 +8,7 @@ services:
     environment:
       APP_NAME: config
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/data:ro
 
   policy:
     image: ${POLICY_IMAGE}
@@ -17,7 +17,7 @@ services:
     environment:
       APP_NAME: policy
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/data:ro
 
   saml-engine:
     image: ${SAML_ENGINE_IMAGE} 
@@ -26,7 +26,7 @@ services:
     environment:
       APP_NAME: saml-engine
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/data:ro
 
   saml-proxy:
     image: ${SAML_PROXY_IMAGE}
@@ -35,7 +35,7 @@ services:
     environment:
       APP_NAME: saml-proxy
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/data:ro
 
   saml-soap-proxy:
     image: ${SAML_SOAP_PROXY_IMAGE}
@@ -44,14 +44,14 @@ services:
     environment:
       APP_NAME: saml-soap-proxy
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/data:ro
 
   stub-event-sink:
     image: ${SAML_SOAP_PROXY_IMAGE}
     environment:
       APP_NAME: stub-event-sink
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/data:ro
 
   frontend:
     image: ${FRONTEND_IMAGE}
@@ -94,7 +94,7 @@ services:
   msa:
     image: ${MSA_IMAGE}
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/data:ro
     env_file:
       - urls.env
     environment:
