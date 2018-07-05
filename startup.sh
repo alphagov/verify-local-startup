@@ -21,10 +21,9 @@ fi
 
 if test ! "$1" == "skip-build"; then
   bundle check || bundle install
-  bundle exec ./build.rb ${APPS_YML:-apps.yml}
   bundle exec ./build-local.rb repos.yml
 fi
 
 docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} up -d
 
-echo "$(tput setaf 2)Started - visit $(tput setaf 6)http://localhost:50130/test-rp$(tput setaf 2) to start a journey (may take some time to spin up)$(tput sgr0)"
+echo "$(tput setaf 2)Started - visit $(tput setaf 6)http://test-rp/test-rp$(tput setaf 2) to start a journey after starting the SOCKS proxy (may take some time to spin up)$(tput sgr0)"
