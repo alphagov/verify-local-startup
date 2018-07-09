@@ -71,4 +71,5 @@ $script_dir/fed-config.rb \
   "$certdir"/sample_rp_encryption_primary.crt \
   "$certdir"/sample_rp_msa_signing_primary.crt \
   "$certdir"/sample_rp_msa_encryption_primary.crt \
-  stub-fed-config
+  stub-fed-config \
+  display-locales

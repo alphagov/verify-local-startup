@@ -7,7 +7,7 @@ def inline_cert(cert)
 end
 
 if ARGV.size < 5
-  puts "Usage: metadata-sources.rb rp_signing rp_encryption msa_signing msa_encryption output_dir"
+  puts "Usage: metadata-sources.rb rp_signing rp_encryption msa_signing msa_encryption output_dir display_locale_dir"
   exit 1
 end
 
@@ -16,6 +16,7 @@ rp_encryption_cert = ARGV[1]
 msa_signing_cert = ARGV[2]
 msa_encryption_cert = ARGV[3]
 output_dir = ARGV[4]
+display_locales_dir = ARGV[5]
 
 idps = {
   'stub-idp-one' => { 'enabled' => false },
@@ -32,6 +33,23 @@ rps = {
   'dev-rp-no-eidas' => {
     'simpleId' => 'test-rp',
     'eidasEnabled' => false
+  }
+}
+
+translations = {
+  'test-rp' => {
+    'translations' => [
+      {
+        'locale' => 'en',
+        'name' => 'register for an identity profile',
+        'rpName' => 'Test RP',
+        'analyticsDescription' => 'TEST RP',
+        'otherWaysDescription' => 'access TestRP',
+        'otherWaysText' => '<p>Specific text to be provided by the RP.</p>',
+        'tailoredText' => '<p>This is tailored text for TEST RP - from Config Service</p>',
+        'taxonName' => 'Test RP'
+      }
+    ]
   }
 }
 
@@ -126,6 +144,19 @@ Dir::chdir(output_dir) do
           'simpleId' => 'AA',
           'enabled' => true
         }.update(overrides)))
+      end
+    end
+  end
+end
+
+Dir::mkdir(display_locales_dir) unless Dir::exist?(display_locales_dir)
+
+Dir::chdir(display_locales_dir) do
+  Dir::mkdir('transactions') unless Dir::exist?('transactions')
+  Dir::chdir('transactions') do
+    translations.each do |rp, overrides|
+      File.open("#{rp}.yml", 'w') do |f|
+        f.write(YAML.dump({'simpleId' => rp}.update(overrides)))
       end
     end
   end
