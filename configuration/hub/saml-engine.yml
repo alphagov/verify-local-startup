@@ -101,4 +101,30 @@ metadata:
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
 
-eidas: false
+eidas: true
+country:
+  saml:
+    entityId: http://localhost:55500/dev-connector.xml
+    expectedDestination: http://localhost:50300/SAML2/SSO/EidasResponse/POST
+  metadata:
+    trustAnchorUri: http://localhost:55500/trust-anchor
+    metadataSourceUri: http://localhost:55500/aggregator
+    trustStore:
+      store: data/pki/metadata.ts
+      password: marshmallow
+    minRefreshDelay: 5000
+    maxRefreshDelay: 60000
+    jerseyClientName: saml-engine-country-metadata-client
+    client:
+      timeout: 2s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 1s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true

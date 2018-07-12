@@ -14,7 +14,6 @@ logging:
   appenders:
     - type: console
 
-
 infinispan:
   bindAddress: 
   initialHosts: 
@@ -60,4 +59,4 @@ clientTrustStoreConfiguration:
   path: data/pki/hub.ts
   password: marshmallow
 
-eidas: false
+eidas: true

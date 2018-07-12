@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: ${TEST_RP_MSA_PORT}
+      port: ${VSP_MSA_PORT}
   adminConnectors:
     - type: http
-      port: 50211
+      port: 3301
   requestLog:
     appenders:
       - type: console
@@ -16,13 +16,13 @@ logging:
       logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
 
 matchingServiceAdapter:
-  entityId: http://test-rp.dev-rp-ms.local/SAML2/MD
-  externalUrl: http://localhost:${TEST_RP_MSA_PORT}/matching-service/POST
+  entityId: http://vsp.dev-rp-ms.local/SAML2/MD
+  externalUrl: http://localhost:${VSP_MSA_PORT}/matching-service/POST
 
 localMatchingService:
-  matchUrl: http://localhost:${TEST_RP_PORT}/test-rp/matching-service/POST
-  accountCreationUrl: http://localhost:${TEST_RP_PORT}/test-rp/unknown-user/POST
-
+  matchUrl: http://localhost:${ELMS_PORT}/match-user
+  accountCreationUrl: http://none.local
+  
 hub:
   ssoUrl: ${HUB_SSO_URL:-http://localhost:50300/SAML2/SSO}
   republishHubCertificatesInLocalMetadata: true
@@ -33,16 +33,16 @@ metadata:
   trustStore:
     path: data/pki/metadata.ts
     password: marshmallow
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  hubEntityId: https://dev-hub.local
+  hubFederationId: VERIFY-FEDERATION
   hubTrustStore:
     path: data/pki/hub_federation.ts
     password: marshmallow
   idpTrustStore:
     path: data/pki/idp_federation.ts
     password: marshmallow
-  minRefreshDelay: 60000
-  maxRefreshDelay: 600000
-  hubEntityId: https://dev-hub.local
-  hubFederationId: VERIFY-FEDERATION
 
 signingKeys:
   primary:
@@ -62,7 +62,7 @@ encryptionKeys:
 returnStackTraceInResponse: true
 
 europeanIdentity:
-  enabled: true
+  enabled: false
   hubConnectorEntityId: http://localhost:55500/dev-connector.xml
   aggregatedMetadata:
     trustAnchorUri: http://localhost:55500/trust-anchor
@@ -72,7 +72,7 @@ europeanIdentity:
       password: marshmallow
     minRefreshDelay: 5000
     maxRefreshDelay: 600000
-    jerseyClientName: test-rp-msa-trust-anchor-client
+    jerseyClientName: vsp-msa-trust-anchor-client
     client:
       timeout: 2s
       timeToLive: 10m

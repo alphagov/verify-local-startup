@@ -35,7 +35,7 @@ VSP = <<~VSP
     ### VSP
     MSA_METADATA_URL=http://localhost:#{ENV['TEST_RP_MSA_PORT']}/matching-service/SAML2/metadata
     MSA_ENTITY_ID=http://dev-rp-ms.local/SAML2/MD
-    SERVICE_ENTITY_IDS='["http://dev-rp.local/SAML2/MD"]'
+    SERVICE_ENTITY_IDS='["http://vsp.dev-rp.local/SAML2/MD"]'
     VERIFY_ENVIRONMENT=COMPLIANCE_TOOL
     SAML_SIGNING_KEY=#{`base64 data/pki/sample_rp_signing_primary.pk8`}
     SAML_PRIMARY_ENCRYPTION_KEY=#{`base64 data/pki/sample_rp_encryption_primary.pk8`}
@@ -47,7 +47,7 @@ TESTRP = <<~TESTRP
 
     # WARNING: re-uses some VSP config
     
-    TEST_RP_ENTITY_ID="http://dev-rp.local/SAML2/MD" # perhaps we want a different one from VSP?
+    TEST_RP_ENTITY_ID="http://test-rp.dev-rp.local/SAML2/MD"
     TEST_RP_SIGNING_KEY=#{`base64 data/pki/sample_rp_signing_primary.pk8`}
     TEST_RP_SIGNING_CERT=#{`base64 data/pki/sample_rp_signing_primary.crt`}
     TEST_RP_ENCRYPTION_KEY=#{`base64 data/pki/sample_rp_encryption_primary.pk8`}
