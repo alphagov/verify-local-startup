@@ -19,30 +19,38 @@ error_mark = "❌ 😤 ❌ 😤 ❌ "
 loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: "#{success_marks} ", error_mark: error_mark)
 images = ""
 
-def build_thread(app, cmd, spinners, images)
+def build_thread(repo_name, config, spinners, images, script_dir)
   success_marks = ["✊","🙌","💪","👌","👍","👏"]
-  spinner = spinners.register("[:spinner] #{app}", format: :dots, success_mark: "#{success_marks.sample} ", error_mark: "😡 ")
+  spinner = spinners.register("[:spinner] #{repo_name}", format: :dots, success_mark: "#{success_marks.sample} ", error_mark: "😡 ")
   spinner.auto_spin
 
   thread = Thread.new{
-    output = `#{cmd} 2>&1`
+    image_name = "#{repo_name}:local"
+    build_args = config.fetch('build-args', []).map { |ba| "--build-arg #{ba.keys[0]}=#{ba.values[0]}" }.join " "
+    cmd = "docker build #{build_args}\
+        #{config['context']}\
+        -f #{config['context']}/#{config.fetch('dockerfile', 'Dockerfile')}\
+        -t #{image_name}\
+        2>&1"
+    output = `#{cmd}`
     if $?.success?
       spinner.success
-      images << "#{app.gsub('-', '_').upcase}_IMAGE=#{output.split("\n")[-1]}\n"
+      images << "#{config['image_env_var']}=#{image_name}\n"
     else
-      File.write("#{script_dir}/logs/#{app}_build.log", output, mode: "w")
-      spinner.error(" - see logs/#{app}_build.log")
+      File.write("#{script_dir}/logs/#{repo_name}_build.log", output, mode: "w")
+      spinner.error(" - see #{script_dir}/logs/#{repo_name}_build.log")
     end
   }
 end
 
-apps = YAML.load(File.read(ARGV[0]))
+repos = YAML.load(File.read(ARGV[0]))
 threads = []
-apps.each do |app, cmd|
-  thread = build_thread(app, cmd, loading_spinners, images)
+repos.each do |repo_name, config|
+  thread = build_thread(repo_name, config, loading_spinners, images, script_dir)
   threads.push thread
 end
 
 threads.each do |thread| thread.join end
+
 urls = File.read('urls.env')
 File.write(".env", "#{urls}\n#{images}", mode: 'w')
