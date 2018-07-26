@@ -1,0 +1,8 @@
+stub-idp: https://raw.githubusercontent.com/alphagov/verify-stub-idp/master/configuration/stub-idp.yml
+test-rp: https://raw.githubusercontent.com/alphagov/verify-test-rp/master/configuration/local/test-rp.yml
+msa: https://raw.githubusercontent.com/alphagov/verify-matching-service-adapter/master/configuration/local/msa.yml
+policy: ../verify-hub/configuration/local/policy.yml
+config: ../verify-hub/configuration/local/config.yml
+saml-engine: ../verify-hub/configuration/local/saml-engine.yml
+saml-proxy: ../verify-hub/configuration/local/saml-proxy.yml
+saml-soap-proxy: ../verify-hub/configuration/local/saml-soap-proxy.yml
