@@ -31,6 +31,5 @@ pushd "$data_dir" >/dev/null
   # Temporary shim to fit with old scripts
   mv $data_dir/pki/verify-*.crt $data_dir/ca-certificates
 
-  $script_dir/generate-truststores.sh
   $script_dir/generate-metadata.sh
 popd >/dev/null

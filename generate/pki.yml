@@ -68,3 +68,25 @@ pki:
 #     certs:
 #       - ca-name
 #       - ca-name.intermediates.intermediate-name (JSON selectors from pki section above)
+truststores:
+  hub:
+    certs:
+      - verify
+      - verify.intermediates.hub
+      - verify.intermediates.idp
+  hub_federation:
+    certs:
+      - verify
+      - verify.intermediates.hub
+  idp_federation:
+    certs:
+      - verify
+      - verify.intermediates.idp
+  relying_parties:
+    certs:
+      - verify
+      - verify.intermediates.rp
+  metadata:
+    certs:
+      - verify
+      - verify.intermediates.metadata
