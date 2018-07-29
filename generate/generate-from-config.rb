@@ -7,11 +7,8 @@ require 'open3'
 require_relative 'metadata-sources'
 
 SCRIPT_DIR = File.expand_path(File.dirname(__FILE__))
-pki_to_generate = YAML.load_file(ARGV[0] ||= "#{SCRIPT_DIR}/config.yml")
 DATA_DIR = "#{SCRIPT_DIR}/../data"
-pki_dir = "#{DATA_DIR}/pki"
-FileUtils::mkdir_p pki_dir
-Dir.chdir pki_dir
+config = YAML.load_file(ARGV[0] ||= "#{SCRIPT_DIR}/config.yml")
 
 def csr_json()
   '{"key": { "algo": "rsa", "size": 2048 }, "names": [ { "C": "GB", "ST": "London", "L": "London", "O": "Cabinet Office", "OU": "GDS" } ]}'
@@ -44,12 +41,16 @@ def cfssl_json(input, file)
   raise write_out unless write_status.success?
 end
 
-def lookup_element(pki_to_generate, key)
-    pki_to_generate['pki'].dig(*key.split('.'))
+def lookup_element(config, key)
+    config['pki'].dig(*key.split('.'))
 end
 
-def lookup_cert_file(pki_to_generate, key)
-    "#{DATA_DIR}/pki/#{lookup_element(pki_to_generate, key)['cert-file']}.crt"
+def lookup_cert_file(config, key)
+    "#{DATA_DIR}/pki/#{lookup_element(config, key)['cert-file']}.crt"
+end
+
+def lookup_key_file(config, key)
+    "#{DATA_DIR}/pki/#{lookup_element(config, key)['cert-file']}-key.pk8"
 end
 
 def convert_key_cert(file)
@@ -59,7 +60,10 @@ def convert_key_cert(file)
   FileUtils.remove [ "#{file}-key.pem", "#{file}.csr" ]
 end
 
-pki_to_generate['pki'].each do |ca_name, ca|
+pki_dir = "#{DATA_DIR}/pki"
+FileUtils::mkdir_p pki_dir
+Dir.chdir pki_dir
+config['pki'].each do |ca_name, ca|
   puts "Generating Root CA: #{ca_name}"
   genkey_out, genkey_err, genkey_status = Open3.capture3('cfssl', 'genkey', '-initca', '-loglevel=2', '-cn', ca['common-name'], '-', :stdin_data => csr_json)
   raise genkey_err unless genkey_status.success?
@@ -86,36 +90,42 @@ pki_to_generate['pki'].each do |ca_name, ca|
       convert_key_cert cert['cert-file']
     end
     convert_key_cert inter['cert-file']
+    FileUtils.move "#{inter['cert-file']}.crt", "#{DATA_DIR}/ca-certificates"
     FileUtils.remove [ "#{inter['cert-file']}.pk8" ]
   end
   convert_key_cert ca['cert-file']
+  FileUtils.move "#{ca['cert-file']}.crt", "#{DATA_DIR}/ca-certificates"
   FileUtils.remove [ "#{ca['cert-file']}.pk8" ]
 end
 
-pki_to_generate.fetch('truststores', []).each do |store, details|
+config.fetch('truststores', []).each do |store, details|
   puts "Generating truststore: #{store}"
   details['certs'].each do |cert|
-    cert_element = lookup_element(pki_to_generate, cert)
+    cert_element = lookup_element(config, cert)
     cert_file = cert_element['cert-file']
-    puts "Adding #{cert_file} to #{store}"
+    puts "\tAdding #{cert_file} to #{store}"
     `keytool -import -noprompt -alias "#{cert_element['common-name']}" -file "#{cert_file}.crt" -keystore "#{store}.ts" -storepass marshmallow`
   end
 end
 
-Dir.chdir "#{DATA_DIR}/metadata"
-metadata = pki_to_generate.fetch('metadata', nil)
+metadata_dir = "#{DATA_DIR}/metadata"
+FileUtils::mkdir_p "#{metadata_dir}/dev"
+FileUtils::mkdir_p "#{metadata_dir}/compliance-tool"
+Dir.chdir metadata_dir
+metadata = config.fetch('metadata', nil)
 if metadata then
-  Metadata.generate_metadata_sources(lookup_cert_file(pki_to_generate, metadata['hub']['signing']),
-                                     lookup_cert_file(pki_to_generate, metadata['hub']['encryption']),
-                                     lookup_cert_file(pki_to_generate, metadata['idps']['signing']),
+  Metadata.generate_metadata_sources(lookup_cert_file(config, metadata['hub']['signing']),
+                                     lookup_cert_file(config, metadata['hub']['encryption']),
+                                     lookup_cert_file(config, metadata['idps']['signing']),
                                      "dev",
                                      ENV.fetch('FRONTEND_URI'),
                                      ENV.fetch('STUB_IDP_URI'))
 
-  Metadata.generate_metadata_sources(lookup_cert_file(pki_to_generate, metadata['hub']['signing']),
-                                     lookup_cert_file(pki_to_generate, metadata['hub']['encryption']),
-                                     lookup_cert_file(pki_to_generate, metadata['idps']['signing']),
+  Metadata.generate_metadata_sources(lookup_cert_file(config, metadata['hub']['signing']),
+                                     lookup_cert_file(config, metadata['hub']['encryption']),
+                                     lookup_cert_file(config, metadata['idps']['signing']),
                                      "compliance-tool",
                                      "http://localhost:#{ENV.fetch('COMPLIANCE_TOOL_PORT', 50270)}",
                                      ENV.fetch('STUB_IDP_URI'))
 end
+
