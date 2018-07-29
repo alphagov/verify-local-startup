@@ -60,3 +60,11 @@ pki:
             type: signing
           metadata_signing_b:
             type: signing
+
+# Format
+# ================
+# truststores:
+#   truststore-name:
+#     certs:
+#       - ca-name
+#       - ca-name.intermediates.intermediate-name (JSON selectors from pki section above)

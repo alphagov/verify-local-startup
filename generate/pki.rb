@@ -79,3 +79,13 @@ pki_to_generate['pki'].each do |ca_name, ca|
   convert_key_cert ca['cert-file']
   FileUtils.remove [ "#{ca['cert-file']}.pk8" ]
 end
+
+pki_to_generate.fetch('truststores', []).each do |store, details|
+  puts "Generating truststore: #{store}"
+  details['certs'].each do |cert|
+    cert_element = pki_to_generate['pki'].dig(*cert.split('.'))
+    cert_file = cert_element['cert-file']
+    puts "Adding #{cert_file} to #{store}"
+    `keytool -import -noprompt -alias "#{cert_element['common-name']}" -file "#{cert_file}.crt" -keystore "#{store}.ts" -storepass marshmallow`
+  end
+end
