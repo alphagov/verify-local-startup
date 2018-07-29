@@ -7,7 +7,7 @@ require 'open3'
 require_relative 'metadata-sources'
 
 SCRIPT_DIR = File.expand_path(File.dirname(__FILE__))
-pki_to_generate = YAML.load_file(ARGV[0] ||= "#{SCRIPT_DIR}/pki.yml")
+pki_to_generate = YAML.load_file(ARGV[0] ||= "#{SCRIPT_DIR}/config.yml")
 DATA_DIR = "#{SCRIPT_DIR}/../data"
 pki_dir = "#{DATA_DIR}/pki"
 FileUtils::mkdir_p pki_dir
@@ -103,17 +103,19 @@ pki_to_generate.fetch('truststores', []).each do |store, details|
 end
 
 Dir.chdir "#{DATA_DIR}/metadata"
-metadata = pki_to_generate['metadata']
-Metadata.generate_metadata_sources(lookup_cert_file(pki_to_generate, metadata['hub']['signing']),
-                                   lookup_cert_file(pki_to_generate, metadata['hub']['encryption']),
-                                   lookup_cert_file(pki_to_generate, metadata['idps']['signing']),
-                                   "dev",
-                                   ENV.fetch('FRONTEND_URI'),
-                                   ENV.fetch('STUB_IDP_URI'))
+metadata = pki_to_generate.fetch('metadata', nil)
+if metadata then
+  Metadata.generate_metadata_sources(lookup_cert_file(pki_to_generate, metadata['hub']['signing']),
+                                     lookup_cert_file(pki_to_generate, metadata['hub']['encryption']),
+                                     lookup_cert_file(pki_to_generate, metadata['idps']['signing']),
+                                     "dev",
+                                     ENV.fetch('FRONTEND_URI'),
+                                     ENV.fetch('STUB_IDP_URI'))
 
-Metadata.generate_metadata_sources(lookup_cert_file(pki_to_generate, metadata['hub']['signing']),
-                                   lookup_cert_file(pki_to_generate, metadata['hub']['encryption']),
-                                   lookup_cert_file(pki_to_generate, metadata['idps']['signing']),
-                                   "compliance-tool",
-                                   "http://localhost:#{ENV.fetch('COMPLIANCE_TOOL_PORT', 50270)}",
-                                   ENV.fetch('STUB_IDP_URI'))
+  Metadata.generate_metadata_sources(lookup_cert_file(pki_to_generate, metadata['hub']['signing']),
+                                     lookup_cert_file(pki_to_generate, metadata['hub']['encryption']),
+                                     lookup_cert_file(pki_to_generate, metadata['idps']['signing']),
+                                     "compliance-tool",
+                                     "http://localhost:#{ENV.fetch('COMPLIANCE_TOOL_PORT', 50270)}",
+                                     ENV.fetch('STUB_IDP_URI'))
+end

@@ -26,7 +26,7 @@ pushd "$data_dir" >/dev/null
   mkdir -p metadata/output/{dev,compliance-tool}
   mkdir -p stub-fed-config
 
-  $script_dir/pki.rb
+  $script_dir/generate-from-config.rb
 
   # Temporary shim to fit with old scripts
   mv $data_dir/pki/verify-*.crt $data_dir/ca-certificates
