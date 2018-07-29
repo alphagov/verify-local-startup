@@ -1,0 +1,15 @@
+pki:
+  # Format
+  # =======================================
+  # ca-name:
+  #   common-name: Some Root CA Common Name
+  #   cert-file: ca-root
+  #   intermediates:
+  #     intermediate-name:
+  #       common-name: Some Intermediate Common Name (Optional - defaults to Verify Local Startup {Intermediate Name} Intermediate CA)
+  #       cert-file: ca-intermediate (Optional - defaults to {ca-name}-{intermediate-name})
+  #       certs:
+  #         cert-name:
+  #           type: [signing|encryption]
+  #           common-name: Some Cert Common Name (Optional - defaults to Verify Local Startup {Cert Name})
+  #           cert-file: ca-intermediate (Optional - defaults to {cert-name})
