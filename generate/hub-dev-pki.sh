@@ -21,15 +21,15 @@ mkdir -p "$data_dir"
 
 pushd "$data_dir" >/dev/null
   rm -rf {pki,metadata,stub-fed-config}
-  mkdir -p {pki,metadata,stub-fed-config}
+  mkdir -p {pki,metadata,stub-fed-config,ca-certificates}
 
   mkdir -p metadata/output/{dev,compliance-tool}
   mkdir -p stub-fed-config
 
-  env \
-    CSR_TEMPLATE="$script_dir/template-csr.json" \
-    CFSSL_CONFIG="$script_dir/cfssl-config.json" \
-    $script_dir/generate-certs.sh
+  $script_dir/pki.rb
+
+  # Temporary shim to fit with old scripts
+  mv $data_dir/pki/verify-*.crt $data_dir/ca-certificates
 
   $script_dir/generate-truststores.sh
   $script_dir/generate-metadata.sh

@@ -1,5 +1,6 @@
 {
     "CN": "$COMMON_NAME",
+    "hosts": [ "localhost" ],
     "key": {
         "algo": "rsa",
         "size": 2048

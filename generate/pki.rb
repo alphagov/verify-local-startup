@@ -51,6 +51,8 @@ pki_to_generate['pki'].each do |ca_name, ca|
       convert_key_cert cert_file
     end
     convert_key_cert inter['cert-file']
+    FileUtils.remove [ "#{inter['cert-file']}.pk8" ]
   end
   convert_key_cert ca['cert-file']
+  FileUtils.remove [ "#{ca['cert-file']}.pk8" ]
 end

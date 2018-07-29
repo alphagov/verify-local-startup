@@ -34,6 +34,12 @@
                     "key encipherment"
                 ],
                 "expiry": "876000h"
+            },
+            "encryption": {
+                "usages": [
+                    "key encipherment"
+                ],
+                "expiry": "876000h"
             }
         }
     }
