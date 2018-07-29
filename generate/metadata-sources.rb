@@ -58,22 +58,3 @@ module Metadata
     end
   end
 end
-
-if __FILE__ == $0 then
-  if ARGV.size < 4
-    puts "Usage: metadata-sources.rb hub_signing_cert hub_encryption_cert idp_signing_cert output_dir"
-    exit 1
-  end
-
-  hub_signing_cert = ARGV[0]
-  hub_encryption_cert = ARGV[1]
-  idp_signing_cert = ARGV[2]
-  output_dir = ARGV[3]
-
-  Metadata.generate_metadata_sources(hub_signing_cert,
-                                     hub_encryption_cert,
-                                     idp_signing_cert,
-                                     output_dir,
-                                     ENV.fetch('FRONTEND_URI'),
-                                     ENV.fetch('STUB_IDP_URI'))
-end

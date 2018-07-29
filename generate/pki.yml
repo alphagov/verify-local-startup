@@ -90,3 +90,18 @@ truststores:
     certs:
       - verify
       - verify.intermediates.metadata
+
+# Format
+# =========
+# metadata:
+#   hub:
+#     signing: ca-name.intermediates.inter-name.certs.signing-cert
+#     encryption: ca-name.intermediates.inter-name.certs.encryption-cert
+#   idps:
+#     signing: ca-name.intermediates.inter-name.certs.encryption-cert
+metadata:
+  hub:
+    signing: verify.intermediates.hub.certs.hub_signing_primary
+    encryption: verify.intermediates.hub.certs.hub_encryption_primary
+  idps:
+    signing: verify.intermediates.idp.certs.stub_idp_signing_primary

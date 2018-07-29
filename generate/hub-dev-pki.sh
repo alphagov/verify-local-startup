@@ -22,7 +22,7 @@ mkdir -p "$data_dir"
 pushd "$data_dir" >/dev/null
   rm -rf {pki,metadata,stub-fed-config}
   mkdir -p {pki,metadata,stub-fed-config,ca-certificates}
-
+  mkdir -p metadata/{dev,compliance-tool}/idps
   mkdir -p metadata/output/{dev,compliance-tool}
   mkdir -p stub-fed-config
 

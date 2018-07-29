@@ -4,10 +4,12 @@ require 'yaml'
 require 'json'
 require 'fileutils'
 require 'open3'
+require_relative 'metadata-sources'
 
 SCRIPT_DIR = File.expand_path(File.dirname(__FILE__))
 pki_to_generate = YAML.load_file(ARGV[0] ||= "#{SCRIPT_DIR}/pki.yml")
-pki_dir = 'pki'
+DATA_DIR = "#{SCRIPT_DIR}/../data"
+pki_dir = "#{DATA_DIR}/pki"
 FileUtils::mkdir_p pki_dir
 Dir.chdir pki_dir
 
@@ -42,6 +44,14 @@ def cfssl_json(input, file)
   raise write_out unless write_status.success?
 end
 
+def lookup_element(pki_to_generate, key)
+    pki_to_generate['pki'].dig(*key.split('.'))
+end
+
+def lookup_cert_file(pki_to_generate, key)
+    "#{DATA_DIR}/pki/#{lookup_element(pki_to_generate, key)['cert-file']}.crt"
+end
+
 def convert_key_cert(file)
   openssl_output = %x(openssl pkcs8 -topk8 -inform PEM -outform DER -in #{file}-key.pem -out #{file}.pk8 -nocrypt)
   raise openssl_output unless $?.success?
@@ -65,13 +75,15 @@ pki_to_generate['pki'].each do |ca_name, ca|
     generate_cert('intermediate', inter['common-name'], inter['cert-file'], "#{ca['cert-file']}.pem", "#{ca['cert-file']}-key.pem")
 
     inter['certs'].each do |cert_name, cert|
-      cert_file = cert.fetch('cert-file', cert_name)
-      common_name = cert.fetch('common-name', "Verify Local Startup #{cert_name.split("-").map{ |s| s.capitalize}.join(' ')}")
-
       puts "\t\tGenerating cert: #{cert_name}"
-      generate_cert(cert['type'], common_name, cert_file, "#{inter['cert-file']}.pem", "#{inter['cert-file']}-key.pem")
-
-      convert_key_cert cert_file
+      cert['cert-file'] = cert.fetch('cert-file', cert_name)
+      common_name = cert.fetch('common-name', "Verify Local Startup #{cert_name.split("-").map{ |s| s.capitalize}.join(' ')}")
+      generate_cert(cert['type'],
+                    common_name,
+                    cert['cert-file'],
+                    "#{inter['cert-file']}.pem",
+                    "#{inter['cert-file']}-key.pem")
+      convert_key_cert cert['cert-file']
     end
     convert_key_cert inter['cert-file']
     FileUtils.remove [ "#{inter['cert-file']}.pk8" ]
@@ -83,9 +95,25 @@ end
 pki_to_generate.fetch('truststores', []).each do |store, details|
   puts "Generating truststore: #{store}"
   details['certs'].each do |cert|
-    cert_element = pki_to_generate['pki'].dig(*cert.split('.'))
+    cert_element = lookup_element(pki_to_generate, cert)
     cert_file = cert_element['cert-file']
     puts "Adding #{cert_file} to #{store}"
     `keytool -import -noprompt -alias "#{cert_element['common-name']}" -file "#{cert_file}.crt" -keystore "#{store}.ts" -storepass marshmallow`
   end
 end
+
+Dir.chdir "#{DATA_DIR}/metadata"
+metadata = pki_to_generate['metadata']
+Metadata.generate_metadata_sources(lookup_cert_file(pki_to_generate, metadata['hub']['signing']),
+                                   lookup_cert_file(pki_to_generate, metadata['hub']['encryption']),
+                                   lookup_cert_file(pki_to_generate, metadata['idps']['signing']),
+                                   "dev",
+                                   ENV.fetch('FRONTEND_URI'),
+                                   ENV.fetch('STUB_IDP_URI'))
+
+Metadata.generate_metadata_sources(lookup_cert_file(pki_to_generate, metadata['hub']['signing']),
+                                   lookup_cert_file(pki_to_generate, metadata['hub']['encryption']),
+                                   lookup_cert_file(pki_to_generate, metadata['idps']['signing']),
+                                   "compliance-tool",
+                                   "http://localhost:#{ENV.fetch('COMPLIANCE_TOOL_PORT', 50270)}",
+                                   ENV.fetch('STUB_IDP_URI'))

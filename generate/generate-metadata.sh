@@ -14,20 +14,6 @@ rm -f "$output/*"
 # generate
 bundle >/dev/null
 
-echo "$(tput setaf 3)Generating metadata sources$(tput sgr0)"
-$script_dir/metadata-sources.rb \
-  "$certdir"/hub_signing_primary.crt \
-  "$certdir"/hub_encryption_primary.crt \
-  "$certdir"/stub_idp_signing_primary.crt \
-  "$sources/dev" || exit 1
-
-env FRONTEND_URL="http://localhost:${COMPLIANCE_TOOL_PORT}" \
-  $script_dir/metadata-sources.rb \
-  "$certdir"/hub_signing_primary.crt \
-  "$certdir"/hub_encryption_primary.crt \
-  "$certdir"/stub_idp_signing_primary.crt \
-  "$sources/compliance-tool" || exit 1
-
 echo "$(tput setaf 3)Generating metadata XML$(tput sgr0)"
 bundle exec generate_metadata -c "$sources" -e dev -w -o "$output" --valid-until=36500 \
   --hubCA "$cadir"/verify-root.crt \
