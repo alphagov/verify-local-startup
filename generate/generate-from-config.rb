@@ -4,6 +4,7 @@ require 'yaml'
 require 'json'
 require 'fileutils'
 require 'open3'
+require 'verify/metadata/generator'
 require_relative 'metadata-sources'
 
 SCRIPT_DIR = File.expand_path(File.dirname(__FILE__))
@@ -50,7 +51,7 @@ def lookup_cert_file(config, key)
 end
 
 def lookup_key_file(config, key)
-    "#{DATA_DIR}/pki/#{lookup_element(config, key)['cert-file']}-key.pk8"
+    "#{DATA_DIR}/pki/#{lookup_element(config, key)['cert-file']}-key.pem"
 end
 
 def convert_key_cert(file)
@@ -61,6 +62,7 @@ def convert_key_cert(file)
 end
 
 pki_dir = "#{DATA_DIR}/pki"
+ca_dir = "#{DATA_DIR}/ca-certificates"
 FileUtils::mkdir_p pki_dir
 Dir.chdir pki_dir
 config['pki'].each do |ca_name, ca|
@@ -90,11 +92,11 @@ config['pki'].each do |ca_name, ca|
       convert_key_cert cert['cert-file']
     end
     convert_key_cert inter['cert-file']
-    FileUtils.move "#{inter['cert-file']}.crt", "#{DATA_DIR}/ca-certificates"
+    FileUtils.move "#{inter['cert-file']}.crt", ca_dir
     FileUtils.remove [ "#{inter['cert-file']}.pk8" ]
   end
   convert_key_cert ca['cert-file']
-  FileUtils.move "#{ca['cert-file']}.crt", "#{DATA_DIR}/ca-certificates"
+  FileUtils.move "#{ca['cert-file']}.crt", ca_dir
   FileUtils.remove [ "#{ca['cert-file']}.pk8" ]
 end
 
@@ -102,9 +104,9 @@ config.fetch('truststores', []).each do |store, details|
   puts "Generating truststore: #{store}"
   details['certs'].each do |cert|
     cert_element = lookup_element(config, cert)
-    cert_file = cert_element['cert-file']
+    cert_file = "#{ca_dir}/#{cert_element['cert-file']}.crt"
     puts "\tAdding #{cert_file} to #{store}"
-    `keytool -import -noprompt -alias "#{cert_element['common-name']}" -file "#{cert_file}.crt" -keystore "#{store}.ts" -storepass marshmallow`
+    `keytool -import -noprompt -alias "#{cert_element['common-name']}" -file "#{cert_file}" -keystore "#{store}.ts" -storepass marshmallow`
   end
 end
 
@@ -127,5 +129,22 @@ if metadata then
                                      "compliance-tool",
                                      "http://localhost:#{ENV.fetch('COMPLIANCE_TOOL_PORT', 50270)}",
                                      ENV.fetch('STUB_IDP_URI'))
-end
 
+  Verify::Metadata::Generator::run!(['-c', metadata_dir, '-e', 'dev', '-w', '-o',
+    "#{metadata_dir}",
+    '--valid-until=36500',
+    '--hubCA', "#{ca_dir}/verify-root.crt",
+    '--hubCA', "#{ca_dir}/verify-hub.crt",
+    '--idpCA', "#{ca_dir}/verify-root.crt",
+    '--idpCA', "#{ca_dir}/verify-idp.crt"])
+
+  write_out, write_status = Open3.capture2e(
+    'xmlsectool', '--sign',
+    '--inFile', "#{metadata_dir}/dev/metadata.xml",
+    '--outFile', "#{metadata_dir}/dev.xml",
+    '--certificate', "#{pki_dir}/metadata_signing_a.crt",
+    '--key', "#{pki_dir}/metadata_signing_a.pk8",
+    '--digest', 'SHA-256'
+  )
+  raise write_out unless write_status.success?
+end

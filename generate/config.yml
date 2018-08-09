@@ -100,6 +100,7 @@ truststores:
 #   idps:
 #     signing: ca-name.intermediates.inter-name.certs.encryption-cert
 metadata:
+  signature: verify.intermediates.metadata.certs.metadata_signing_a
   hub:
     signing: verify.intermediates.hub.certs.hub_signing_primary
     encryption: verify.intermediates.hub.certs.hub_encryption_primary

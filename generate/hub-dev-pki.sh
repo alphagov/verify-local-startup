@@ -26,6 +26,5 @@ pushd "$data_dir" >/dev/null
   mkdir -p metadata/output/{dev,compliance-tool}
   mkdir -p stub-fed-config
 
-  $script_dir/generate-from-config.rb
-  $script_dir/generate-metadata.sh
+  bundle exec $script_dir/generate-from-config.rb
 popd >/dev/null
