@@ -30,17 +30,17 @@ env FRONTEND_URL="http://localhost:${COMPLIANCE_TOOL_PORT}" \
 
 echo "$(tput setaf 3)Generating metadata XML$(tput sgr0)"
 bundle exec generate_metadata -c "$sources" -e dev -w -o "$output" --valid-until=36500 \
-  --hubCA "$cadir"/dev-root-ca.pem.test \
-  --hubCA "$cadir"/dev-hub-ca.pem.test \
-  --idpCA "$cadir"/dev-root-ca.pem.test \
-  --idpCA "$cadir"/dev-idp-ca.pem.test
+  --hubCA "$cadir"/verify-root.crt \
+  --hubCA "$cadir"/verify-hub.crt \
+  --idpCA "$cadir"/verify-root.crt \
+  --idpCA "$cadir"/verify-idp.crt
 
 for src in dev compliance-tool; do
   bundle exec generate_metadata -c "$sources" -e $src -w -o "$output" --valid-until=36500 \
-    --hubCA "$cadir"/dev-root-ca.pem.test \
-    --hubCA "$cadir"/dev-hub-ca.pem.test \
-    --idpCA "$cadir"/dev-root-ca.pem.test \
-    --idpCA "$cadir"/dev-idp-ca.pem.test
+    --hubCA "$cadir"/verify-root.crt \
+    --hubCA "$cadir"/verify-hub.crt \
+    --idpCA "$cadir"/verify-root.crt \
+    --idpCA "$cadir"/verify-idp.crt
   
   if test ! -f "$output"/$src/metadata.xml; then
     echo "$(tput setaf 1)Failed to generate metadata$(tput sgr0)"

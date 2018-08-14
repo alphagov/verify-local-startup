@@ -1,0 +1,62 @@
+pki:
+  # Format
+  # =======================================
+  # ca-name:
+  #   common-name: Some Root CA Common Name
+  #   cert-file: ca-root
+  #   intermediates:
+  #     intermediate-name:
+  #       common-name: Some Intermediate Common Name (Optional - defaults to Verify Local Startup {Intermediate Name} Intermediate CA)
+  #       cert-file: ca-intermediate (Optional - defaults to {ca-name}-{intermediate-name})
+  #       certs:
+  #         cert-name:
+  #           type: [signing|encryption]
+  #           common-name: Some Cert Common Name (Optional - defaults to Verify Local Startup {Cert Name})
+  #           cert-file: ca-intermediate (Optional - defaults to {cert-name})
+  verify:
+    common-name: Verify Local Startup Root CA
+    cert-file: verify-root
+    intermediates:
+      hub:
+        certs:
+          hub_signing_primary:
+            type: signing
+          hub_encryption_primary:
+            type: encryption
+          hub_signing_secondary:
+            type: signing
+          hub_encryption_secondary:
+            type: encryption
+
+      idp:
+        certs:
+          stub_idp_signing_primary:
+            type: signing
+          stub_idp_signing_secondary:
+            type: signing
+
+      rp:
+        certs:
+          sample_rp_signing_primary:
+            type: signing
+          sample_rp_encryption_primary:
+            type: encryption
+          sample_rp_signing_secondary:
+            type: signing
+          sample_rp_encryption_secondary:
+            type: encryption
+          sample_rp_msa_signing_primary:
+            type: signing
+          sample_rp_msa_encryption_primary:
+            type: encryption
+          sample_rp_msa_signing_secondary:
+            type: signing
+          sample_rp_msa_encryption_secondary:
+            type: encryption
+
+      metadata:
+        certs:
+          metadata_signing_a:
+            type: signing
+          metadata_signing_b:
+            type: signing
