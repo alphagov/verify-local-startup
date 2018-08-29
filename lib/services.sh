@@ -6,7 +6,7 @@ build_service() {
   pushd "$basedir" >/dev/null
     if test -x "./gradlew"; then
       echo -n "Building in $(tput setaf 3)$basedir$(tput sgr0) ... "
-      if ./gradlew --parallel build copyToLib -x test > build-output.log 2>&1; then
+      if ./gradlew --parallel build installDist -x intTest -x test > build-output.log 2>&1; then
         echo "$(tput setaf 2)done$(tput sgr0)"
       else
         echo "$(tput setaf 1)failed$(tput sgr0) - see build-output.log"
@@ -46,7 +46,7 @@ start_service() {
   local debug_port=$(($port+2))
   local java_args="${@:5}"
   local debug="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$debug_port"
-  local jar="${basedir}/build/output/*.jar"
+  local startup_script="${basedir}/build/install/$service/bin/$service"
   local log="logs/${service}_console.log"
 
   mkdir -p logs
@@ -55,12 +55,10 @@ start_service() {
   for pid in $pids; do kill -9 $pid 2>/dev/null; done
 
   echo "Starting service: $(tput setaf 3)$service$(tput sgr0)"
-
+  export JAVA_OPTS="$java_args \
+      -Xms32m -Xmx32m"
   ( rm -f "$log"
-    java $java_args $debug \
-      -Xms32m -Xmx32m \
-      -jar $jar server "$cfg" >"$log" 2>&1 &
-
+    $startup_script server "$cfg" >"$log" 2>&1 &
     pid=$!
 
     start_service_checker $service $port $pid $log "localhost:$port/service-status"
