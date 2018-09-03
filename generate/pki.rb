@@ -12,7 +12,7 @@ FileUtils::mkdir_p pki_dir
 Dir.chdir pki_dir
 
 def csr_json()
-  '{"names": [ { "C": "GB", "ST": "London", "L": "London", "O": "Cabinet Office", "OU": "GDS" } ]}'
+  '{"key": { "algo": "rsa", "size": 2048 }, "names": [ { "C": "GB", "ST": "London", "L": "London", "O": "Cabinet Office", "OU": "GDS" } ]}'
 end
 
 def generate_cert(type, common_name, file, ca_cert, ca_key)
