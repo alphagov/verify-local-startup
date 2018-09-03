@@ -55,7 +55,7 @@ start_service() {
   for pid in $pids; do kill -9 $pid 2>/dev/null; done
 
   echo "Starting service: $(tput setaf 3)$service$(tput sgr0)"
-  export JAVA_OPTS="$java_args \
+  export JAVA_OPTS="$java_args $debug\
       -Xms32m -Xmx32m"
   ( rm -f "$log"
     $startup_script server "$cfg" >"$log" 2>&1 &
