@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 
 services:
   config:
@@ -16,6 +16,8 @@ services:
       - urls.env
     environment:
       APP_NAME: policy
+      EVENT_EMITTER_ENABLED: "false"
+      EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
     volumes:
       - ./data:/data:ro
 
@@ -34,6 +36,8 @@ services:
       - urls.env
     environment:
       APP_NAME: saml-proxy
+      EVENT_EMITTER_ENABLED: "false"
+      EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
     volumes:
       - ./data:/data:ro
 
@@ -43,11 +47,13 @@ services:
       - urls.env
     environment:
       APP_NAME: saml-soap-proxy
+      EVENT_EMITTER_ENABLED: "false"
+      EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
     volumes:
       - ./data:/data:ro
 
   stub-event-sink:
-    image: ${SAML_SOAP_PROXY_IMAGE}
+    image: ${STUB_EVENT_SINK_IMAGE}
     environment:
       APP_NAME: stub-event-sink
     volumes:
@@ -89,7 +95,6 @@ services:
       STUB_IDP_BASIC_AUTH: "false"
       STUB_IDPS_FILE_PATH: /idps/stub-idps.yml
       ENTITY_ID: http://%s.local/SSO/POST
-      METADATA_ENTITY_ID: https://dev-hub.local
       STUB_IDP_ASSET_LOCATION: /assets
       STUB_IDP_YAML_FILE_LOCATION: /idps/stub-idps.yml
 
@@ -101,8 +106,9 @@ services:
       - urls.env
     environment:
       ASSERTION_CONSUMER_SERVICE_URL: ${TEST_RP_URL}/matching-service/POST
-      LMS_MATCH_URL: ${TEST_RP_URL}/test-rp/matching-service/POST
-      LMS_UAC_URL: ${TEST_RP_URL}/test-rp/unknown-user/POST
+      MSA_ENTITY_ID: http://dev-rp-ms.local/SAML2/MD
+      LMS_MATCH_URL: http://test-rp/test-rp/matching-service/POST
+      LMS_UAC_URL: http://test-rp/test-rp/unknown-user/POST
       HUB_SSO_URL: http://localhost:${FRONTEND_EXTERNAL_PORT}/SAML2/SSO
 
   test-rp:
@@ -121,7 +127,6 @@ services:
       TEST_RP_PRIVATE_BETA_USER_ACCESS_RESTRICTION_ENABLED: "false"
       TEST_RP_ENTITY_ID: http://dev-rp.local/SAML2/MD
       MSA_ENTITY_ID: http://dev-rp-ms.local/SAML2/MD
-      METADATA_ENTITY_ID: https://dev-hub.local
       MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata
 
   stub-idp-db:
