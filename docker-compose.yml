@@ -81,7 +81,7 @@ services:
       - ./configuration/idps:/idps:ro
     env_file:
       - urls.env
-      - stub-idp.env
+      - configuration/stub-idp.env
     environment:
       PORT: 80
       LOG_PATH: /app/logs
@@ -113,7 +113,7 @@ services:
       - ../verify-test-rp/build/resources/main/assets:/assets:ro
     env_file:
       - urls.env
-      - test-rp.env
+      - configuration/test-rp.env
     environment:
       TEST_RP_ASSETS_LOCATION: /assets
       TEST_RP_PORT: 80
