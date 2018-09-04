@@ -6,6 +6,7 @@ sources="metadata"
 output="metadata/output"
 cadir="$PWD/ca-certificates"
 certdir="$PWD/pki"
+xmlsectool="${XMLSECTOOL:-xmlsectool}"
 
 mkdir -p "$sources/dev/idps"
 mkdir -p "$sources/compliance-tool/idps"
