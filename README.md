@@ -1,6 +1,6 @@
 # Local startup
 
-Repository with useful scripts for creating PKI, building and starting Verify apps
+Repository with useful scripts for creating PKI, building and starting Verify apps with Docker
 
 ## Before you start
 
@@ -12,7 +12,7 @@ You'll need to install [cfssl](https://github.com/cloudflare/cfssl) which is use
 
 ## Create environment for running app locally
 
-`generate-env.rb` can generate a `local.env` file for running Verify apps locally. The script takes a path to output the generated .env file to. It also, optionally, takes which apps (MSA or VSP) need variables added to the .env file.
+`generate-env.rb` can generate a `local.env` file for running some Verify apps locally. The script takes a path to output the generated .env file to. It also, optionally, takes which apps (MSA or VSP) need variables added to the .env file.
 
 ### Example
 ```
@@ -28,9 +28,8 @@ To run hub locally, ensure all the following repositories are cloned as siblings
 * verify-test-rp
 * verify-stub-idp
 * verify-matching-service-adapter
-* verify-service-provider
 
-`startup.sh` will then build and run the applications with the generated PKI. By using `generate-env.sh` with the configuration files in `/configuration`, each app can be restarted individually for development purposes.
+`startup.sh` will then build and run the applications with the generated PKI. By using `generate-env.sh` with the .env files in `/configuration`, the available app containers can be restarted individually for development purposes.
 
 ## Support and raising issues
 
