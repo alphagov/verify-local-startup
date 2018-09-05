@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-BASE64="base64 -w0" # Linux
-if [ "$(uname)" = "Darwin" ]; then
-    BASE64="base64 -b0" # macOS
-fi
+BASE64="openssl base64 -A -in "
 
 cat << EOF > hub.env
 HUB_ENCRYPTION_KEY=$($BASE64 data/pki/hub_encryption_primary.pk8)
