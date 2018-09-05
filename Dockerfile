@@ -23,4 +23,4 @@ ENV XMLSECTOOL="/xmlsectool-2.0.0/xmlsectool.sh"
 ENV JAVA_HOME=/usr/lib/jvm/default-jvm/jre
 
 WORKDIR /verify-local-startup
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/bash", "-c"]

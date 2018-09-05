@@ -23,7 +23,7 @@ fi
 
 docker build -t verify-local-startup .
 
-docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup -c '
+docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup '
 set -e
 if ! test -d data; then
   generate/hub-dev-pki.sh
