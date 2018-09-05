@@ -4,6 +4,12 @@ set -eu -o pipefail
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 
+# Build a docker image with all of our dependencies for future steps
+if ! command -v docker >/dev/null; then
+  >&2 echo "docker: command not found. verify-local-startup requires docker."
+  exit 1
+fi
+
 tput setaf 4
 cat << 'EOF'
 __     __        _  __         _   _       _        ____  ___  
@@ -14,12 +20,6 @@ __     __        _  __         _   _       _        ____  ___
                        |___/                                   
 EOF
 tput sgr0
-
-# Build a docker image with all of our dependencies for future steps
-if ! command -v docker >/dev/null; then
-  >&2 echo "docker: command not found. verify-local-startup requires docker."
-  exit 1
-fi
 
 # Running generate scripts in docker avoids having to install their
 # dependencies on the host.
