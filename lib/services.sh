@@ -25,9 +25,13 @@ start_service_checker() {
   local MAX_RETRIES=10
 
   for i in $(seq 1 $MAX_RETRIES); do
-    curl --silent --output /dev/null $endpoint
-    s=$?
-    test "$s" -eq 0 && break || sleep 5
+    if curl --silent --output /dev/null $endpoint ; then
+      s=$?
+      break
+    else
+      s=$?
+      sleep 5
+    fi
   done
 
   if test "$s" -eq 0; then
