@@ -21,8 +21,12 @@ if ! command -v docker >/dev/null; then
   exit 1
 fi
 
+# Running generate scripts in docker avoids having to install their
+# dependencies on the host.
 docker build -t verify-local-startup .
 
+# Inlining the following block of commands to docker run rather than putting
+# them in their own script to avoid an extra level of bash indirection
 docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup '
 set -e
 if ! test -d data; then
