@@ -21,20 +21,9 @@ start_service_checker() {
   local pid="$3"
   local log="$4"
   local endpoint="$5"
-  local s=1
   local MAX_RETRIES=10
 
-  for i in $(seq 1 $MAX_RETRIES); do
-    if curl --silent --output /dev/null $endpoint ; then
-      s=$?
-      break
-    else
-      s=$?
-      sleep 5
-    fi
-  done
-
-  if test "$s" -eq 0; then
+  if curl --retry $MAX_RETRIES --retry-connrefused --retry-delay 5 --silent --output /dev/null $endpoint ; then
     printf "$(tput setaf 3)%-25s$(tput sgr0) $(tput setaf 2)STARTED$(tput sgr0) [pid: $pid | port: $port]\n" "$service"
   else
     printf "$(tput setaf 3)%-25s$(tput sgr0) $(tput setaf 1)FAILED$(tput sgr0) see $log\n" "$service"
