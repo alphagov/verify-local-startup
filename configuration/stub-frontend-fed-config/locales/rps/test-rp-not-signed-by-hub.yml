@@ -1,0 +1,9 @@
+en:
+  rps:
+    test-rp-noc3:
+      name: register for an identity profile (Simple profile flow, not signed by hub, no Cycle3)
+      rp_name: Test RP (Simple profile flow, not signed by hub, no Cycle3)
+      analytics_description: TEST RP (unsignedByHub)
+      other_ways_text: If you can’t verify your identity using GOV.UK Verify, there are other ways to <a href='http://www.example.com'>register for an identity profile (Simple profile flow, not signed by hub, no Cycle3)</a>
+      other_ways_description: access TestRP (Simple profile flow, not signed by hub, no Cycle3)
+      tailored_text: <p>This is tailored text for test-rp-not-signed-by-hub</p>
