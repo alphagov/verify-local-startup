@@ -41,7 +41,7 @@ translations = {
     'translations' => [
       {
         'locale' => 'en',
-        'name' => 'register for an identity profile',
+        'name' => 'test GOV.UK Verify user journeys',
         'rpName' => 'Test RP',
         'analyticsDescription' => 'TEST RP',
         'otherWaysDescription' => 'access TestRP',
@@ -108,7 +108,7 @@ Dir::chdir(output_dir) do
           ],
           'levelsOfAssurance' => [ 'LEVEL_2' ],
           'matchingServiceEntityId' => "http://#{rp}-ms.local/SAML2/MD",
-          'displayName' => 'Register for an identity profile',
+          'displayName' => 'Test GOV.UK Verify user journeys',
           'otherWaysDescription' => 'access Dev RP',
           'serviceHomepage' => "http://#{rp}.local/home",
           'rpName' => 'Dev RP',

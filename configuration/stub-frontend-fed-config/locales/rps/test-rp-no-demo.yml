@@ -2,7 +2,7 @@
 cy:
   rps:
     test-rp-no-demo:
-      name: register for an identity profile
+      name: test GOV.UK Verify user journeys
       rp_name: Test RP No Demo
       analytics_description: TEST RP NO DEMO
       other_ways_description: access TestRP No Demo
@@ -18,7 +18,7 @@ cy:
 en:
   rps:
     test-rp-no-demo:
-      name: register for an identity profile
+      name: test GOV.UK Verify user journeys
       rp_name: Test RP No Demo
       analytics_description: TEST RP NO DEMO
       other_ways_description: access TestRP No Demo

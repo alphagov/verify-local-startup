@@ -1,7 +1,7 @@
 en:
   rps:
     test-rp-with-continue-on-fail:
-      name: register for an identity profile
+      name: test GOV.UK Verify user journeys
       rp_name: Test RP
       analytics_description: analytics description for test-rp
       other_ways_text: <p>You can still continue to complete your transaction.</p>
