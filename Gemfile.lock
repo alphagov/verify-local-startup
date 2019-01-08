@@ -29,7 +29,7 @@ GEM
     clamp (1.0.1)
     concurrent-ruby (1.0.5)
     dotenv (2.2.1)
-    ffi (1.9.18)
+    ffi (1.9.24)
     fpm (1.9.3)
       arr-pm (~> 0.0.10)
       backports (>= 2.6.2)
