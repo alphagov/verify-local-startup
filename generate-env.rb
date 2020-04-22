@@ -72,7 +72,7 @@ IDP = <<~IDP
     EUROPEAN_IDENTITY_ENABLED=true
     STUB_COUNTRY_SIGNING_PRIVATE_KEY="$STUB_IDP_SIGNING_PRIVATE_KEY"
     STUB_COUNTRY_SIGNING_CERT="$STUB_IDP_SIGNING_CERT"
-    DB_URI="jdbc:postgresql://localhost:5432/postgres?user=postgres"
+    DB_URI="jdbc:postgresql://localhost:5432/postgres?user=postgres&password=docker"
   IDP
 
 applications = {
