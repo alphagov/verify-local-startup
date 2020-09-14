@@ -1,0 +1,11 @@
+---
+simpleId: test-rp-noc3
+translations:
+  - locale: en
+    name: Test GOV.UK Verify user journeys (forceauthn & no cycle3)
+    rpName: Test RP
+    analyticsDescription: analytics description for test-rp-noc3
+    otherWaysText: If you can’t verify your identity using GOV.UK Verify, there are other ways to <a href='http://www.example.com'>test GOV.UK Verify user journeys (forceauthn & no cycle3)</a>
+    otherWaysDescription: other ways to test GOV.UK Verify user journeys (forceauthn & no cycle3)
+    tailoredText: <p>This is tailored text for test-rp-noc3</p>
+    taxonName: Benefits

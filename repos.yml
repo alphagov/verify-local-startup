@@ -42,12 +42,6 @@ saml-engine:
     - hub_app: saml-engine
   image_env_var: SAML_ENGINE_IMAGE
 
-stub-event-sink:
-  context: ../verify-hub
-  build-args:
-    - hub_app: stub-event-sink
-  image_env_var: STUB_EVENT_SINK_IMAGE
-
 frontend:
   context: ../verify-frontend
   image_env_var: FRONTEND_IMAGE

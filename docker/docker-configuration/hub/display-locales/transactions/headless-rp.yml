@@ -1,0 +1,11 @@
+---
+simpleId: headless-rp
+translations:
+  - locale: en
+    name: Become the headless horse person
+    rpName: Headless RP
+    analyticsDescription: analytics description for headless-rp
+    otherWaysText: If you can’t verify your identity using GOV.UK Verify, there are other ways to <a href='http://www.example.com'>become the headless horseperson</a>
+    otherWaysDescription: other ways to become the headless horseperson
+    tailoredText: <p>This is tailored text for Headless RP</p>
+    taxonName: Benefits

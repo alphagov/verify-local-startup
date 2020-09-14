@@ -1,0 +1,74 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${TEST_RP_PORT}
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+
+transactionHost: http://${TEST_RP_HOST:-localhost}:${TEST_RP_PORT}
+dontCacheFreemarkerTemplates: true
+
+cookieName: test-rp-session
+
+saml:
+  entityId: http://www.%s.gov.uk/SAML2/MD
+  expectedDestination: http://localhost
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+
+msaMetadataUri: http://${TEST_RP_MSA_HOST:-localhost}:${TEST_RP_MSA_PORT}/matching-service/SAML2/metadata
+
+allowInsecureMetadataLocation: true
+
+msaEntityId: ${IDA_TESTRP_MSA_ENTITYID:-"http://www.test-rp-ms.gov.uk/SAML2/MD"}
+
+hubEntityId: https://local.signin.service.gov.uk
+
+forceAuthentication: false
+
+serviceInfo:
+  name: ${IDA_TESTRP_SERVICENAME:-"test-rp"}
+
+privateSigningKeyConfiguration:
+  keyFile: keys/sample_rp_signing.pk8
+
+publicSigningCert:
+  certFile: certs/sample_rp_signing.crt
+  name: someId
+
+privateEncryptionKeyConfiguration:
+  keyFile: keys/sample_rp_encryption.pk8
+
+publicEncryptionCert:
+  certFile: certs/sample_rp_encryption.crt
+  name: someId
+
+clientTrustStoreConfiguration:
+  path: truststores/ida_truststore.ts
+  password: puppet
+
+assets:
+  overrides:
+    /assets: ../verify-test-rp/build/resources/main/assets
+
+javascriptPath: /assets/javascripts
+stylesheetsPath: /assets/stylesheets
+imagesPath: /assets/images
+
+privateBetaUserAccessRestrictionEnabled: ${IDA_TESTRP_TOKENSERVICE_ENABLED:-"false"}
+
+tokenServiceUrl: ${IDA_TESTRP_TOKENSERVICE_URL:-"http://localhost:53100"}
+tokenServiceUser: ${IDA_TESTRP_TOKENSERVICE_USER:-"UserA"}
+tokenServicePassword: ${IDA_TESTRP_TOKENSERVICE_PASSWORD:-"NotTheRealUserAPassword"}
+
+shouldShowStartWithEidasButton: true

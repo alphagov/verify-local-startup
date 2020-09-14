@@ -1,0 +1,10 @@
+entityId: http://stub_idp.acme.org/secureidentity/SSO/POST
+
+simpleId: secureidentity
+
+enabled: true
+
+supportedLevelsOfAssurance:
+  - LEVEL_2
+useExactComparisonType: false
+

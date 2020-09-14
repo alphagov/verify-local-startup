@@ -1,5 +1,25 @@
 #!/usr/bin/env bash
 
+####
+# Start here for generate-metadata and generate-truststores scripts
+####
+
+####
+# Requirements checking
+####
+if test ! `which ruby`; then
+    echo "You need to install Ruby... exiting."
+    exit 1
+fi
+if test ! `which java`; then
+    echo "You need to install Java... exiting."
+    exit 1
+fi
+if test ! `which cfssl`; then
+    echo "You need to install cfssl before you can run this script... exiting."
+    exit 1
+fi
+
 set -o errexit
 
 tput setaf 5

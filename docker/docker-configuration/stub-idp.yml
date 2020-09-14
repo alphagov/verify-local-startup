@@ -1,0 +1,109 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${STUB_IDP_PORT}
+  adminConnectors:
+    - type: http
+      port: 50141
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+
+host: http://localhost:${STUB_IDP_PORT}
+
+assertionLifetime: 60m
+
+saml:
+  entityId: http://stub_idp.acme.org/%s/SSO/POST
+
+serviceInfo:
+  name: stub-idp
+
+clientTrustStoreConfiguration:
+  path: truststores/ida_truststore.ts
+  password: puppet
+
+signingKeyPairConfiguration:
+  privateKeyConfiguration:
+    keyFile: keys/stub_idp_signing.pk8
+  publicKeyConfiguration:
+    certFile: certs/stub_idp_signing.crt
+    name: stub_idp_signing
+
+basicAuthEnabledForUserResource: true
+
+stubIdpsYmlFileLocation: configuration/idps/stub-idps.yml
+stubIdpYmlFileRefresh: 10s
+
+infinispan:
+  type: standalone
+  persistenceToFileEnabled: false
+  persistenceFileLocation: apps-local-data/infinispanStubIdpCache
+
+assets:
+  overrides:
+    /assets: ../verify-stub-idp/build/resources/main/assets
+
+hubEntityId: https://local.signin.service.gov.uk
+
+europeanIdentity:
+  enabled: ${EIDAS_ENABLED:-true}
+  hubConnectorEntityId: ${HUB_CONNECTOR_ENTITY_ID}
+  stubCountryBaseUrl: http://localhost:50140
+  metadata:
+    jerseyClientName: connector-metadata-client
+    client:
+      timeout: 60s
+      timeToLive: 10m
+      connectionTimeout: 4s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+    uri: ${HUB_CONNECTOR_ENTITY_ID} 
+    trustStore:
+      path: truststores/ida_truststore.ts
+      password: puppet
+    minRefreshDelay: 30000
+    maxRefreshDelay: 1800000
+    expectedEntityId: ${HUB_CONNECTOR_ENTITY_ID}
+  signingKeyPairConfiguration:
+    privateKeyConfiguration:
+      keyFile: keys/stub_country_signing.pk8
+    publicKeyConfiguration:
+      certFile: certs/stub_country_signing.crt
+      name: stub_country_signing
+
+metadata:
+  uri: ${METADATA_URL:-http://localhost:55000/local/metadata.xml}
+  trustStore:
+    path: truststores/ida_truststore.ts
+    password: puppet
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: https://local.signin.service.gov.uk
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true
+
+database:
+  url: ${DB_URI:-jdbc:postgresql://localhost:5432/postgres?user=postgres&password=docker}
+
+singleIdpJourney:
+  enabled: ${SINGLE_IDP_FEATURE:-false}
+  serviceListUri: ${SERVICE_LIST_URL:-http://localhost:50300/get-available-services}
+  serviceListClient:
+    timeout: 60s
+    timeToLive: 10m
+    connectionTimeout: 4s
+  verifySubmissionUri: ${VERIFY_SUBMISSION_URL:-http://localhost:50300/initiate-single-idp-journey}

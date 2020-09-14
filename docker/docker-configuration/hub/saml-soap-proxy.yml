@@ -1,0 +1,106 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${SAML_SOAP_PROXY_PORT}
+  adminConnectors:
+    - type: http
+      port: 50161
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+
+saml:
+  entityId: https://local.signin.service.gov.uk
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  retries: 3
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+enableRetryTimeOutConnections: true
+
+soapHttpClient:
+  timeout: 10s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 2s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+healthCheckSoapHttpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 2s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+samlEngineUri: http://${SAML_ENGINE_HOST:-localhost}:${SAML_ENGINE_PORT}
+
+configUri: http://${CONFIG_HOST:-localhost}:${CONFIG_PORT}
+
+eventSinkUri: http://${EVENT_SINK_HOST:-localhost}:${EVENT_SINK_PORT}
+
+policyUri: http://${POLICY_HOST:-localhost}:${POLICY_PORT}
+
+serviceInfo:
+  name: saml-soap-proxy
+
+matchingServiceExecutorConfiguration:
+  corePoolSize: 5
+  maxPoolSize: 10
+  keepAliveDuration: 10s
+
+rpTrustStoreConfiguration:
+  path: truststores/ida_rp_truststore.ts
+  password: puppet
+
+metadata:
+  uri: ${METADATA_URL:-http://localhost:55000/local/metadata.xml}
+  trustStorePath: truststores/ida_truststore.ts
+  trustStorePassword: puppet
+  trustStore:
+    path: truststores/ida_truststore.ts
+    password: puppet
+  hubTrustStore:
+    path: truststores/ida_hub_truststore.ts
+    password: puppet
+  idpTrustStore:
+    path: truststores/ida_idp_truststore.ts
+    password: puppet
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: https://local.signin.service.gov.uk
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true
+
+eventEmitterConfiguration:
+  enabled: false
+  accessKeyId: 'access_key'
+  secretAccessKey: 'secret_access_key'
+  region: eu-west-2
+  encryptionKey: 'encryption_key'
+  apiGatewayUrl: 'api_gateway_url'

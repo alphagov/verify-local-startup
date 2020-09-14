@@ -1,0 +1,12 @@
+---
+simpleId: test-rp
+translations:
+  - locale: en
+    name: test GOV.UK Verify user journeys
+    rpName: Test RP
+    analyticsDescription: TEST RP
+    otherWaysDescription: access TestRP
+    otherWaysText:  <p> Specific text to be provided by the RP.</p>
+    tailoredText: <p>This is tailored text for TEST RP - from Config Service</p>
+    taxonName: Example services for demo
+    idpDisconnectedAlternativeHtml: This is tailored text for when %{company} is disconnected, redirecting user to  <a href="%{begin_registration_path}">verify identity with another company</a> or use an alternative sign-in link.

@@ -1,0 +1,40 @@
+entityId: http://www.hmrc-self-assessment.gov.uk/SAML2/MD
+
+simpleId: test-rp-repudiation
+
+assertionConsumerServices:
+  - uri: http://localhost:50130/non-existent-endpoint
+    index: 0
+    isDefault: false
+  - uri: http://localhost:50130/test-rp/login
+    index: 1
+    isDefault: true
+
+levelsOfAssurance:
+  - LEVEL_2
+
+signatureVerificationCertificates:
+  - x509: MIIEZDCCA0ygAwIBAgIPQJGEV5hvSNMUeqWkOdg1MA0GCSqGSIb3DQEBCwUAMFkxCzAJBgNVBAYTAkdCMRcwFQYDVQQKEw5DYWJpbmV0IE9mZmljZTEMMAoGA1UECxMDR0RTMSMwIQYDVQQDExpJREFQIFJlbHlpbmcgUGFydHkgVGVzdCBDQTAeFw0xOTA4MDcwMDAwMDBaFw0yMDA4MDYyMzU5NTlaMIGBMQswCQYDVQQGEwJHQjEPMA0GA1UECBMGTG9uZG9uMQ8wDQYDVQQHEwZMb25kb24xFzAVBgNVBAoUDkNhYmluZXQgT2ZmaWNlMQwwCgYDVQQLFANHRFMxKTAnBgNVBAMTIFRlc3QgUlAgU2lnbmluZyAoMjAxOTA4MDcxNDIzNDApMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsWFn0Vwlda1See/hCn6Eu2RhpRM/wfowfEvFIS/8N4DKr3iYGTNNPhoIrx8fz6BbruBCOUQkGfQqgRqh5A9vEZgY8TZi7O3oetW6vPHqhe+dnv6/KYzy10/rk1bqd/OvXLLzsfUdQIpJE7Hhe8zKZxNPK+C8XwdjXBb69BQ5NG61LELDxno0ezYVsy7DZa5DVAectInUBu7qbzMsrGkp6Nn6YG2eWkZgPhDuCUtSfDu0J1K/VVQtu54ZVB9ElO+gs3q1eEuMQqOw8X2bPDqh5apO6oNOdHJx5HsfqBJWYpLIv+O1cB4sgsxSpGYo35FrRpPfrciqljPW79ym337pgQIDAQABo4H/MIH8MAwGA1UdEwEB/wQCMAAwYQYDVR0fBFowWDBWoFSgUoZQaHR0cDovL29uc2l0ZWNybC50cnVzdHdpc2UuY29tL0NhYmluZXRPZmZpY2VJREFQUmVseWluZ1BhcnR5VGVzdENBL0xhdGVzdENSTC5jcmwwDgYDVR0PAQH/BAQDAgeAMB0GA1UdDgQWBBS4+cOqDzttLEx8qYKWnveb6ypCpzAfBgNVHSMEGDAWgBTd5PVdGgoPOtFIIh5OwPhuNvbFJTA5BggrBgEFBQcBAQQtMCswKQYIKwYBBQUHMAGGHWh0dHA6Ly9zdGQtb2NzcC50cnVzdHdpc2UuY29tMA0GCSqGSIb3DQEBCwUAA4IBAQBlyjWPmFGemcNGVGuW0CASby4Tkpv1CctkaSqkeI1QC+RrI5RqzOrml1G1q4erBOzuRC8a9vTOt15oNNVsY5JfvmT6ZdOwQno+qiPADBGe5b4JvQZp5vubm9vgBOcn/Iz/VoMPfyB6aMnoCJC24O0LxL8e4fZKb7tG+8b577VsMZondlPQxHtTIsHlWRgSdGFJglUp3s4P7B6aZ7VX0VaVhUYYZThlblyEhxNXxWHJCkT4neM3uCSWx8LQ6tsM3placHZkcr0+r+oHtRXOy6SbXGtCtvP1Y6d+IiWbbKeC13kKgsfvKcFLDstWmPjukr1oL9cXEoDE1ydi/dWmR1Ya
+
+encryptionCertificate:
+  x509: MIIEaDCCA1CgAwIBAgIQaTOALI7h9yzvKAhQ/GZfPzANBgkqhkiG9w0BAQsFADBZMQswCQYDVQQGEwJHQjEXMBUGA1UEChMOQ2FiaW5ldCBPZmZpY2UxDDAKBgNVBAsTA0dEUzEjMCEGA1UEAxMaSURBUCBSZWx5aW5nIFBhcnR5IFRlc3QgQ0EwHhcNMTkwODA3MDAwMDAwWhcNMjAwODA2MjM1OTU5WjCBhDELMAkGA1UEBhMCR0IxDzANBgNVBAgTBkxvbmRvbjEPMA0GA1UEBxMGTG9uZG9uMRcwFQYDVQQKFA5DYWJpbmV0IE9mZmljZTEMMAoGA1UECxQDR0RTMSwwKgYDVQQDEyNUZXN0IFJQIEVuY3J5cHRpb24gKDIwMTkwODA3MTQyMzAzKTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANH+I9P17yM0Nd9HuAW5muCdYGiqrIdPWbYDxJDchxGgDF1a7CHOFXhUJD5LVmOLgazyDdhNEEBlSq3HP6jZr5wYwnuPZ/flgbDzg6o/P1eGxkCnapBdT0GhRWL+zKYOozJe+4cLamShjcYpzku1GisCUlClF5lDoM5pznG/ih+DosklzWMBbLpQKTM0Iu27wLPRdTMQwCqR8GQyTqIvqTScZFg28P1iEAduEzQqF4wSwDEjOIjHmamIAu2bzGgwiGR1PsfzwdG4Tv4cHSA0FoNgZV1Ahet0vIk/frH9jghf+spUCfwFwlmCnh9sLxrsl9IPX2DDuzznpqYbrAI/3SECAwEAAaOB/zCB/DAMBgNVHRMBAf8EAjAAMGEGA1UdHwRaMFgwVqBUoFKGUGh0dHA6Ly9vbnNpdGVjcmwudHJ1c3R3aXNlLmNvbS9DYWJpbmV0T2ZmaWNlSURBUFJlbHlpbmdQYXJ0eVRlc3RDQS9MYXRlc3RDUkwuY3JsMA4GA1UdDwEB/wQEAwIFIDAdBgNVHQ4EFgQUGp+9EBjl4jll2HaMd/wa1/JjN9MwHwYDVR0jBBgwFoAU3eT1XRoKDzrRSCIeTsD4bjb2xSUwOQYIKwYBBQUHAQEELTArMCkGCCsGAQUFBzABhh1odHRwOi8vc3RkLW9jc3AudHJ1c3R3aXNlLmNvbTANBgkqhkiG9w0BAQsFAAOCAQEASISCzdlcpEm+7wr9LOLRlSUb8fGsy3ZhUSRwM3hrPpf23lesvgeWmF/6SMsq9giejKCfuIcuDq+f50O0NIy4e1NI6mZmYk8ZDgFpuJhRjuVXhHidqBxMZgRPEnHwQdRfsi6XxKG5D4s2tk+IKC32SQafHEIikI5RCN1nHyDmE0P+4A1dlJP9vNRXuJIxpFRQqel8mSUkf18+HNzUXLOe9cfo7xTrAuE0ZDl0tjBFdqOp+ZYGlsXQ7ma7K0S+UBtRp7/L5DE0umBsSZa3cckP9B6HatMfP3ks17JuohNA/FkUpgUl2VUgCDqL3A8s9bfxaZuCTy1hgxDBBnB1eqVFgA==
+
+matchingServiceEntityId: http://www.test-rp-ms.gov.uk/SAML2/MD
+
+matchingProcess:
+  cycle3AttributeName: SaUniqueTaxpayerReference
+
+rpName: HMRC
+displayName: complete your Self Assessment
+otherWaysDescription: submit your Self Assessment
+serviceHomepage: https://www.gov.uk/file-your-self-assessment-tax-return
+analyticsTransactionDescription: HMRC SA
+
+enabled: true
+
+shouldHubSignResponseMessages: true
+
+otherWaysToCompleteTransaction:  |
+                                   <p>If you can’t verify your identity using GOV.UK Verify, <a href="https://online.hmrc.gov.uk/shortforms/form/OSHGGIDInd">request user ID and password replacements</a> from HMRC. This can take about 7 working days. If you request a replacement user ID or password between midnight 21 and midnight 31 January GMT, you must file your tax return online before midnight 15 February to avoid receiving a penalty. You must still pay any tax due by midnight 31 January.</p>
+
+                                   <p>For help, <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment">contact the HMRC Self Assessment helpline</a>.</p>

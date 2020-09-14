@@ -1,0 +1,38 @@
+version: '3.4'
+
+services:
+
+  build-hub:
+    image: gradle:6.5.1-jdk11
+    volumes:
+      - $REPO_DIR/verify-hub:/src
+      - maven-repository:/root/.m2
+    working_dir: /src
+    command: gradle --parallel --daemon build installDist -x intTest -x test
+  
+  build-stub-idp:
+    image: gradle:6.5.1-jdk11
+    volumes:
+      - $REPO_DIR/verify-stub-idp:/verify-stub-idp
+      - maven-repository:/root/.m2
+    working_dir: /verify-stub-idp
+    command: gradle --parallel --daemon build installDist -x intTest -x test
+
+  build-test-rp-msa:
+    image: gradle:6.5.1-jdk11
+    volumes:
+      - $REPO_DIR/verify-matching-service-adapter:/verify-matching-service-adapter
+      - maven-repository:/root/.m2
+    working_dir: /verify-matching-service-adapter
+    command: gradle --parallel --daemon build installDist -x intTest -x test
+  
+  build-test-rp-service:
+    image: gradle:6.5.1-jdk11
+    volumes:
+      - $REPO_DIR/verify-test-rp:/verify-test-rp
+      - maven-repository:/root/.m2
+    working_dir: /verify-test-rp
+    command: gradle --parallel --daemon build installDist -x intTest -x test
+
+volumes:
+  maven-repository:

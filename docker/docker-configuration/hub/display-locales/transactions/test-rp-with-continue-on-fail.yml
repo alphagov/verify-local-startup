@@ -1,0 +1,11 @@
+---
+simpleId: test-rp-with-continue-on-fail
+translations:
+  - locale: en
+    name: test GOV.UK Verify user journeys
+    rpName: Test RP
+    analyticsDescription: analytics description for test-rp
+    otherWaysText: <p>You can still continue to complete your transaction.</p>
+    otherWaysDescription: sign your declaration
+    tailoredText: <p>This is tailored text for test-rp-with-continue-on-fail</p>
+    taxonName: Benefits

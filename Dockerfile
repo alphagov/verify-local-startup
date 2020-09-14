@@ -1,10 +1,10 @@
-FROM golang:1.11.0-alpine3.7 as golang
+FROM golang:1.15.2-alpine3.12 as golang
 
 RUN apk --no-cache upgrade && \
     apk add --no-cache build-base git &&\
     go get -u github.com/cloudflare/cfssl/cmd/...
 
-FROM ruby:2.5.1-alpine3.7
+FROM ruby:2.6.6-alpine3.12
 
 RUN apk --no-cache upgrade && \
     apk add --no-cache build-base ncurses bash git openssl openjdk8 curl

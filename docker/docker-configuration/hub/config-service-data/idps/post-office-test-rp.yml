@@ -1,0 +1,16 @@
+entityId: http://stub_idp.acme.org/post-office-test-rp/SSO/POST
+
+simpleId: post-office-stub
+
+enabled: true
+
+onboardingTransactionEntityIds:
+  - http://www.test-rp.gov.uk/SAML2/MD
+  - http://www.test-rp-with-continue-on-fail.gov.uk/SAML2/MD
+  - http://www.loa1-test-rp.gov.uk/SAML2/MD
+  - http://www.headless.gov.uk/SAML2/MD
+
+supportedLevelsOfAssurance:
+  - LEVEL_2
+useExactComparisonType: false
+

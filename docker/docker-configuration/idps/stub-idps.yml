@@ -1,0 +1,60 @@
+stubIdps:
+  - friendlyId: post-office-test-rp
+    displayName: Post Office
+    assetId: post-office
+    sendKeyInfo: true
+    idpUserCredentials:
+        - user: userName1
+          password: $2a$10$P5FNUkBlA/Q5RIObqm.ws.HNglIxiCvugBUE2Nms/Z9ViTZ7Tpru2 # 3a3615eacbbd4873915bd2de
+        - user: acceptanceTestUser
+          password: $2a$10$pbS3uVVx9mUQpV9hDnVx4OtMDAnRFKHfvDQp4gdm1Crd9Kodf7ZGm # acceptanceTestUserPassword
+        - user: ida
+          password: $2a$10$LpErNy.nf1mhCskGwURbI.VxoOsRqYEkfAhRD83sbgJUHlBMBBELq
+  - friendlyId: experian
+    displayName: Experian
+    assetId: experian
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$LpErNy.nf1mhCskGwURbI.VxoOsRqYEkfAhRD83sbgJUHlBMBBELq
+  - friendlyId: headless-idp
+    displayName: Headless
+    assetId: headless
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$LpErNy.nf1mhCskGwURbI.VxoOsRqYEkfAhRD83sbgJUHlBMBBELq
+  - friendlyId: digidentity
+    displayName: Digidentity
+    assetId: digidentity
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$LpErNy.nf1mhCskGwURbI.VxoOsRqYEkfAhRD83sbgJUHlBMBBELq
+  - friendlyId: secureidentity
+    displayName: SecureIdentity
+    assetId: secureidentity
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$LpErNy.nf1mhCskGwURbI.VxoOsRqYEkfAhRD83sbgJUHlBMBBELq
+  - friendlyId: barclays
+    displayName: Barclays
+    assetId: barclays
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$LpErNy.nf1mhCskGwURbI.VxoOsRqYEkfAhRD83sbgJUHlBMBBELq
+  - friendlyId: stub-idp-demo-one
+    displayName: Stub Idp Demo One
+    assetId: stub-idp-demo-one
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$LpErNy.nf1mhCskGwURbI.VxoOsRqYEkfAhRD83sbgJUHlBMBBELq
+  - friendlyId: stub-idp-demo-two
+    displayName: Stub Idp Demo Two
+    assetId: stub-idp-demo-two
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$LpErNy.nf1mhCskGwURbI.VxoOsRqYEkfAhRD83sbgJUHlBMBBELq
+  - friendlyId: stub-idp-disconnected
+    displayName: Stub Idp Disconnected
+    assetId: stub-idp-disconnected
+    idpUserCredentials:
+        - user: ida
+          password: $2a$10$LpErNy.nf1mhCskGwURbI.VxoOsRqYEkfAhRD83sbgJUHlBMBBELq

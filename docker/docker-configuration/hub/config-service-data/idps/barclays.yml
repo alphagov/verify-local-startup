@@ -1,0 +1,18 @@
+entityId: http://stub_idp.acme.org/barclays/SSO/POST
+
+simpleId: barclays
+
+enabled: true
+
+onboardingLevelsOfAssurance:
+  - LEVEL_1
+
+supportedLevelsOfAssurance:
+  - LEVEL_1
+  - LEVEL_2
+
+useExactComparisonType: true
+
+onboardingTransactionEntityIdsTemp:
+  - http://www.loa1-test-rp.gov.uk/SAML2/MD
+  - http://www.test-rp.gov.uk/SAML2/MD

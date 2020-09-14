@@ -1,0 +1,130 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${SAML_ENGINE_PORT}
+  adminConnectors:
+    - type: http
+      port: 50121
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
+
+saml:
+  entityId: https://local.signin.service.gov.uk
+  expectedDestination: http://localhost
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  keepAlive: 60s
+  gzipEnabled: false
+  gzipEnabledForRequests: false
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+redis:
+  recordTTL: PT150m
+  uri: ${REDIS_URI:-redis://localhost:6378}
+
+configUri: http://${CONFIG_HOST:-localhost}:${CONFIG_PORT}
+
+serviceInfo:
+  name: saml-engine
+
+readKeysFromFileDescriptors: false
+
+privateSigningKeyConfiguration:
+  keyFile: keys/hub_signing.pk8
+
+publicSigningCert:
+   certFile: certs/hub_signing.crt
+   name: someId
+
+primaryPrivateEncryptionKeyConfiguration:
+  keyFile: keys/hub_encryption.pk8
+
+primaryPublicEncryptionCert:
+   certFile: certs/hub_encryption.crt
+   name: someId
+
+secondaryPrivateEncryptionKeyConfiguration:
+  keyFile: keys/hub_encryption.pk8
+
+secondaryPublicEncryptionCert:
+   certFile: certs/hub_encryption.crt
+   name: someId
+
+rpTrustStoreConfiguration:
+  path: truststores/ida_rp_truststore.ts
+  password: puppet
+
+authnRequestIdExpirationDuration: 60m
+
+authnRequestValidityDuration: 5m
+
+metadata:
+  uri: ${METADATA_URL:-http://localhost:55000/local/metadata.xml}
+  trustStorePath: truststores/ida_truststore.ts
+  trustStorePassword: puppet
+  trustStore:
+    path: truststores/ida_truststore.ts
+    password: puppet
+  hubTrustStore:
+    path: truststores/ida_hub_truststore.ts
+    password: puppet
+  idpTrustStore:
+    path: truststores/ida_idp_truststore.ts
+    password: puppet
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: https://local.signin.service.gov.uk
+  jerseyClientName: verify-metadata-client
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true
+
+country:
+  enabled: ${EIDAS_ENABLED}
+  saml:
+    entityId: ${HUB_CONNECTOR_ENTITY_ID}
+    expectedDestination: http://localhost:50300/SAML2/SSO/EidasResponse/POST
+  metadata:
+    trustAnchorUri: ${TRUST_ANCHOR_URI}
+    metadataSourceUri: ${METADATA_SOURCE_URI}
+    trustStore:
+      store: truststores/ida_truststore.ts
+      trustStorePassword: puppet
+    minRefreshDelay: 5000
+    maxRefreshDelay: 60000
+    jerseyClientName: country-metadata-client
+    client:
+      timeout: 2s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 1s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true

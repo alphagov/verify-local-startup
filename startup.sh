@@ -30,8 +30,10 @@ docker build -t verify-local-startup .
 docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup '
 set -e
 if ! test -d data; then
+  echo "Running hub-dev-pki script to generate metadata"
   generate/hub-dev-pki.sh
 fi
+echo "Running env script to generate environment"
 ./env.sh
 '
 

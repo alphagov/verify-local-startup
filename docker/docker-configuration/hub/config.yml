@@ -9,7 +9,6 @@ server:
     appenders:
       - type: console
 
-userHubSessionDuration: 90m
 
 logging:
   level: INFO
@@ -19,14 +18,16 @@ logging:
 serviceInfo:
   name: config
 
-rootDataDirectory: data/stub-fed-config
+userHubSessionDuration: 90m
+
+rootDataDirectory: configuration/hub/config-service-data
 
 translationsDirectory: ../display-locales/transactions
 
 clientTrustStoreConfiguration:
-  path: data/pki/hub.ts
-  password: marshmallow
+  path: truststores/ida_truststore.ts
+  password: puppet
 
 rpTrustStoreConfiguration:
-  path: data/pki/relying_parties.ts
-  password: marshmallow
+  path: truststores/ida_rp_truststore.ts
+  password: puppet

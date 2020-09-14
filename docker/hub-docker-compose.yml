@@ -1,0 +1,314 @@
+version: '3.4'
+
+services:
+  
+  metadata:
+    image: nginx
+    volumes:
+        - ../data/metadata:/usr/share/nginx/html:ro
+#   metadata:
+#     image: ruby:2.6.6
+#     volumes:
+#       - $REPO_DIR/verify-metadata:/app
+#     working_dir: /app
+#     command: tools/local_metadata_server
+    ports:
+      - 55000:55000
+      - 55001:55001
+    networks:
+      - hub-network
+
+  redis:
+    image: redis:5.0.6
+    volumes:
+      - redis-data:/data
+      - redis-config:/usr/local/etc/redis/
+    command: /bin/sh -c 'redis-server'
+    ports:
+      - 6379:6379
+    networks:
+      - hub-network
+
+  stub-event-sink:
+    image: openjdk:11.0.6-jre
+    volumes:
+      - $REPO_DIR/verify-hub/hub/stub-event-sink/build/install/stub-event-sink/:/app
+      - $CONFIG_DIR:/app/configuration
+    command: bin/stub-event-sink server configuration/hub/stub-event-sink.yml
+    working_dir: /app
+    ports:
+      - 51100:51100
+      - 50101:50101
+      - 51102:51102
+    environment:
+      EVENT_SINK_PORT: ${EVENT_SINK_PORT}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:51102"
+    networks:
+      - hub-network
+
+  config:
+    image: openjdk:11.0.6-jre
+    volumes:
+      - $REPO_DIR/verify-hub/hub/config/build/install/config/:/app
+      - $CONFIG_DIR:/app/configuration
+      - $REPO_DIR/verify-local-startup/data/pki:/app/truststores
+    command: bin/config server configuration/hub/config.yml
+    working_dir: /app
+    ports:
+      - 50240:50240
+      - 50241:50241
+      - 50242:50242
+    environment:
+      CONFIG_PORT: ${CONFIG_PORT}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50242"
+    networks:
+      - hub-network
+
+  saml-proxy:
+    image: openjdk:11.0.6-jre
+    volumes:
+      - $REPO_DIR/verify-hub/hub/saml-proxy/build/install/saml-proxy/:/app
+      - $CONFIG_DIR:/app/configuration
+      - $REPO_DIR/verify-local-startup/data/pki:/app/truststores
+    command: bin/saml-proxy server configuration/hub/saml-proxy.yml
+    working_dir: /app
+    ports:
+      - 50220:50220
+      - 50221:50221
+      - 50222:50222
+    environment:
+      CONFIG_HOST: ${CONFIG_HOST}
+      CONFIG_PORT: ${CONFIG_PORT}
+      EIDAS_ENABLED: ${EIDAS_ENABLED}
+      EVENT_SINK_HOST: ${EVENT_SINK_HOST}
+      EVENT_SINK_PORT: ${EVENT_SINK_PORT}
+      FRONTEND_HOST: ${FRONTEND_HOST}
+      FRONTEND_PORT: ${FRONTEND_PORT}
+      METADATA_URL: ${METADATA_URL}
+      METADATA_SOURCE_URI: ${METADATA_SOURCE_URI}
+      POLICY_HOST: ${POLICY_HOST}
+      POLICY_PORT: ${POLICY_PORT}
+      SAML_PROXY_PORT: ${SAML_PROXY_PORT}
+      TRUST_ANCHOR_URI: ${TRUST_ANCHOR_URI}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50222"
+    depends_on:
+      - metadata
+    networks:
+      - hub-network
+
+  saml-soap-proxy:
+    image: openjdk:11.0.6-jre
+    volumes:
+      - $REPO_DIR/verify-hub/hub/saml-soap-proxy/build/install/saml-soap-proxy/:/app
+      - $CONFIG_DIR:/app/configuration
+      - $REPO_DIR/verify-local-startup/data/pki:/app/truststores
+    command: bin/saml-soap-proxy server configuration/hub/saml-soap-proxy.yml
+    working_dir: /app
+    ports:
+      - 50160:50160
+      - 50161:50161
+      - 50162:50162
+    environment:
+      CONFIG_HOST: ${CONFIG_HOST}
+      CONFIG_PORT: ${CONFIG_PORT}
+      EIDAS_ENABLED: ${EIDAS_ENABLED}
+      EVENT_SINK_HOST: ${EVENT_SINK_HOST}
+      EVENT_SINK_PORT: ${EVENT_SINK_PORT}
+      FRONTEND_HOST: ${FRONTEND_HOST}
+      FRONTEND_PORT: ${FRONTEND_PORT}
+      METADATA_URL: ${METADATA_URL}
+      METADATA_SOURCE_URI: ${METADATA_SOURCE_URI}
+      POLICY_HOST: ${POLICY_HOST}
+      POLICY_PORT: ${POLICY_PORT}
+      SAML_SOAP_PROXY_PORT: ${SAML_SOAP_PROXY_PORT}
+      TRUST_ANCHOR_URI: ${TRUST_ANCHOR_URI}
+      SAML_ENGINE_HOST: ${SAML_ENGINE_HOST}
+      SAML_ENGINE_PORT: ${SAML_ENGINE_PORT}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50162"
+    depends_on:
+      - metadata
+    networks:
+      - hub-network
+
+  saml-engine:
+    image: openjdk:11.0.6-jre
+    volumes:
+      - $REPO_DIR/verify-local-startup/data/pki:/app/certs
+      - $CONFIG_DIR:/app/configuration
+      - $REPO_DIR/verify-local-startup/data/pki:/app/keys
+      - $REPO_DIR/verify-local-startup/data/pki:/app/truststores
+      - $REPO_DIR/verify-hub/hub/saml-engine/build/install/saml-engine/:/app
+    command: bin/saml-engine server configuration/hub/saml-engine.yml
+    working_dir: /app
+    ports:
+      - 50120:50120
+      - 50121:50121
+      - 50122:50122
+    environment:
+      SAML_ENGINE_PORT: ${SAML_ENGINE_PORT}
+      CONFIG_HOST: ${CONFIG_HOST}
+      CONFIG_PORT: ${CONFIG_PORT}
+      EIDAS_ENABLED: ${EIDAS_ENABLED}
+      HUB_CONNECTOR_ENTITY_ID: ${HUB_CONNECTOR_ENTITY_ID}
+      METADATA_SOURCE_URI: ${METADATA_SOURCE_URI}
+      METADATA_URL: ${METADATA_URL}
+      TRUST_ANCHOR_URI: ${TRUST_ANCHOR_URI}
+      REDIS_URI: ${REDIS_URI}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50122"
+    networks:
+      - hub-network
+    depends_on:
+      - metadata
+      - redis
+
+  policy:
+    image: openjdk:11.0.6-jre
+    volumes:
+      - $REPO_DIR/verify-hub/hub/policy/build/install/policy/:/app
+      - $CONFIG_DIR:/app/configuration
+      - $REPO_DIR/verify-local-startup/data/pki:/app/truststores
+    command: bin/policy server configuration/hub/policy.yml
+    working_dir: /app
+    ports:
+      - 50110:50110
+      - 50111:50111
+      - 50112:50112
+    environment:
+      CONFIG_HOST: ${CONFIG_HOST}
+      CONFIG_PORT: ${CONFIG_PORT}
+      EVENT_SINK_PORT: ${EVENT_SINK_PORT}
+      EVENT_SINK_HOST: ${EVENT_SINK_HOST}
+      POLICY_PORT: ${POLICY_PORT}
+      SAML_ENGINE_HOST: ${SAML_ENGINE_HOST}
+      SAML_ENGINE_PORT: ${SAML_ENGINE_PORT}
+      SAML_SOAP_PROXY_HOST: ${SAML_SOAP_PROXY_HOST}
+      SAML_SOAP_PROXY_PORT: ${SAML_SOAP_PROXY_PORT}
+      REDIS_URI: ${REDIS_URI}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50112"
+    networks:
+      - hub-network
+    depends_on:
+      - redis
+
+  stub-idp:
+    image: openjdk:11.0.6-jre
+    env_file:
+      - ./stub-idp.env
+    volumes:
+      - $REPO_DIR/verify-stub-idp/stub-idp/build/install/stub-idp:/app
+      - $CONFIG_DIR:/app/configuration
+      - $REPO_DIR/verify-local-startup/data/pki:/app/truststores
+      - $REPO_DIR/verify-local-startup/data/pki:/app/keys
+      - $REPO_DIR/verify-local-startup/data/pki:/app/certs
+    working_dir: /app
+    command: bin/stub-idp server configuration/stub-idp.yml
+    ports:
+      - 50140:50140
+      - 50141:50141
+      - 50142:50142
+    environment:
+      DB_URI: jdbc:postgresql://stub-idp-db:5432/postgres?user=postgres&password=docker
+      METADATA_URL: ${METADATA_URL}
+      EIDAS_ENABLED: ${EIDAS_ENABLED}
+      SERVICE_LIST_URL: ${SERVICE_LIST_URL}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50142"
+    depends_on:
+      - stub-idp-db
+      - metadata
+    networks:
+      - hub-network
+
+  stub-idp-db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: docker
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+    networks:
+      - hub-network
+
+  test-rp:
+    image: openjdk:11.0.6-jre
+    volumes:
+      - $REPO_DIR/verify-test-rp/build/install/verify-test-rp:/app
+      - $CONFIG_DIR:/app/configuration
+      - $REPO_DIR/verify-local-startup/data/pki:/app/truststores
+      - $REPO_DIR/verify-local-startup/data/pki:/app/keys
+      - $REPO_DIR/verify-local-startup/data/pki:/app/certs
+    working_dir: /app
+    command: bin/verify-test-rp server configuration/test-rp.yml
+    ports:
+      - 50130:50130
+      - 50131:50131
+      - 50132:50132
+    environment:
+      TEST_RP_HOST: ${TEST_RP_HOST}
+      TEST_RP_PORT: ${TEST_RP_PORT}
+      TEST_RP_MSA_HOST: ${TEST_RP_MSA_HOST}
+      TEST_RP_MSA_PORT: ${TEST_RP_MSA_PORT}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50132"
+    depends_on:
+      - test-rp-msa
+    networks:
+      - hub-network
+
+  test-rp-msa:
+    image: openjdk:11.0.6-jre
+    volumes:
+      - $REPO_DIR/verify-matching-service-adapter/build/install/verify-matching-service-adapter:/app
+      - $CONFIG_DIR:/app/configuration
+      - $REPO_DIR/verify-local-startup/data/pki:/app/truststores
+      - $REPO_DIR/verify-local-startup/data/pki:/app/keys
+      - $REPO_DIR/verify-local-startup/data/pki:/app/certs
+    command: bin/verify-matching-service-adapter server configuration/test-rp-msa.yml
+    working_dir: /app
+    ports:
+      - 50210:50210
+      - 50211:50211
+      - 50212:50212
+    environment:
+      EIDAS_ENABLED: ${EIDAS_ENABLED}
+      FRONTEND_HOST: ${FRONTEND_HOST}
+      FRONTEND_PORT: ${FRONTEND_PORT}
+      TEST_RP_HOST: ${TEST_RP_HOST}
+      TEST_RP_PORT: ${TEST_RP_PORT}
+      TEST_RP_MSA_HOST: ${TEST_RP_MSA_HOST}
+      TEST_RP_MSA_PORT: ${TEST_RP_MSA_PORT}
+      TRUST_ANCHOR_URI: ${TRUST_ANCHOR_URI}
+      HUB_CONNECTOR_ENTITY_ID: ${HUB_CONNECTOR_ENTITY_ID}
+      METADATA_URL: ${METADATA_URL}
+      METADATA_SOURCE_URI: ${METADATA_SOURCE_URI}
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50212"
+    networks:
+      - hub-network
+    depends_on:
+      - metadata
+
+  frontend:
+    image: ruby:2.6.6
+    env_file:
+      - ./frontend.env
+    command: bash -c 'gem install bundle && (bundle check || bundle install) && bundle exec puma -e development -p 50300'
+    working_dir: /app
+    ports:
+      - 50300:50300
+    environment:
+      SAML_PROXY_HOST: ${SAML_PROXY_HOST}
+      POLICY_HOST: ${POLICY_URI}
+      CONFIG_API_HOST: ${CONFIG_API_HOST}
+      GEM_HOME: /usr/local/bundler
+    volumes:
+      - $REPO_DIR/verify-frontend:/app
+      - $REPO_DIR/verify-local-startup/data/stub-fed-config:/verify-frontend-federation-config
+      - verify-frontend-gem:/usr/local/bundler
+    networks:
+      - hub-network
+
+networks:
+  hub-network:
+
+volumes:
+  verify-frontend-gem:
+  database-data:
+  redis-data:
+  redis-config:

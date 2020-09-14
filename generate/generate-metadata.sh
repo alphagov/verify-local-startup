@@ -48,14 +48,46 @@ for src in dev compliance-tool; do
     exit 1
   fi
   
-  # sign
-  if test -z `which xmlsectool`; then
-    echo "$(tput setaf 3)Installing xmlsectool$(tput sgr0)"
-    brew install xmlsectool
+  # Setup xmlsectool if not set already
+  if [ -z $XMLSECTOOL ]; then
+    # Check if we have xmlsectool already
+    if `which xmlsectool`; then
+        XMLSECTOOL="xmlsectool"
+    elif -f "$script_dir/../bin/xmlsectool-2.0.0/xmlsectool.sh"; then
+        XMLSECTOOL="$script_dir/../bin/xmlsectool-2.0.0/xmlsectool.sh"
+    fi
+    
+    # If not we'll install it either via homebrew or directly from shibboleth.net
+    if test -z XMLSECTOOL ; then
+        if test `which brew`; then
+            echo "$(tput setaf 3)Installing xmlsectool via Homebrew...$(tput sgr0)"
+            brew install xmlsectool
+            XMLSECTOOL="xmlsectool"
+        else
+            echo "$(tput setaf 3)Downloading xmlsectool...$(tput sgr0)"
+            if test `which wget`; then
+            wget -O /tmp/xmlsectool-2.0.0.zip "http://shibboleth.net/downloads/tools/xmlsectool/latest/xmlsectool-2.0.0-bin.zip"
+            elif test `which curl`; then 
+            curl --output /tmp/xmlsectool-2.0.0-bin.zip "http://shibboleth.net/downloads/tools/xmlsectool/latest/xmlsectool-2.0.0-bin.zip"
+            fi
+            if ! -f "/tmp/xmlsectool-2.0.0-bin.zip"; then
+                echo "Failed to download xmlsectool... Please make sure you have wget or curl installed."
+                exit 1
+            fi
+            unzip /tmp/xmlsectool-2.0.0.zip -d $script_dir/../bin/xmlsectool-2.0.0
+            XMLSECTOOL="$script_dir/../bin/xmlsectool-2.0.0/xmlsectool.sh"
+        fi
+    fi
   fi
-  
+
+  # Set JAVA_HOME if not set already
+  if [ -z $JAVA_HOME ]; then
+    export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 > /dev/null | grep 'java.home' | cut -d '=' -f 2 | cut -d ' ' -f 2)
+  fi
+
+  # sign
   echo "$(tput setaf 3)Signing metadata$(tput sgr0)"
-  xmlsectool \
+  $XMLSECTOOL \
     --sign \
     --inFile "$output"/$src/metadata.xml \
     --outFile "$output"/$src/metadata.signed.xml \

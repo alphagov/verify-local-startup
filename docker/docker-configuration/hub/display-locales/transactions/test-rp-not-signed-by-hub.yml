@@ -1,0 +1,11 @@
+---
+simpleId: test-rp-not-signed-by-hub
+translations:
+  - locale: en
+    name: test GOV.UK Verify user journeys (Simple profile flow, not signed by hub, no Cycle3)
+    rpName: Test RP (Simple profile flow, not signed by hub, no Cycle3)
+    analyticsDescription: TEST RP (unsignedByHub)
+    otherWaysText: If you can’t verify your identity using GOV.UK Verify, there are other ways to <a href='http://www.example.com'>test GOV.UK Verify user journeys (Simple profile flow, not signed by hub, no Cycle3)</a>
+    otherWaysDescription: other ways to test GOV.UK Verify user journeys (Simple profile flow, not signed by hub, no Cycle3)
+    tailoredText: <p>This is tailored text for test-rp-not-signed-by-hub</p>
+    taxonName: Benefits

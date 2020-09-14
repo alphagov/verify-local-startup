@@ -1,63 +1,138 @@
 version: '3.5'
 
 services:
+  # 3rd Party services used by the verify hub
+  stub-idp-db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: docker
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+    networks:
+      - hub-network
+
+  redis:
+    image: redis:5.0.6
+    volumes:
+      - redis-data:/data
+      - redis-config:/usr/local/etc/redis/
+    command: /bin/sh -c 'redis-server'
+    ports:
+      - 6379:6379
+    networks:
+      - hub-network
+  
+  # Metadata provider uses Nginx
+  metadata:
+    image: nginx
+    volumes:
+      - ../data/metadata:/usr/share/nginx/html:ro
+    ports:
+      - 55000:55000
+      - 55001:55001
+    networks:
+      - hub-network
+  
+  # Core Hub Services
   config:
     image: ${CONFIG_IMAGE}
+    ports:
+      - 50240:50240
+      - 50241:50241
+      - 50242:50242
     env_file:
       - urls.env
     environment:
       APP_NAME: config
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50242"
     volumes:
       - ./data:/data:ro
+      - ./configuration:/app/configuration
+    networks:
+      - hub-network
 
   policy:
     image: ${POLICY_IMAGE}
     env_file:
       - urls.env
+    ports:
+      - 50110:50110
+      - 50111:50111
+      - 50112:50112
     environment:
       APP_NAME: policy
       EVENT_EMITTER_ENABLED: "false"
       EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50112"
     volumes:
       - ./data:/data:ro
+      - ./configuration:/app/configuration
+    networks:
+      - hub-network
+    depends_on:
+      - redis
 
   saml-engine:
-    image: ${SAML_ENGINE_IMAGE} 
+    image: ${SAML_ENGINE_IMAGE}
+    ports:
+      - 50120:50120
+      - 50121:50121
+      - 50122:50122
     env_file:
       - urls.env
     environment:
       APP_NAME: saml-engine
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50122"
     volumes:
       - ./data:/data:ro
+      - ./configuration:/app/configuration
+    networks:
+      - hub-network
+    depends_on:
+      - metadata
+      - redis
 
   saml-proxy:
     image: ${SAML_PROXY_IMAGE}
+    ports:
+      - 50220:50220
+      - 50221:50221
+      - 50222:50222
     env_file:
       - urls.env
     environment:
       APP_NAME: saml-proxy
       EVENT_EMITTER_ENABLED: "false"
       EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50222"
     volumes:
       - ./data:/data:ro
+      - ./configuration:/app/configuration
+    depends_on:
+      - metadata
+    networks:
+      - hub-network
 
   saml-soap-proxy:
     image: ${SAML_SOAP_PROXY_IMAGE}
+    ports:
+      - 50160:50160
+      - 50161:50161
+      - 50162:50162
     env_file:
       - urls.env
     environment:
       APP_NAME: saml-soap-proxy
       EVENT_EMITTER_ENABLED: "false"
       EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50162"
     volumes:
       - ./data:/data:ro
-
-  stub-event-sink:
-    image: ${STUB_EVENT_SINK_IMAGE}
-    environment:
-      APP_NAME: stub-event-sink
-    volumes:
-      - ./data:/data:ro
+      - ./configuration:/app/configuration
+    depends_on:
+      - metadata
+    networks:
+      - hub-network
 
   frontend:
     image: ${FRONTEND_IMAGE}
@@ -71,16 +146,15 @@ services:
       SAML_PROXY_HOST: ${SAML_PROXY_URL}
     volumes:
       - ./configuration/stub-frontend-fed-config:/fed-config:ro
-
-  metadata:
-    image: nginx
-    volumes:
-      - ./data/metadata:/usr/share/nginx/html:ro
+    networks:
+      - hub-network
 
   stub-idp:
     image: ${STUB_IDP_IMAGE}
     ports:
       - "${STUB_IDP_EXTERNAL_PORT}:80"
+      - 50141:50141
+      - 50142:50142
     volumes:
       - ./data:/app/data:ro
       - ../verify-stub-idp/build/resources/main/assets:/assets:ro
@@ -97,11 +171,24 @@ services:
       ENTITY_ID: http://%s.local/SSO/POST
       STUB_IDP_ASSET_LOCATION: /assets
       STUB_IDP_YAML_FILE_LOCATION: /idps/stub-idps.yml
+      DB_URI: jdbc:postgresql://stub-idp-db:5432/postgres?user=postgres&password=docker
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50142"
+    depends_on:
+      - stub-idp-db
+      - metadata
+    networks:
+      - hub-network
 
+  #test-rp-msa:
   msa:
     image: ${MSA_IMAGE}
     volumes:
       - ./data:/data:ro
+      - ./configuration:/app/configuration
+    ports:
+      - 50210:50210
+      - 50211:50211
+      - 50212:50212
     env_file:
       - urls.env
     environment:
@@ -110,11 +197,18 @@ services:
       LMS_MATCH_URL: http://test-rp/test-rp/matching-service/POST
       LMS_UAC_URL: http://test-rp/test-rp/unknown-user/POST
       HUB_SSO_URL: http://localhost:${FRONTEND_EXTERNAL_PORT}/SAML2/SSO
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50212"
+    networks:
+      - hub-network
+    depends_on:
+      - metadata
 
   test-rp:
     image: ${TEST_RP_IMAGE}
     ports:
       - "${TEST_RP_EXTERNAL_PORT}:80"
+      - 50131:50131
+      - 50132:50132
     volumes:
       - ../verify-test-rp/build/resources/main/assets:/assets:ro
     env_file:
@@ -128,6 +222,17 @@ services:
       TEST_RP_ENTITY_ID: http://dev-rp.local/SAML2/MD
       MSA_ENTITY_ID: http://dev-rp-ms.local/SAML2/MD
       MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:50132"
+    depends_on:
+      - msa
+    networks:
+      - hub-network
 
-  stub-idp-db:
-    image: postgres
+networks:
+    hub-network:
+    
+volumes:
+    verify-frontend-gem:
+    database-data:
+    redis-data:
+    redis-config:

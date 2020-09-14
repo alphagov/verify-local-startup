@@ -1,0 +1,11 @@
+---
+simpleId: loa1-test-rp
+translations:
+  - locale: en
+    name: register for an LOA1 identity profile
+    rpName: LOA1 Test RP
+    analyticsDescription: analytics description for loa1-test-rp
+    otherWaysText: If you can’t verify your identity using GOV.UK Verify, there are other ways to <a href='http://www.example.com'>register for an LOA1 identity profile</a>
+    otherWaysDescription: other ways to register for an LOA1 identity profile
+    tailoredText: <p>This is tailored text for LOA1 TEST RP</p>
+    taxonName: Benefits

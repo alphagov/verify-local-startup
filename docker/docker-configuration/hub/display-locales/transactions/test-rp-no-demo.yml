@@ -1,0 +1,33 @@
+---
+simpleId: test-rp-no-demo
+translations:
+  - locale: en
+    name: test GOV.UK Verify user journeys
+    rpName: Test RP No Demo
+    analyticsDescription: TEST RP NO DEMO
+    otherWaysDescription: access TestRP No Demo
+    otherWaysText:  |
+      <p> Specific text to be provided by the RP. </p>
+    tailoredText: <p>This is tailored text for TEST RP NO DEMO</p>
+    customFailHeading: This is a custom fail page.
+    customFailOtherOptions: Custom text to be provided by RP.
+    customFailWhatNextContent: This is custom what next content.
+    customFailTryAnotherSummary: This is custom try another summary.
+    customFailTryAnotherText: This is custom try another text.
+    customFailContactDetailsIntro: This is custom contact details.
+    taxonName: Benefits
+  - locale: cy
+    name: test GOV.UK Verify user journeys
+    rpName: Test RP No Demo
+    analyticsDescription: TEST RP NO DEMO
+    otherWaysDescription: access TestRP No Demo
+    otherWaysText:  |
+      <p> Specific text to be provided by the RP. </p>
+    tailoredText: <p>This is tailored text for TEST RP NO DEMO</p>
+    customFailHeading: This is a custom fail page in welsh.
+    customFailOtherOptions: Custom text to be provided by RP.
+    customFailWhatNextContent: This is custom what next content.
+    customFailTryAnotherSummary: This is custom try another summary.
+    customFailTryAnotherText: This is custom try another text.
+    customFailContactDetailsIntro: This is custom contact details.
+    taxonName: Benefits

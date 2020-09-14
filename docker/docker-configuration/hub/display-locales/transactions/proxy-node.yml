@@ -1,0 +1,19 @@
+---
+simpleId: proxy-node
+translations:
+  - locale: en
+    name: access services from EU Member States
+    rpName: Proxy Node
+    analyticsDescription: Proxy Node
+    otherWaysDescription: access services from other European countries
+    otherWaysText:  <p>Go back to the European service you were using to find out how you can continue.</p>
+    tailoredText: <p>GOV.UK Verify lets people use a UK digital identity to access services from other European countries.</p>
+    taxonName: eIDAS
+  - locale: cy
+    name: access services from EU Member States
+    rpName: Proxy Node
+    analyticsDescription: Proxy Node
+    otherWaysDescription: access services from other European countries
+    otherWaysText:  <p>Go back to the European service you were using to find out how you can continue.</p>
+    tailoredText: <p>GOV.UK Verify lets people use a UK digital identity to access services from other European countries.</p>
+    taxonName: eIDAS

@@ -1,0 +1,12 @@
+entityId: http://stub_idp.acme.org/stub-idp-demo-two/SSO/POST
+
+simpleId: stub-idp-demo-two
+
+enabled: true
+
+supportedLevelsOfAssurance:
+  - LEVEL_1
+  - LEVEL_2
+useExactComparisonType: false
+
+enabledForSingleIdp: true

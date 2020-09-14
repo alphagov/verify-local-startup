@@ -1,0 +1,10 @@
+entityId: http://localhost:50400/metadata
+
+simpleId: verify-eidas-bridge
+
+enabled: true
+
+supportedLevelsOfAssurance:
+  - LEVEL_2
+useExactComparisonType: false
+
