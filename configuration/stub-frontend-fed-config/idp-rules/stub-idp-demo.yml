@@ -2,10 +2,10 @@ simpleIds: ["stub-idp-demo"]
 
 segments:
   protected:
-    recommended: []
+    recommended: ["2doc_gbdl_pp"]
     unlikely: []
   non_protected:
-    recommended: ["non-protected-segment-1"]
+    recommended: ["2doc_gbdl_pp"]
     unlikely: []
 
 capabilities:

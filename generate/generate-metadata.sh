@@ -49,16 +49,12 @@ for src in dev compliance-tool; do
   fi
   
   # sign
-  if test -z `which xmlsectool`; then
-    echo "$(tput setaf 3)Installing xmlsectool$(tput sgr0)"
-    brew install xmlsectool
-  fi
-  
   echo "$(tput setaf 3)Signing metadata$(tput sgr0)"
-  xmlsectool \
+  $XMLSECTOOL \
     --sign \
     --inFile "$output"/$src/metadata.xml \
     --outFile "$output"/$src/metadata.signed.xml \
+    --referenceIdAttributeName ID \
     --certificate "$certdir"/metadata_signing_a.crt \
     --key "$certdir"/metadata_signing_a.pk8 \
     --digest SHA-256

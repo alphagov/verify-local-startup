@@ -1,12 +1,22 @@
 version: '3.5'
 
 services:
+  redis:
+    image: redis:5.0.6
+    volumes:
+      - redis-data:/data
+      - redis-config:/usr/local/etc/redis/
+    command: /bin/sh -c 'redis-server'
+    ports:
+      - 6379:6379
+
   config:
     image: ${CONFIG_IMAGE}
     env_file:
       - urls.env
     environment:
       APP_NAME: config
+      CONFIG_PORT: ${CONFIG_PORT}
     volumes:
       - ./data:/data:ro
 
@@ -16,10 +26,23 @@ services:
       - urls.env
     environment:
       APP_NAME: policy
+      POLICY_PORT: ${POLICY_PORT}
       EVENT_EMITTER_ENABLED: "false"
       EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
+      REDIS_URI: ${REDIS_URI}
+      REDIS_PASSWORD: "redis_password"
+      CONFIG_HOST: ${CONFIG_HOST}
+      CONFIG_PORT: ${CONFIG_PORT}
+      EVENT_SINK_PORT: ${EVENT_SINK_PORT}
+      EVENT_SINK_HOST: ${EVENT_SINK_HOST}
+      SAML_ENGINE_HOST: ${SAML_ENGINE_HOST}
+      SAML_ENGINE_PORT: ${SAML_ENGINE_PORT}
+      SAML_SOAP_PROXY_HOST: ${SAML_SOAP_PROXY_HOST}
+      SAML_SOAP_PROXY_PORT: ${SAML_SOAP_PROXY_PORT}
     volumes:
       - ./data:/data:ro
+    depends_on:
+      - redis
 
   saml-engine:
     image: ${SAML_ENGINE_IMAGE} 
@@ -27,8 +50,22 @@ services:
       - urls.env
     environment:
       APP_NAME: saml-engine
+      REDIS_URI: ${REDIS_URI}
+      REDIS_PASSWORD: "redis_password"
+      SAML_ENGINE_PORT: ${SAML_ENGINE_PORT}
+      METADATA_ENTITY_ID: ${METADATA_ENTITY_ID}
+      FRONTEND_URI: ${FRONTEND_URI}
+      CONFIG_URL: ${CONFIG_URL}
+      METADATA_URL: ${METADATA_URL}
+      EIDAS_ENABLED: "false"
+      HUB_CONNECTOR_ENTITY_ID: ${HUB_CONNECTOR_ENTITY_ID}
+      TRUST_ANCHOR_URL: ${TRUST_ANCHOR_URI}
+      METADATA_SOURCE_URI: ${METADATA_SOURCE_URI}
     volumes:
       - ./data:/data:ro
+    depends_on:
+      - redis
+      - metadata
 
   saml-proxy:
     image: ${SAML_PROXY_IMAGE}
@@ -36,6 +73,20 @@ services:
       - urls.env
     environment:
       APP_NAME: saml-proxy
+      SAML_PROXY_PORT: ${SAML_PROXY_PORT}
+      FRONTEND_PORT: ${FRONTEND_PORT}
+      FRONTEND_URI: ${FRONTEND_URI}
+      CONFIG_HOST: ${CONFIG_HOST}
+      CONFIG_PORT: ${CONFIG_PORT}
+      EVENT_SINK_HOST: ${EVENT_SINK_HOST}
+      EVENT_SINK_PORT: ${EVENT_SINK_PORT}
+      POLICY_HOST: ${POLICY_HOST}
+      POLICY_PORT: ${POLICY_PORT}
+      METADATA_HOST: ${METADATA_HOST}
+      METADATA_PORT: ${METADATA_PORT}
+      EIDAS_ENABLED: "false"
+      TRUST_ANCHOR_URI: ${TRUST_ANCHOR_URI}
+      METADATA_SOURCE_URI: ${METADATA_SOURCE_URI}
       EVENT_EMITTER_ENABLED: "false"
       EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
     volumes:
@@ -47,6 +98,15 @@ services:
       - urls.env
     environment:
       APP_NAME: saml-soap-proxy
+      SAML_SOAP_PROXY_PORT: ${SAML_SOAP_PROXY_PORT}
+      SAML_ENGINE_HOST: ${SAML_ENGINE_HOST}
+      SAML_ENGINE_PORT: ${SAML_ENGINE_PORT}
+      CONFIG_HOST: ${CONFIG_HOST}
+      CONFIG_PORT: ${CONFIG_PORT}
+      EVENT_SINK_HOST: ${EVENT_SINK_HOST}
+      EVENT_SINK_PORT: ${EVENT_SINK_PORT}
+      POLICY_HOST: ${POLICY_HOST}
+      POLICY_PORT: ${POLICY_PORT}
       EVENT_EMITTER_ENABLED: "false"
       EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
     volumes:
@@ -56,6 +116,7 @@ services:
     image: ${STUB_EVENT_SINK_IMAGE}
     environment:
       APP_NAME: stub-event-sink
+      EVENT_SINK_PORT: ${EVENT_SINK_PORT}
     volumes:
       - ./data:/data:ro
 
@@ -74,13 +135,15 @@ services:
 
   metadata:
     image: nginx
+    ports:
+      - "${METADATA_EXTERNAL_PORT}:80"
     volumes:
       - ./data/metadata:/usr/share/nginx/html:ro
 
   stub-idp:
     image: ${STUB_IDP_IMAGE}
     ports:
-      - "${STUB_IDP_EXTERNAL_PORT}:80"
+      - "${STUB_IDP_EXTERNAL_PORT}:${STUB_IDP_EXTERNAL_PORT}"
     volumes:
       - ./data:/app/data:ro
       - ../verify-stub-idp/build/resources/main/assets:/assets:ro
@@ -89,7 +152,7 @@ services:
       - urls.env
       - stub-idp.env
     environment:
-      PORT: 80
+      PORT: ${STUB_IDP_EXTERNAL_PORT}
       LOG_PATH: /app/logs
       GRAPHITE_REPORTING_FREQUENCY: 24h
       STUB_IDP_BASIC_AUTH: "false"
@@ -97,14 +160,23 @@ services:
       ENTITY_ID: http://%s.local/SSO/POST
       STUB_IDP_ASSET_LOCATION: /assets
       STUB_IDP_YAML_FILE_LOCATION: /idps/stub-idps.yml
+      DB_URI: jdbc:postgresql://stub-idp-db:5432/postgres?user=postgres&password=docker
+    depends_on: 
+      - stub-idp-db
+      - metadata
 
   msa:
     image: ${MSA_IMAGE}
+    ports:
+      - "${MSA_EXTERNAL_PORT}:80"
     volumes:
       - ./data:/data:ro
     env_file:
       - urls.env
     environment:
+      EUROPEAN_IDENTITY_ENABLED: "false"
+      TRUST_ANCHOR_URI: ${TRUST_ANCHOR_URI}
+      METADATA_SOURCE_URI: ${METADATA_SOURCE_URI}
       ASSERTION_CONSUMER_SERVICE_URL: ${TEST_RP_URL}/matching-service/POST
       MSA_ENTITY_ID: http://dev-rp-ms.local/SAML2/MD
       LMS_MATCH_URL: http://test-rp/test-rp/matching-service/POST
@@ -128,6 +200,17 @@ services:
       TEST_RP_ENTITY_ID: http://dev-rp.local/SAML2/MD
       MSA_ENTITY_ID: http://dev-rp-ms.local/SAML2/MD
       MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata
+    depends_on:
+      - msa
 
   stub-idp-db:
     image: postgres
+    environment:
+      POSTGRES_PASSWORD: docker
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+
+volumes:
+  redis-data:
+  redis-config:
+  database-data:

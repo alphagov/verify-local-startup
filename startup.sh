@@ -40,6 +40,6 @@ if test ! "${1:-}" == "skip-build"; then
   bundle exec ./build-local.rb repos.yml
 fi
 
-docker-compose -f "${DOCKER_COMPOSE_FILE:-docker-compose.yml}" up -d
+docker-compose -f "${DOCKER_COMPOSE_FILE:-docker-compose.yml}" --env-file .env up -d
 
 echo "$(tput setaf 2)Started - visit $(tput setaf 6)http://test-rp/test-rp$(tput setaf 2) to start a journey after starting the SOCKS proxy (may take some time to spin up)$(tput sgr0)"
