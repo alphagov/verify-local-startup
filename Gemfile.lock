@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/alphagov/verify-metadata-generator.git
-  revision: 47b90464d9c9e11d892d9c04f1d75cd9e9a83877
+  revision: 7990ab9709feee8c605ee56d5540da689991c9bf
   specs:
     verify-metadata-generator (0.0.2)
       activemodel
@@ -11,66 +11,68 @@ GEM
   remote: http://rubygems.org/
   specs:
     OptionParser (0.5.1)
-    activemodel (5.2.1)
-      activesupport (= 5.2.1)
-    activesupport (5.2.1)
+    activemodel (6.0.3.4)
+      activesupport (= 6.0.3.4)
+    activesupport (6.0.3.4)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    addressable (2.5.2)
-      public_suffix (>= 2.0.2, < 4.0)
+      zeitwerk (~> 2.2, >= 2.2.2)
+    addressable (2.7.0)
+      public_suffix (>= 2.0.2, < 5.0)
     arr-pm (0.0.10)
       cabin (> 0)
-    backports (3.10.0)
+    backports (3.18.2)
     cabin (0.9.0)
-    childprocess (0.8.0)
+    childprocess (0.9.0)
       ffi (~> 1.0, >= 1.0.11)
     clamp (1.0.1)
-    concurrent-ruby (1.0.5)
-    dotenv (2.2.1)
-    ffi (1.9.18)
-    fpm (1.9.3)
+    concurrent-ruby (1.1.7)
+    dotenv (2.7.6)
+    ffi (1.13.1)
+    fpm (1.11.0)
       arr-pm (~> 0.0.10)
       backports (>= 2.6.2)
       cabin (>= 0.6.0)
-      childprocess
+      childprocess (= 0.9.0)
       clamp (~> 1.0.0)
       ffi
       json (>= 1.7.7, < 2.0)
       pleaserun (~> 0.0.29)
-      ruby-xz
+      ruby-xz (~> 0.2.3)
       stud
-    i18n (1.1.0)
+    i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     insist (1.0.0)
-    io-like (0.3.0)
+    io-like (0.3.1)
     json (1.8.6)
-    json-schema (2.8.0)
+    json-schema (2.8.1)
       addressable (>= 2.4)
-    mini_portile2 (2.3.0)
-    minitest (5.11.3)
+    mini_portile2 (2.4.0)
+    minitest (5.14.2)
     mustache (0.99.8)
-    nokogiri (1.8.4)
-      mini_portile2 (~> 2.3.0)
-    pleaserun (0.0.30)
+    nokogiri (1.10.10)
+      mini_portile2 (~> 2.4.0)
+    pleaserun (0.0.31)
       cabin (> 0)
       clamp
       dotenv
       insist
       mustache (= 0.99.8)
       stud
-    public_suffix (3.0.2)
+    public_suffix (4.0.6)
     ruby-xz (0.2.3)
       ffi (~> 1.9)
       io-like (~> 0.3)
     stud (0.0.23)
     thread_safe (0.3.6)
-    tty-cursor (0.5.0)
-    tty-spinner (0.7.0)
-      tty-cursor (>= 0.5.0)
-    tzinfo (1.2.5)
+    tty-cursor (0.7.1)
+    tty-spinner (0.9.3)
+      tty-cursor (~> 0.7)
+    tzinfo (1.2.8)
       thread_safe (~> 0.1)
+    zeitwerk (2.4.1)
 
 PLATFORMS
   ruby
