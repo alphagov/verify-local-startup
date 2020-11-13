@@ -30,7 +30,7 @@ idps = {
 hub_yaml = {
   'id' => 'VERIFY-HUB',
   'entity_id' => 'https://dev-hub.local',
-  'assertion_consumer_service_uri' => "#{ENV.fetch('FRONTEND_URI')}/SAML2/SSO/Response/POST",
+  'assertion_consumer_service_uri' => "#{ENV.fetch('FRONTEND_URL')}/SAML2/SSO/Response/POST",
   'organization' => { 'name' => 'Hub', 'url' => 'http://localhost', 'display_name' => 'Hub' },
   'signing_certificates' => [
     { 'name' => 'signing_primary', 'x509' => block_cert(hub_signing_cert) }
@@ -52,7 +52,7 @@ Dir::chdir(output_dir) do
     yaml = idp_yaml.update(
       'organization' => { 'name' => id, 'url' => "http://#{id}.local", 'display_name' => name},
       'entity_id' => "http://#{id}.local/SSO/POST",
-      'sso_uri' => "#{ENV.fetch('STUB_IDP_URI')}/#{id}/SAML2/SSO",
+      'sso_uri' => "#{ENV.fetch('STUB_IDP_URL')}/#{id}/SAML2/SSO",
       'id' => id
     )
     File.open(File.join('idps', "#{id}.yml"), 'w') { |f| f.write(YAML.dump(yaml)) }
