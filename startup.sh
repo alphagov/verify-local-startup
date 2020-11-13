@@ -1,5 +1,37 @@
 #!/usr/bin/env bash
 
+show_help() {
+  cat << EOF
+Usage:
+    -y, --yaml-file         Yaml file with a List of repos to build
+    -t, --threads           Specifies the number of threads to use to do the
+                            the build.  If no number given will generate as many
+                            threads as repos.  Suggested 4 threads
+    -h, --help              Show's this help message
+EOF
+}
+
+THREADS=0
+YAML_FILE=repos.yml
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -y | --yaml-file)       shift
+                                YAML_FILE=$1
+                                ;;
+        -t | --threads)         shift
+                                THREADS=$1
+                                ;;
+        -h | --help)            show_help
+                                exit 0
+                                ;;
+        * )                     echo -e "Unknown option $1...\n"
+                                usage
+                                exit 1
+    esac
+    shift
+done
+
 set -eu -o pipefail
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -37,9 +69,10 @@ fi
 
 if test ! "${1:-}" == "skip-build"; then
   bundle check || bundle install
-  bundle exec ./build-local.rb repos.yml
+  bundle exec ./build-local.rb -y $YAML_FILE -t $THREADS
 fi
 
-docker-compose -f "${DOCKER_COMPOSE_FILE:-docker-compose.yml}" --env-file .env up -d
 
-echo "$(tput setaf 2)Started - visit $(tput setaf 6)http://test-rp/test-rp$(tput setaf 2) to start a journey after starting the SOCKS proxy (may take some time to spin up)$(tput sgr0)"
+docker-compose -f "${DOCKER_COMPOSE_FILE:-docker-compose.yml}" --env-file .env up -d
+TEST_RP_URL=$(cat config/urls.env | grep TEST_RP_URL | cut -d '=' -f 2)
+echo "$(tput setaf 2)Started - visit $(tput setaf 6)${TEST_RP_URL}/test-rp$(tput setaf 2) to start a journey (may take some time to spin up)$(tput sgr0)"

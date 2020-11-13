@@ -1,59 +1,199 @@
 #!/usr/bin/env ruby
 
+require 'thread'
+require 'os'
 require 'tty-spinner'
 require 'yaml'
 
-puts <<-'BANNER'
+BANNER = <<ENDBANNER
     ____        _ __    ___                ___
    / __ )__  __(_) /___/ (_)___  ____ _   /   |  ____  ____  _____
   / __  / / / / / / __  / / __ \/ __ `/  / /| | / __ \/ __ \/ ___/
  / /_/ / /_/ / / / /_/ / / / / / /_/ /  / ___ |/ /_/ / /_/ (__  )
 /_____/\__,_/_/_/\__,_/_/_/ /_/\__, /  /_/  |_/ .___/ .___/____/
                               /____/         /_/   /_/👉 😎 👉 Zoop!
-BANNER
 
-script_dir = File.expand_path(File.dirname(__FILE__))
+Building Apps using Docker, this could take a few minutes...
 
-success_marks = "✊ 🙌 💪 👌 👍 👏 "
-error_mark = "❌ 😤 ❌ 😤 ❌ "
-loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: "#{success_marks} ", error_mark: error_mark)
-images = ""
+ENDBANNER
 
-def build_thread(repo_name, config, spinners, images, script_dir)
-  success_marks = ["✊","🙌","💪","👌","👍","👏"]
-  spinner = spinners.register("[:spinner] #{repo_name}", format: :dots, success_mark: "#{success_marks.sample} ", error_mark: "😡 ")
-  spinner.auto_spin
+USAGE = <<ENDUSAGE
+Usage:
+    build-local -y yaml-file [-t count] [-h]
+ENDUSAGE
 
-  thread = Thread.new{
-    image_name = "#{repo_name}:local"
-    build_args = config.fetch('build-args', []).map { |ba| "--build-arg #{ba.keys[0]}=#{ba.values[0]}" }.join " "
+HELP = <<ENDHELP
+    -y, --yaml-file         Yaml file with a List of repos to build
+    -t, --threads           Specifies the number of threads to use to do the
+                            the build.  If no number given will generate as many
+                            threads as repos.  Suggested 4 threads
+    -h, --help              Show's this help message
+ENDHELP
+
+# This is our worker thread which builds our docker images
+class ImageBuilder
+  attr_accessor :image_var, :messages
+
+  def initialize(repo_name, config, spinner, images, script_dir)
+    @repo_name = repo_name
+    @config = config
+    @spinner = spinner
+    @image_var = ""
+    @script_dir = script_dir
+    @success = false
+  end
+
+  def build_image()
+    image_name = "#{@repo_name}:local"
+    build_args = @config.fetch('build-args', []).map { |ba| "--build-arg #{ba.keys[0]}=#{ba.values[0]}" }.join " "
     cmd = "docker build #{build_args}\
-        #{config['context']}\
-        -f #{config['context']}/#{config.fetch('dockerfile', 'Dockerfile')}\
+        ../#{@config['context']}\
+        -f ../#{@config['context']}/#{@config.fetch('dockerfile', 'Dockerfile')}\
         -t #{image_name}\
         2>&1"
     output = `#{cmd}`
     if $?.success?
-      spinner.success
-      images << "#{config['image_env_var']}=#{image_name}\n"
+      @spinner.success
+      @image_var = "#{@config['image_env_var']}=#{image_name}\n"
+      @success = true
     else
-      File.write("#{script_dir}/logs/#{repo_name}_build.log", output, mode: "w")
-      spinner.error(" - see #{script_dir}/logs/#{repo_name}_build.log")
+      File.write("#{@script_dir}/logs/#{@repo_name}_build.log", output, mode: "w")
+      @spinner.error(" - see #{@script_dir}/logs/#{@repo_name}_build.log")
+      @success = false
     end
-  }
+  end
+
+  def get_repo()
+    cmd = "git clone https://github.com/alphagov/#{@config['context']}.git ../#{@config['context']} 2>&1"
+    output = `#{cmd}`
+    unless $?.success?
+      File.write("#{@script_dir}/logs/#{@repo_name}_build.log", output, mode: "w")
+      @spinner.error(" failed to clone repository - see #{@script_dir}/logs/#{@repo_name}_build.log")
+      @success = false
+      false
+    end
+    true
+  end
+
+  def run()
+    have_repo = true
+    unless File.exists?("../#{@config['context']}")
+      have_repo = get_repo
+    end
+    if have_repo
+      build_image
+    end
+  end
+
+  def success?
+    return @success
+  end
 end
 
-repos = YAML.load(File.read(ARGV[0]))
-threads = []
-repos.each do |repo_name, config|
-  thread = build_thread(repo_name, config, loading_spinners, images, script_dir)
-  threads.push thread
+def create_docker_images(thread_count, repos)
+  thread_success_marks = ["✅","🎉","🎆"]
+  success_marks = "🎆 🎉 ✅ 🎉 🎆"
+  error_mark = "❌ 😡 ❌ 😡 ❌"
+  loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: success_marks, error_mark: error_mark)
+
+  images = ""
+  script_dir = File.expand_path(File.dirname(__FILE__))
+  Thread.abort_on_exception = true
+
+  # Create queue and populate it
+  queue = Queue.new
+  repos.each do |repo_name, config|
+    spinner = loading_spinners.register("[:spinner] #{repo_name}", format: :dots, success_mark: "#{thread_success_marks.sample}", error_mark: "😡")
+    spinner.auto_spin
+    buildImage = ImageBuilder.new(repo_name, config, spinner, images, script_dir)
+    queue << buildImage
+  end
+
+  # Create Threads
+  threads = []
+  thread_failed = false
+  thread_count.times do
+    threads << Thread.new do
+      until queue.empty?
+        work_unit = queue.pop(true) rescue nil
+        if work_unit
+          work_unit.run
+          if work_unit.success?
+            images << work_unit.image_var
+          else
+            thread_failed = true
+          end
+        end
+      end
+    end
+  end
+  threads.each { |t| t.join }
+  if thread_failed
+    print "Something went wrong while building the images.  Exiting..."
+    exit 1
+  end
+  puts "Build completed successully."
+  images
 end
 
-threads.each do |thread| thread.join end
+def generate_env(images)
+  print "Generating .env file..."
+  urls = File.read('config/urls.env')
+  ports = File.read('config/ports.env')
+  File.write(".env", "#{urls}\n#{ports}\n\n# Docker images for docker-compose\n#{images}", mode: 'w')
+  print "     Done\n"
+end
 
-print "Generating .env file..."
-urls = File.read('config/urls.env')
-ports = File.read('config/ports.env')
-File.write(".env", "#{urls}\n#{ports}\n#{images}", mode: 'w')
-print "     Done\n"
+def main()
+  args = { :yaml=>'repos.yml', :thread_count=>0 }
+  unflagged_args = []
+  next_arg = unflagged_args.first
+
+  ARGV.each do |arg|
+    case arg
+      when '-h', '--help'         then args[:help] = true
+      when '-y', '--yaml-file'    then next_arg = :yaml
+      when '-t', '--threads'      then next_arg = :threads
+      else
+        if next_arg
+          args[next_arg] = arg
+          unflagged_args.delete( next_arg )
+        end
+        next_arg = unflagged_args.first
+    end
+  end
+  if args[:help]
+    puts USAGE
+    puts HELP if args[:help]
+    exit
+  end
+  if ! File.file?(args[:yaml])
+    puts "Yaml file does not exist.  Exiting..."
+    puts USAGE
+    exit 1
+  end
+
+  puts BANNER
+
+  # Load repos yaml
+  repos = YAML.load(File.read(args[:yaml]))
+  
+  # Setup thread count
+  thread_count = args[:threads].to_i
+  if OS.mac? && thread_count == 0
+    thread_count = 2
+    puts "For your safety we are using #{thread_count} threads to do the build."
+    puts "You can override this using the -t option."
+  elsif thread_count == 0
+    puts "WARNING: No thread count set... using #{repos.size} threads to do the build."
+    puts "         If the build should fail you might want to try setting a thread count."
+    thread_count = repos.size
+  else
+    puts "As you asked us we are using #{thread_count} threads to do the build."
+  end
+  puts ""
+  images = create_docker_images(thread_count, repos)
+  generate_env(images)
+end
+
+main
