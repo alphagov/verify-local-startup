@@ -53,7 +53,7 @@ end
 threads.each do |thread| thread.join end
 
 print "Generating .env file..."
-urls = File.read('urls.env')
+urls = File.read('config/urls.env')
 ports = File.read('config/ports.env')
 File.write(".env", "#{urls}\n#{ports}\n#{images}", mode: 'w')
 print "     Done\n"

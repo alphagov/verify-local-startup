@@ -8,12 +8,12 @@ services:
       - redis-config:/usr/local/etc/redis/
     command: /bin/sh -c 'redis-server'
     ports:
-      - 6379:6379
+      - ${REDIS_PORT}:6379
 
   config:
     image: ${CONFIG_IMAGE}
     env_file:
-      - urls.env
+      - config/urls.env
     environment:
       APP_NAME: config
       CONFIG_PORT: ${CONFIG_PORT}
@@ -23,7 +23,7 @@ services:
   policy:
     image: ${POLICY_IMAGE}
     env_file:
-      - urls.env
+      - config/urls.env
     environment:
       APP_NAME: policy
       POLICY_PORT: ${POLICY_PORT}
@@ -47,7 +47,7 @@ services:
   saml-engine:
     image: ${SAML_ENGINE_IMAGE} 
     env_file:
-      - urls.env
+      - config/urls.env
     environment:
       APP_NAME: saml-engine
       REDIS_URI: ${REDIS_URI}
@@ -70,7 +70,7 @@ services:
   saml-proxy:
     image: ${SAML_PROXY_IMAGE}
     env_file:
-      - urls.env
+      - config/urls.env
     environment:
       APP_NAME: saml-proxy
       SAML_PROXY_PORT: ${SAML_PROXY_PORT}
@@ -95,7 +95,7 @@ services:
   saml-soap-proxy:
     image: ${SAML_SOAP_PROXY_IMAGE}
     env_file:
-      - urls.env
+      - config/urls.env
     environment:
       APP_NAME: saml-soap-proxy
       SAML_SOAP_PROXY_PORT: ${SAML_SOAP_PROXY_PORT}
@@ -149,7 +149,7 @@ services:
       - ../verify-stub-idp/build/resources/main/assets:/assets:ro
       - ./configuration/idps:/idps:ro
     env_file:
-      - urls.env
+      - config/urls.env
       - stub-idp.env
     environment:
       PORT: ${STUB_IDP_PORT}
@@ -170,7 +170,7 @@ services:
     volumes:
       - ./data:/data:ro
     env_file:
-      - urls.env
+      - config/urls.env
     environment:
       EUROPEAN_IDENTITY_ENABLED: ${EUROPEAN_IDENTITY_ENABLED}
       TRUST_ANCHOR_URI: ${TRUST_ANCHOR_URI}
@@ -188,7 +188,7 @@ services:
     volumes:
       - ../verify-test-rp/build/resources/main/assets:/assets:ro
     env_file:
-      - urls.env
+      - config/urls.env
       - test-rp.env
     environment:
       TEST_RP_ASSETS_LOCATION: /assets

@@ -1,3 +1,5 @@
+# This Dockerfile is for generating the Metadata
+# and environment used for running the HUB.
 FROM golang:1.15.4-alpine3.12 as golang
 
 RUN apk --no-cache upgrade && \
