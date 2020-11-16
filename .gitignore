@@ -4,5 +4,6 @@ logs/
 *.env
 .env
 !urls.env
+!ports.env
 .idea
 .gradle

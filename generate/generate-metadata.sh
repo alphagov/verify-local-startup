@@ -12,6 +12,13 @@ mkdir -p "$sources/dev/idps"
 mkdir -p "$sources/compliance-tool/idps"
 rm -f "$output/*"
 
+# Test for XMLSectool requried to sign the XML
+if [ ! -f $XMLSECTOOL ]; then
+  echo "XMLSecTool is required to run this script.  You can get XMLSecTool from:"
+  echo "https://shibboleth.net/downloads/tools/xmlsectool/latest/xmlsectool-2.0.0-bin.zip"
+  exit 1
+fi
+
 # generate
 bundle >/dev/null
 
@@ -49,16 +56,12 @@ for src in dev compliance-tool; do
   fi
   
   # sign
-  if test -z `which xmlsectool`; then
-    echo "$(tput setaf 3)Installing xmlsectool$(tput sgr0)"
-    brew install xmlsectool
-  fi
-  
   echo "$(tput setaf 3)Signing metadata$(tput sgr0)"
-  xmlsectool \
+  $XMLSECTOOL \
     --sign \
     --inFile "$output"/$src/metadata.xml \
     --outFile "$output"/$src/metadata.signed.xml \
+    --referenceIdAttributeName ID \
     --certificate "$certdir"/metadata_signing_a.crt \
     --key "$certdir"/metadata_signing_a.pk8 \
     --digest SHA-256

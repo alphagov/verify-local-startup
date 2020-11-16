@@ -1,53 +1,59 @@
 # As repos get multi-stage builds, migrate them into build-local
 stub-idp:
-  context: ../verify-stub-idp
+  context: verify-stub-idp
   image_env_var: STUB_IDP_IMAGE
   remote_image_name: govukverify/stub-idp
 
 msa:
-  context: ../verify-matching-service-adapter
+  context: verify-matching-service-adapter
   image_env_var: MSA_IMAGE
 
 test-rp:
-  context: ../verify-test-rp
+  context: verify-test-rp
   image_env_var: TEST_RP_IMAGE
 
 config:
-  context: ../verify-hub
+  context: verify-hub
   build-args:
     - hub_app: config
+    - conf_dir: configuration/local
   image_env_var: CONFIG_IMAGE
 
 policy:
-  context: ../verify-hub
+  context: verify-hub
   build-args:
     - hub_app: policy
+    - conf_dir: configuration/local
   image_env_var: POLICY_IMAGE
 
 saml-proxy:
-  context: ../verify-hub
+  context: verify-hub
   build-args:
     - hub_app: saml-proxy
+    - conf_dir: configuration/local
   image_env_var: SAML_PROXY_IMAGE
 
 saml-soap-proxy:
-  context: ../verify-hub
+  context: verify-hub
   build-args:
     - hub_app: saml-soap-proxy
+    - conf_dir: configuration/local
   image_env_var: SAML_SOAP_PROXY_IMAGE
 
 saml-engine:
-  context: ../verify-hub
+  context: verify-hub
   build-args:
     - hub_app: saml-engine
+    - conf_dir: configuration/local
   image_env_var: SAML_ENGINE_IMAGE
 
 stub-event-sink:
-  context: ../verify-hub
+  context: verify-hub
   build-args:
     - hub_app: stub-event-sink
+    - conf_dir: configuration/local
   image_env_var: STUB_EVENT_SINK_IMAGE
 
 frontend:
-  context: ../verify-frontend
+  context: verify-frontend
   image_env_var: FRONTEND_IMAGE
