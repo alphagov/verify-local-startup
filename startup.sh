@@ -7,12 +7,14 @@ Usage:
     -t, --threads           Specifies the number of threads to use to do the
                             the build.  If no number given will generate as many
                             threads as repos.  Suggested 4 threads
+    -d, --dozzle            Run Dozzle for docker output viewing on port 50999
     -h, --help              Show's this help message
 EOF
 }
 
 THREADS=0
 YAML_FILE=repos.yml
+DOZZLE=false
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -42,6 +44,13 @@ script_dir="$(cd "$(dirname "$0")" && pwd)"
 if ! command -v docker >/dev/null; then
   >&2 echo "docker: command not found. verify-local-startup requires docker."
   exit 1
+fi
+
+if which rbenv > /dev/null; then
+  if ! rbenv versions |grep 2.7.2 > /dev/null; then
+    echo "Using ruby to install ruby 2.7.2..."
+    rbenv install
+  fi
 fi
 
 tput setaf 4

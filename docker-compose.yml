@@ -11,6 +11,24 @@ services:
       - ${REDIS_PORT}:6379
     networks:
       - hub-network
+  
+  stub-idp-db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: docker
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+    networks:
+      - hub-network
+  
+  metadata:
+    image: nginx
+    ports:
+      - "${METADATA_EXTERNAL_PORT}:80"
+    volumes:
+      - ./data/metadata:/usr/share/nginx/html:ro
+    networks:
+      - hub-network
 
   config:
     image: ${CONFIG_IMAGE}
@@ -144,19 +162,9 @@ services:
       CONFIG_API_HOST: ${CONFIG_URL}
       POLICY_HOST: ${POLICY_URL}
       SAML_PROXY_HOST: ${SAML_PROXY_URL}
-      SENTRY_DSN: "https://daa5f4c5669e4684af5ff6016e35445e@o451922.ingest.sentry.io/5510402"
       SENTRY_ENV: "LOCAL_DEV"
     volumes:
       - ./configuration/stub-frontend-fed-config:/fed-config:ro
-    networks:
-      - hub-network
-
-  metadata:
-    image: nginx
-    ports:
-      - "${METADATA_EXTERNAL_PORT}:80"
-    volumes:
-      - ./data/metadata:/usr/share/nginx/html:ro
     networks:
       - hub-network
 
@@ -224,15 +232,6 @@ services:
       MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata
     depends_on:
       - msa
-    networks:
-      - hub-network
-
-  stub-idp-db:
-    image: postgres
-    environment:
-      POSTGRES_PASSWORD: docker
-    volumes:
-      - database-data:/var/lib/postgresql/data/
     networks:
       - hub-network
 
