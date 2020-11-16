@@ -15,6 +15,7 @@ EOF
 THREADS=0
 YAML_FILE=repos.yml
 DOZZLE=false
+DOZZLEPORT=50999
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -25,6 +26,9 @@ while [ "$1" != "" ]; do
                                 THREADS=$1
                                 ;;
         -d | --dozzle)          DOZZLE=true
+                                ;;
+        -p | --dozzleport)      shift
+                                DOZZLEPORT=$1
                                 ;;
         -h | --help)            show_help
                                 exit 0
@@ -84,8 +88,11 @@ if test ! "${1:-}" == "skip-build"; then
 fi
 
 if [[ $DOZZLE == 'true' ]]; then
-  echo "Running Dozzle on port 50999"
-  docker run --rm --name verify_dozzle_1 --detach --volume=/var/run/docker.sock:/var/run/docker.sock -p 50999:8080 amir20/dozzle
+  echo "Running Dozzle on port $DOZZLEPORT"
+  if ! docker ps |grep doz > /dev/null; then
+    docker run --rm --name verify_dozzle_1 --detach --volume=/var/run/docker.sock:/var/run/docker.sock -p $DOZZLEPORT:8080 amir20/dozzle
+  fi
+  echo "Dozzle is running and can be found at http://localhost:$DOZZLEPORT/"
 fi
 
 docker-compose -f "${DOCKER_COMPOSE_FILE:-docker-compose.yml}" --env-file .env up -d
