@@ -22,6 +22,8 @@ while [ "$1" != "" ]; do
         -t | --threads)         shift
                                 THREADS=$1
                                 ;;
+        -d | --dozzle           DOZZLE=true
+                                ;;
         -h | --help)            show_help
                                 exit 0
                                 ;;
@@ -72,6 +74,10 @@ if test ! "${1:-}" == "skip-build"; then
   bundle exec ./build-local.rb -y $YAML_FILE -t $THREADS
 fi
 
+if [[ $DOZZLE == 'true' ]]; then
+  echo "Running Dozzle on port 50999"
+  docker run --rm --name verify_dozzle_1 --detach --volume=/var/run/docker.sock:/var/run/docker.sock -p 50999:8080 amir20/dozzle
+fi
 
 docker-compose -f "${DOCKER_COMPOSE_FILE:-docker-compose.yml}" --env-file .env up -d
 TEST_RP_URL=$(cat config/urls.env | grep TEST_RP_URL | cut -d '=' -f 2)

@@ -13,8 +13,8 @@ BANNER = <<ENDBANNER
 /_____/\__,_/_/_/\__,_/_/_/ /_/\__, /  /_/  |_/ .___/ .___/____/
                               /____/         /_/   /_/👉 😎 👉 Zoop!
 
-Building Apps using Docker, this could take a few minutes...
-
+ Building Apps using Docker, this could take a few minutes...
+ 
 ENDBANNER
 
 USAGE = <<ENDUSAGE
@@ -41,12 +41,14 @@ class ImageBuilder
     @image_var = ""
     @script_dir = script_dir
     @success = false
+    @release = "verify-local-startup dev"
   end
 
   def build_image()
     image_name = "#{@repo_name}:local"
     build_args = @config.fetch('build-args', []).map { |ba| "--build-arg #{ba.keys[0]}=#{ba.values[0]}" }.join " "
     cmd = "docker build #{build_args}\
+        --build-arg release=#{@release}\
         ../#{@config['context']}\
         -f ../#{@config['context']}/#{@config.fetch('dockerfile', 'Dockerfile')}\
         -t #{image_name}\
@@ -57,7 +59,7 @@ class ImageBuilder
       @image_var = "#{@config['image_env_var']}=#{image_name}\n"
       @success = true
     else
-      File.write("#{@script_dir}/logs/#{@repo_name}_build.log", output, mode: "w")
+      File.write("#{@script_dir}/logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
       @spinner.error(" - see #{@script_dir}/logs/#{@repo_name}_build.log")
       @success = false
     end
@@ -75,12 +77,19 @@ class ImageBuilder
     true
   end
 
+  def get_release()
+    cmd = "git -C ../#{@config['context']} rev-parse --short HEAD"
+    output = `#{cmd}`
+    @release = output.strip
+  end
+
   def run()
     have_repo = true
     unless File.exists?("../#{@config['context']}")
       have_repo = get_repo
     end
     if have_repo
+      get_release
       build_image
     end
   end

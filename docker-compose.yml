@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3.8'
 
 services:
   redis:
@@ -9,6 +9,8 @@ services:
     command: /bin/sh -c 'redis-server'
     ports:
       - ${REDIS_PORT}:6379
+    networks:
+      - hub-network
 
   config:
     image: ${CONFIG_IMAGE}
@@ -19,6 +21,8 @@ services:
       CONFIG_PORT: ${CONFIG_PORT}
     volumes:
       - ./data:/data:ro
+    networks:
+      - hub-network
 
   policy:
     image: ${POLICY_IMAGE}
@@ -43,6 +47,8 @@ services:
       - ./data:/data:ro
     depends_on:
       - redis
+    networks:
+      - hub-network
 
   saml-engine:
     image: ${SAML_ENGINE_IMAGE} 
@@ -66,6 +72,8 @@ services:
     depends_on:
       - redis
       - metadata
+    networks:
+      - hub-network
 
   saml-proxy:
     image: ${SAML_PROXY_IMAGE}
@@ -91,6 +99,8 @@ services:
       EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
     volumes:
       - ./data:/data:ro
+    networks:
+      - hub-network
 
   saml-soap-proxy:
     image: ${SAML_SOAP_PROXY_IMAGE}
@@ -111,6 +121,8 @@ services:
       EVENT_EMITTER_API_GATEWAY_URL: "http://not-used"
     volumes:
       - ./data:/data:ro
+    networks:
+      - hub-network
 
   stub-event-sink:
     image: ${STUB_EVENT_SINK_IMAGE}
@@ -119,6 +131,8 @@ services:
       EVENT_SINK_PORT: ${EVENT_SINK_PORT}
     volumes:
       - ./data:/data:ro
+    networks:
+      - hub-network
 
   frontend:
     image: ${FRONTEND_IMAGE}
@@ -130,8 +144,12 @@ services:
       CONFIG_API_HOST: ${CONFIG_URL}
       POLICY_HOST: ${POLICY_URL}
       SAML_PROXY_HOST: ${SAML_PROXY_URL}
+      SENTRY_DSN: "https://daa5f4c5669e4684af5ff6016e35445e@o451922.ingest.sentry.io/5510402"
+      SENTRY_ENV: "LOCAL_DEV"
     volumes:
       - ./configuration/stub-frontend-fed-config:/fed-config:ro
+    networks:
+      - hub-network
 
   metadata:
     image: nginx
@@ -139,6 +157,8 @@ services:
       - "${METADATA_EXTERNAL_PORT}:80"
     volumes:
       - ./data/metadata:/usr/share/nginx/html:ro
+    networks:
+      - hub-network
 
   stub-idp:
     image: ${STUB_IDP_IMAGE}
@@ -164,6 +184,8 @@ services:
     depends_on: 
       - stub-idp-db
       - metadata
+    networks:
+      - hub-network
 
   msa:
     image: ${MSA_IMAGE}
@@ -180,6 +202,8 @@ services:
       LMS_MATCH_URL: http://test-rp/test-rp/matching-service/POST
       LMS_UAC_URL: http://test-rp/test-rp/unknown-user/POST
       HUB_SSO_URL: http://localhost:${FRONTEND_PORT}/SAML2/SSO
+    networks:
+      - hub-network
 
   test-rp:
     image: ${TEST_RP_IMAGE}
@@ -200,6 +224,8 @@ services:
       MSA_METADATA_URL: ${MSA_URL}/matching-service/SAML2/metadata
     depends_on:
       - msa
+    networks:
+      - hub-network
 
   stub-idp-db:
     image: postgres
@@ -207,8 +233,13 @@ services:
       POSTGRES_PASSWORD: docker
     volumes:
       - database-data:/var/lib/postgresql/data/
+    networks:
+      - hub-network
 
 volumes:
   redis-data:
   redis-config:
   database-data:
+
+networks:
+  hub-network:
