@@ -22,7 +22,7 @@ while [ "$1" != "" ]; do
         -t | --threads)         shift
                                 THREADS=$1
                                 ;;
-        -d | --dozzle           DOZZLE=true
+        -d | --dozzle)          DOZZLE=true
                                 ;;
         -h | --help)            show_help
                                 exit 0
