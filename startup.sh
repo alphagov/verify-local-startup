@@ -10,6 +10,7 @@ Usage:
     -r, --retry-build       Sometimes the build can fail due to resourcing issues
                             by default we'll retry once.  If you want to retry
                             more times set a number here or set it to 0 to not retry.
+    -w, write-build-log     Writes the build log even for successful builds
     -d, --dozzle            Run Dozzle for docker output viewing on port 50999
     -h, --help              Show's this help message
 EOF
@@ -20,6 +21,7 @@ RETRIES=1
 YAML_FILE=repos.yml
 DOZZLE=false
 DOZZLEPORT=50999
+WRITE_BUILD_LOG=''
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -31,6 +33,8 @@ while [ "$1" != "" ]; do
                                 ;;
         -r | --retry-build)     shift
                                 RETRIES=$1
+                                ;;
+        -w | --write-build-log) WRITE_BUILD_LOG='-w'
                                 ;;
         -d | --dozzle)          DOZZLE=true
                                 ;;
@@ -91,7 +95,7 @@ fi
 
 if test ! "${1:-}" == "skip-build"; then
   bundle check || bundle install
-  bundle exec ./build-local.rb -r $RETRIES -y $YAML_FILE -t $THREADS
+  bundle exec ./build-local.rb -r $RETRIES -y $YAML_FILE -t $THREADS $WRITE_BUILD_LOG
 fi
 
 if [[ $DOZZLE == 'true' ]]; then

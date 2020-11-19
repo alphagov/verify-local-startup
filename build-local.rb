@@ -19,7 +19,7 @@ ENDBANNER
 
 USAGE = <<ENDUSAGE
 Usage:
-    build-local -y yaml-file [-t count] [-r retires] [-h]
+    build-local -y yaml-file [-t count] [-r retries] [-h]
 ENDUSAGE
 
 HELP = <<ENDHELP
@@ -31,6 +31,7 @@ HELP = <<ENDHELP
                             by default we'll always retry once.  If you want to
                             retry more times set a number here or set it to 0 to
                             not retry.
+    -w, --write-build-log   Writes the build log even for successful builds
     -h, --help              Show's this help message
 ENDHELP
 
@@ -38,7 +39,7 @@ ENDHELP
 class ImageBuilder
   attr_accessor :image_var, :messages
 
-  def initialize(repo_name:, config:, spinner:, images:, script_dir:, retires:, write_success_log: false)
+  def initialize(repo_name:, config:, spinner:, images:, script_dir:, retries:, write_success_log: false)
     @repo_name = repo_name
     @config = config
     @spinner = spinner
@@ -46,7 +47,8 @@ class ImageBuilder
     @script_dir = script_dir
     @success = false
     @release = "verify-local-startup dev"
-    @retries = retires
+    @retries = retries
+    @write_success_log = write_success_log
     @output = "Starting build of #{repo_name}...\n"
   end
 
@@ -61,9 +63,13 @@ class ImageBuilder
         2>&1"
     output = `#{cmd}`
     if $?.success?
-      @spinner.success(" - see #{@script_dir}/logs/#{@repo_name}_build.log")
-      @putput = @output + output + "\nBuild failed... Unable to retry.\n" 
-      File.write("#{@script_dir}/logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
+      if @write_success_log
+        @spinner.success(" - see #{@script_dir}/logs/#{@repo_name}_build.log")
+        @putput = @output + output + "\nBuild failed... Unable to retry.\n" 
+        File.write("#{@script_dir}/logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
+      else
+        @spinner.success
+      end
       @image_var = "#{@config['image_env_var']}=#{image_name}\n"
       @success = true
     elsif @retries > 0
@@ -112,7 +118,7 @@ class ImageBuilder
   end
 end
 
-def create_docker_images(thread_count, repos, retires)
+def create_docker_images(thread_count, repos, retries, write_success_log)
   thread_success_marks = ["✅","🎉","🎆"]
   success_marks = "🎆 🎉 ✅ 🎉 🎆"
   error_mark = "❌ 😡 ❌ 😡 ❌"
@@ -133,8 +139,8 @@ def create_docker_images(thread_count, repos, retires)
         spinner: spinner,
         images: images,
         script_dir: script_dir,
-        retires: retires,
-        write_success_log: true)
+        retries: retries,
+        write_success_log: write_success_log)
     queue << buildImage
   end
 
@@ -174,16 +180,17 @@ def generate_env(images)
 end
 
 def main()
-  args = { :yaml=>'repos.yml', :thread_count=>0, :retries=>1 }
+  args = { :yaml=>'repos.yml', :thread_count=>0, :retries=>1, :write_success_log=>false }
   unflagged_args = []
   next_arg = unflagged_args.first
 
   ARGV.each do |arg|
     case arg
-      when '-h', '--help'         then args[:help] = true
-      when '-y', '--yaml-file'    then next_arg = :yaml
-      when '-t', '--threads'      then next_arg = :threads
-      when '-r', '--retry-build'  then next_arg = :retires
+      when '-h', '--help'               then args[:help] = true
+      when '-w', '--write-build-log'    then args[:write_success_log] = true
+      when '-y', '--yaml-file'          then next_arg = :yaml
+      when '-t', '--threads'            then next_arg = :threads
+      when '-r', '--retry-build'        then next_arg = :retries
       else
         if next_arg
           args[next_arg] = arg
@@ -213,6 +220,8 @@ def main()
   # Setup retries
   retries = args[:retris].to_i
 
+  write_success_log = args[:write_success_log]
+
   if OS.mac? && thread_count == 0
     thread_count = 2
     puts "For your safety we are using #{thread_count} threads to do the build."
@@ -225,7 +234,7 @@ def main()
     puts "As you asked us we are using #{thread_count} threads to do the build."
   end
   puts ""
-  images = create_docker_images(thread_count, repos, retries)
+  images = create_docker_images(thread_count, repos, retries, write_success_log)
   generate_env(images)
 end
 
