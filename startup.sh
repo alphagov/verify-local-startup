@@ -7,12 +7,16 @@ Usage:
     -t, --threads           Specifies the number of threads to use to do the
                             the build.  If no number given will generate as many
                             threads as repos.  Suggested 4 threads
+    -r, --retry-build       Sometimes the build can fail due to resourcing issues
+                            by default we'll retry once.  If you want to retry
+                            more times set a number here or set it to 0 to not retry.
     -d, --dozzle            Run Dozzle for docker output viewing on port 50999
     -h, --help              Show's this help message
 EOF
 }
 
 THREADS=0
+RETRIES=1
 YAML_FILE=repos.yml
 DOZZLE=false
 DOZZLEPORT=50999
@@ -24,6 +28,9 @@ while [ "$1" != "" ]; do
                                 ;;
         -t | --threads)         shift
                                 THREADS=$1
+                                ;;
+        -r | --retry-build)     shift
+                                RETRIES=$1
                                 ;;
         -d | --dozzle)          DOZZLE=true
                                 ;;
@@ -84,7 +91,7 @@ fi
 
 if test ! "${1:-}" == "skip-build"; then
   bundle check || bundle install
-  bundle exec ./build-local.rb -y $YAML_FILE -t $THREADS
+  bundle exec ./build-local.rb -r $RETRIES -y $YAML_FILE -t $THREADS
 fi
 
 if [[ $DOZZLE == 'true' ]]; then
