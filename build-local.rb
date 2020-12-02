@@ -52,7 +52,7 @@ class ImageBuilder
     @output = "Starting build of #{repo_name}...\n"
   end
 
-  def build_image()
+  def build_image
     image_name = "#{@repo_name}:local"
     build_args = @config.fetch('build-args', []).map { |ba| "--build-arg #{ba.keys[0]}=#{ba.values[0]}" }.join " "
     cmd = "docker build #{build_args}\
@@ -73,9 +73,9 @@ class ImageBuilder
       @image_var = "#{@config['image_env_var']}=#{image_name}\n"
       @success = true
     elsif @retries > 0
-        @output = @output + output + "\nBuild failed... Retrying...\n"
-        @retries = @retries - 1
-        build_image()
+      @output = @output + output + "\nBuild failed... Retrying...\n"
+      @retries = @retries - 1
+      build_image
     else
       @output = @output + output + "\nBuild failed... Unable to retry.\n" 
       File.write("#{@script_dir}/logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
@@ -84,7 +84,7 @@ class ImageBuilder
     end
   end
 
-  def get_repo()
+  def get_repo
     cmd = "git clone https://github.com/alphagov/#{@config['context']}.git ../#{@config['context']} 2>&1"
     output = `#{cmd}`
     unless $?.success?
@@ -96,13 +96,13 @@ class ImageBuilder
     true
   end
 
-  def get_release()
+  def get_release
     cmd = "git -C ../#{@config['context']} rev-parse --short HEAD"
     output = `#{cmd}`
     @release = output.strip
   end
 
-  def run()
+  def run
     have_repo = true
     unless File.exists?("../#{@config['context']}")
       have_repo = get_repo
@@ -204,7 +204,7 @@ def main()
     puts HELP if args[:help]
     exit
   end
-  if ! File.file?(args[:yaml])
+  unless File.file?(args[:yaml])
     puts "Yaml file does not exist.  Exiting..."
     puts USAGE
     exit 1
@@ -218,11 +218,11 @@ def main()
   # Setup thread count
   thread_count = args[:threads].to_i
   # Setup retries
-  retries = args[:retris].to_i
+  retries = args[:retries].to_i
 
   write_success_log = args[:write_success_log]
 
-  if OS.mac? && thread_count == 0
+  if OS.mac? && thread_count.zero?
     thread_count = 2
     puts "For your safety we are using #{thread_count} threads to do the build."
     puts "You can override this using the -t option."
