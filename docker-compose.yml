@@ -13,7 +13,7 @@ services:
       - hub-network
   
   stub-idp-db:
-    image: ghcr.io/alphagov/verify/postgres:6.0.9
+    image: ghcr.io/alphagov/verify/postgres:12.5
     environment:
       POSTGRES_PASSWORD: docker
     volumes:

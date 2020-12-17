@@ -18,10 +18,10 @@ ADD Gemfile Gemfile
 ADD Gemfile.lock Gemfile.lock
 
 RUN bundle &&\
-    curl --silent -O https://shibboleth.net/downloads/tools/xmlsectool/latest/xmlsectool-2.0.0-bin.zip &&\
-    unzip xmlsectool-2.0.0-bin.zip
+    curl --silent -O https://shibboleth.net/downloads/tools/xmlsectool/latest/xmlsectool-3.0.0-bin.zip &&\
+    unzip xmlsectool-3.0.0-bin.zip
 
-ENV XMLSECTOOL="/xmlsectool-2.0.0/xmlsectool.sh"
+ENV XMLSECTOOL="/xmlsectool-3.0.0/xmlsectool.sh"
 ENV JAVA_HOME=/usr/lib/jvm/default-jvm/jre
 
 WORKDIR /verify-local-startup
