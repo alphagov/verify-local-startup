@@ -35,6 +35,47 @@ HELP = <<ENDHELP
     -h, --help              Show's this help message
 ENDHELP
 
+THREAD_SUCCESS_MARKS = ["✅","🎉","🎆"]
+SUCCESS_MARK = "🎆 🎉 ✅ 🎉 🎆"
+ERROR_MARK = "❌ 😡 ❌ 😡 ❌"
+
+class Repository
+  def initialize(repo_name:, spinners:)
+    @repo_name = repo_name
+    @spinners = spinners
+    @success = false
+    @spinner = nil
+  end
+
+  def get_repo
+    cmd = "git clone https://github.com/alphagov/#{@repo_name}.git ../#{@repo_name} 2>&1"
+    output = `#{cmd}`
+    unless $?.success?
+      File.write("#{@script_dir}/logs/#{@repo_name}_fetch.log", output, mode: "w")
+      @spinner.error(" failed to clone repository - see #{@script_dir}/logs/#{@repo_name}_fetch.log")
+      @success = false
+      false
+    end
+    @spinner.success
+    true
+  end
+
+  def run
+    have_repo = true
+    unless File.exists?("../#{@repo_name}")
+      @spinner = @spinners.register("[:spinner] Fetching #{@repo_name} from GitHub", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
+      @spinner.auto_spin
+      @success = get_repo
+    else
+      @success = true
+    end
+  end
+
+  def success?
+    return @success
+  end
+end
+
 # This is our worker thread which builds our docker images
 class ImageBuilder
   attr_accessor :image_var, :messages
@@ -84,18 +125,6 @@ class ImageBuilder
     end
   end
 
-  def get_repo
-    cmd = "git clone https://github.com/alphagov/#{@config['context']}.git ../#{@config['context']} 2>&1"
-    output = `#{cmd}`
-    unless $?.success?
-      File.write("#{@script_dir}/logs/#{@repo_name}_build.log", output, mode: "w")
-      @spinner.error(" failed to clone repository - see #{@script_dir}/logs/#{@repo_name}_build.log")
-      @success = false
-      false
-    end
-    true
-  end
-
   def get_release
     cmd = "git -C ../#{@config['context']} rev-parse --short HEAD"
     output = `#{cmd}`
@@ -103,14 +132,8 @@ class ImageBuilder
   end
 
   def run
-    have_repo = true
-    unless File.exists?("../#{@config['context']}")
-      have_repo = get_repo
-    end
-    if have_repo
-      get_release
-      build_image
-    end
+    get_release
+    build_image
   end
 
   def success?
@@ -118,11 +141,46 @@ class ImageBuilder
   end
 end
 
+def fetch_git_repos(thread_count, repos, write_success_log)
+  loading_spinners = TTY::Spinner::Multi.new("[:spinner] Fetching Repos", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
+  script_dir = File.expand_path(File.dirname(__FILE__))
+  
+  r = []
+  repos.each do | repo_name, config|
+    r.append(config['context'])
+  end
+  git_queue = Queue.new
+  r.to_set.each do | repo |
+    r_thread = Repository.new(repo_name: repo, spinners: loading_spinners)
+    git_queue << r_thread
+  end
+
+  # Create Threads
+  threads = []
+  thread_failed = false
+  thread_count.times do
+    threads << Thread.new do
+      until git_queue.empty?
+        work_unit = git_queue.pop(true) rescue nil
+        if work_unit
+          work_unit.run
+          unless work_unit.success?
+            thread_failed = true
+          end
+        end
+      end
+    end
+  end
+  threads.each { |t| t.join }
+  if thread_failed
+    print "Something went wrong while trying to fetch git repositories  Exiting..."
+    exit 1
+  end
+  puts "Successfully fetched all git repositories"
+end
+
 def create_docker_images(thread_count, repos, retries, write_success_log)
-  thread_success_marks = ["✅","🎉","🎆"]
-  success_marks = "🎆 🎉 ✅ 🎉 🎆"
-  error_mark = "❌ 😡 ❌ 😡 ❌"
-  loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: success_marks, error_mark: error_mark)
+  loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
 
   images = ""
   script_dir = File.expand_path(File.dirname(__FILE__))
@@ -131,7 +189,7 @@ def create_docker_images(thread_count, repos, retries, write_success_log)
   # Create queue and populate it
   queue = Queue.new
   repos.each do |repo_name, config|
-    spinner = loading_spinners.register("[:spinner] #{repo_name}", format: :dots, success_mark: "#{thread_success_marks.sample}", error_mark: "😡")
+    spinner = loading_spinners.register("[:spinner] #{repo_name}", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
     spinner.auto_spin
     buildImage = ImageBuilder.new(
         repo_name: repo_name,
@@ -234,6 +292,7 @@ def main()
     puts "As you asked us we are using #{thread_count} threads to do the build."
   end
   puts ""
+  fetch_git_repos(thread_count, repos, write_success_log)
   images = create_docker_images(thread_count, repos, retries, write_success_log)
   generate_env(images)
 end
