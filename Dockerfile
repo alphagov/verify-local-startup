@@ -9,7 +9,7 @@ RUN apk --no-cache upgrade && \
 FROM ghcr.io/alphagov/verify/ruby:2.7.2-alpine3.12
 
 RUN apk --no-cache upgrade && \
-    apk add --no-cache build-base ncurses bash git openssl openjdk8 curl
+    apk add --no-cache build-base ncurses bash git openssl openjdk11 curl
 
 COPY --from=golang /go/bin /go/bin
 ENV PATH="/go/bin:${PATH}"
@@ -23,6 +23,10 @@ RUN bundle &&\
 
 ENV XMLSECTOOL="/xmlsectool-3.0.0/xmlsectool.sh"
 ENV JAVA_HOME=/usr/lib/jvm/default-jvm/jre
+
+COPY config/bashrc /root/.bashrc
+
+RUN chmod +x /root/.bashrc
 
 WORKDIR /verify-local-startup
 ENTRYPOINT ["/bin/bash", "-c"]
