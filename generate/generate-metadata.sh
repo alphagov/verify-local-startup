@@ -63,7 +63,7 @@ for src in dev compliance-tool; do
     --outFile "$output"/$src/metadata.signed.xml \
     --referenceIdAttributeName ID \
     --certificate "$certdir"/metadata_signing_a.crt \
-    --key "$certdir"/metadata_signing_a.pk8 \
+    --keyFile "$certdir"/metadata_signing_a.pk8 \
     --digest SHA-256
 
   cp metadata/output/$src/metadata.signed.xml metadata/$src.xml
