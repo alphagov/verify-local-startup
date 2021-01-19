@@ -15,7 +15,7 @@ rm -f "$output/*"
 # Test for XMLSectool requried to sign the XML
 if [ ! -f $XMLSECTOOL ]; then
   echo "XMLSecTool is required to run this script.  You can get XMLSecTool from:"
-  echo "https://shibboleth.net/downloads/tools/xmlsectool/latest/xmlsectool-2.0.0-bin.zip"
+  echo "https://shibboleth.net/downloads/tools/xmlsectool/latest/xmlsectool-3.0.0-bin.zip"
   exit 1
 fi
 
