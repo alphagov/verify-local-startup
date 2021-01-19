@@ -37,3 +37,14 @@ TRUSTSTORE_TYPE=encoded
 METADATA_TRUSTSTORE=$($BASE64 data/pki/metadata.ts)
 TRUSTSTORE_PASSWORD=marshmallow
 EOF
+
+# Update the group to allow users to change/delete the
+# files when run in the docker container
+if [ -z $DATA_GROUP ]; then
+    chgrp $DATA_GROUP hub.env
+    chgrp $DATA_GROUP test-rp.env
+    chgrp $DATA_GROUP stub-idp.env
+    chmod g+w hub.env
+    chmod g+w test-rp.env
+    chmod g+w stub-idp.env
+fi

@@ -28,5 +28,11 @@ COPY config/bashrc /root/.bashrc
 
 RUN chmod +x /root/.bashrc
 
+ARG DATA_GROUP=nogroup
+ENV DATA_GROUP $DATA_GROUP
+
+ARG GROUP_LINE=docker:x:997:
+RUN if ! cat /etc/group | grep $DATA_GROUP > /dev/null; then echo $GROUP_LINE >> /etc/group; fi
+
 WORKDIR /verify-local-startup
 ENTRYPOINT ["/bin/bash", "-c"]
