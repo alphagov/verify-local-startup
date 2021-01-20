@@ -58,16 +58,15 @@ Usage:
                             more times set a number here or set it to 0 to not retry.
     -w, write-build-log     Writes the build log even for successful builds
     -s, --skip-data-check   Skip checking the age of the data directory
-    -g, --group             Set the group owner of the data directory
-                            Default is to use docker.
     -R, --rebuild-data      Tells the script to remove and rebuild the data directory
     -d, --dozzle            Run Dozzle for docker output viewing on port 50999
     -h, --help              Show's this help message
 EOF
 }
 
-GROUP=docker
-GROUP_LINE="docker:x:997:"
+# Set the user information to add to Docker
+
+GENERATE_ONLY=false
 REBUILD_DATA=false
 SKIP_DATA_CHECK=false
 THREADS=0
@@ -95,21 +94,14 @@ while [ "$1" != "" ]; do
         -p | --dozzleport)      shift
                                 DOZZLEPORT=$1
                                 ;;
-        -g | --group)           shift
-                                GROUP=$1
-                                if cat /etc/group | grep $GROUP | cut -d ':' -f 1 > /dev/null; then
-                                  GROUP_LINE="$GROUP:x:$(cat /etc/group | grep $GROUP: | cut -d ':' -f 3):"
-                                else
-                                  echo "No such group in your group file"
-                                  exit 1
-                                fi
-                                ;;
         -R | --rebuild-data)    REBUILD_DATA=true
                                 ;;
         -s | --skip-data-check) SKIP_DATA_CHECK=true
                                 ;;
         -h | --help)            show_help
                                 exit 0
+                                ;;
+        -g | --generate_only)   GENERATE_ONLY=true
                                 ;;
         * )                     echo -e "Unknown option $1...\n"
                                 usage
@@ -157,7 +149,9 @@ fi
 
 # Running generate scripts in docker avoids having to install their
 # dependencies on the host.
-docker build -t verify-local-startup --build-arg DATA_GROUP=$GROUP --build-arg GROUP_LINE=$GROUP_LINE .
+docker build -t verify-local-startup \
+--build-arg USER_ID=$(id -u) \
+--build-arg GROUP_ID=$(id -g) .
 
 # Inlining the following block of commands to docker run rather than putting
 # them in their own script to avoid an extra level of bash indirection
@@ -165,11 +159,15 @@ docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup '
 set -e
 if ! test -d data; then
   generate/hub-dev-pki.sh
-  chown -R root:$DATA_GROUP data
-  chmod -R g+w data
+  chown -R verify:staff data
+  chown verify:staff *.env
 fi
 ./env.sh
 '
+
+if [[ $GENERATE_ONLY == "true" ]]; then
+  exit 0
+fi
 
 if test ! "${1:-}" == "skip-build"; then
   bundle check || bundle install
