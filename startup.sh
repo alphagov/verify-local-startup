@@ -2,40 +2,40 @@
 
 rebuild_data() {
   # Check if our test file exists before we try to do anything
-  if [ ! -f ./data/pki/hub.ts ]; then
+  if [ ! -d data ]; then
     return 0
   fi
 
-  if groups | grep $(/usr/bin/stat -c %G data) > /dev/null; then
+  if [ $(id -u) == $(/usr/bin/stat $STAT_FORMAT %u data) ]; then
     echo "Removing data directory for rebuild..."
-    if [ -d data ]; then
-      rm -r data
-    fi
+    rm -r data
+    rm *.env
   else
     while true; do
-    read -p "Unable to remove data directory, use sudo? [y/n] " p
-    case $p in
-        y|Y|yes)  if [ -d data ]; then
-                    sudo rm -r data
-                  fi
-                  break
-                  ;;
-        n|N|no)   echo "Unable to remove data directory."
-                  break
-                  ;;
-    esac
+      read -p "Unable to remove data directory, use sudo? [y/n] " p
+      case $p in
+          y|Y|yes)  if ! sudo rm -r data; then
+                      echo "Unable to remove data directory."
+                    else
+                      sudo rm *.env
+                    fi
+                    break
+                    ;;
+          n|N|no)   echo "Unable to remove data directory."
+                    break
+                    ;;
+      esac
     done
-    echo "Unable to remove data directory."
   fi
 }
 
 check_data_age() {
   # Check if our test file exists before we try to do anything
-  if [ ! -f ./data/pki/hub.ts ]; then
+  if [ ! -d ./data ]; then
     return 0
   fi
 
-  DATA_DIR_AGE=$(/usr/bin/stat -c %Y data/pki/hub.ts)
+  DATA_DIR_AGE=$(/usr/bin/stat $STAT_FORMAT $STAT_MODIFIED data)
   let "MAX_AGE = 1209600 + $DATA_DIR_AGE"
   NOW=$(date +%s)
   if [[ $NOW > $MAX_AGE ]]; then
@@ -112,6 +112,15 @@ done
 
 set -eu -o pipefail
 
+case $(uname) in
+  Darwin)     STAT_FORMAT="-f"
+              STAT_MODIFIED="%c"
+              ;;
+  *)          STAT_FORMAT="-c"
+              STAT_MODIFIED="%Y"
+              ;;
+esac
+
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 
 # Build a docker image with all of our dependencies for future steps
@@ -149,20 +158,15 @@ fi
 
 # Running generate scripts in docker avoids having to install their
 # dependencies on the host.
-docker build -t verify-local-startup \
---build-arg USER_ID=$(id -u) \
---build-arg GROUP_ID=$(id -g) .
-
-# Inlining the following block of commands to docker run rather than putting
-# them in their own script to avoid an extra level of bash indirection
+docker build -t verify-local-startup --build-arg USER_ID=$(id -u) .
 docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup '
 set -e
 if ! test -d data; then
   generate/hub-dev-pki.sh
-  chown -R verify:staff data
-  chown verify:staff *.env
+  chown -R verify:docker data
 fi
 ./env.sh
+chown verify:docker *.env
 '
 
 if [[ $GENERATE_ONLY == "true" ]]; then
