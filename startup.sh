@@ -1,32 +1,9 @@
 #!/usr/bin/env bash
 
 rebuild_data() {
-  # Check if our test file exists before we try to do anything
-  if [ ! -d data ]; then
-    return 0
-  fi
-
-  if [ $(id -u) == $(/usr/bin/stat $STAT_FORMAT %u data) ]; then
-    echo "Removing data directory for rebuild..."
-    rm -r data
-    rm *.env
-  else
-    while true; do
-      read -p "Unable to remove data directory, use sudo? [y/n] " p
-      case $p in
-          y|Y|yes)  if ! sudo rm -r data; then
-                      echo "Unable to remove data directory."
-                    else
-                      sudo rm *.env
-                    fi
-                    break
-                    ;;
-          n|N|no)   echo "Unable to remove data directory."
-                    break
-                    ;;
-      esac
-    done
-  fi
+  REMOVE_DATA_DIR="echo \"Removing data directory...\"
+rm -r data
+rm *.env"
 }
 
 check_data_age() {
@@ -35,7 +12,7 @@ check_data_age() {
     return 0
   fi
 
-  DATA_DIR_AGE=$(/usr/bin/stat $STAT_FORMAT $STAT_MODIFIED data)
+  DATA_DIR_AGE=$($STAT data)
   let "MAX_AGE = 1209600 + $DATA_DIR_AGE"
   NOW=$(date +%s)
   if [[ $NOW > $MAX_AGE ]]; then
@@ -65,7 +42,7 @@ EOF
 }
 
 # Set the user information to add to Docker
-
+REMOVE_DATA_DIR="echo \"Keeping Data Directory.\""
 GENERATE_ONLY=false
 REBUILD_DATA=false
 SKIP_DATA_CHECK=false
@@ -113,11 +90,9 @@ done
 set -eu -o pipefail
 
 case $(uname) in
-  Darwin)     STAT_FORMAT="-f"
-              STAT_MODIFIED="%c"
+  Darwin)     STAT="/usr/bin/stat -f %c "
               ;;
-  *)          STAT_FORMAT="-c"
-              STAT_MODIFIED="%Y"
+  *)          STAT="/usr/bin/stat -c %Y"
               ;;
 esac
 
@@ -158,16 +133,14 @@ fi
 
 # Running generate scripts in docker avoids having to install their
 # dependencies on the host.
-docker build -t verify-local-startup --build-arg USER_ID=$(id -u) .
-docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup '
+docker build -t verify-local-startup .
+docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup "
 set -e
+$REMOVE_DATA_DIR
 if ! test -d data; then
   generate/hub-dev-pki.sh
-  chown -R verify:docker data
 fi
-./env.sh
-chown verify:docker *.env
-'
+./env.sh"
 
 if [[ $GENERATE_ONLY == "true" ]]; then
   exit 0

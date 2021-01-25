@@ -28,11 +28,5 @@ COPY config/bashrc /root/.bashrc
 
 RUN chmod +x /root/.bashrc
 
-# We use this to set ownership permissions on the
-# generated data directory and env files
-ARG USER_ID=1000
-RUN addgroup -g 997 docker
-RUN adduser -u $USER_ID -D verify
-
 WORKDIR /verify-local-startup
 ENTRYPOINT ["/bin/bash", "-c"]
