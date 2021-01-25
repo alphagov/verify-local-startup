@@ -1,21 +1,88 @@
 #!/usr/bin/env bash
 
+rebuild_data() {
+  REMOVE_DATA_DIR="echo \"Removing data directory...\"
+rm -r data
+rm *.env"
+}
+
+check_data_age() {
+  # Check if our test file exists before we try to do anything
+  if [ ! -d ./data ]; then
+    return 0
+  fi
+
+  DATA_DIR_AGE=$($STAT data)
+  let "MAX_AGE = 1209600 + $DATA_DIR_AGE"
+  NOW=$(date +%s)
+  if [[ $NOW > $MAX_AGE ]]; then
+    echo "Data directory has expired... Rebuilding"
+    rebuild_data
+  else
+    echo "Data directory is still good."
+  fi
+}
+
+clean_up() {
+  docker build -t verify-local-startup .
+  docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup "
+if [ -d data ]; then
+  rm -r data
+fi
+if [ -f hub.env ]; then
+  rm *.env
+fi
+logfiles=(logs/*.log)
+if [ ${#logfiles[@]} -gt 0 ]; then
+  rm logs/*.log
+fi
+"
+  echo "Verify local startup has been cleaned up."
+  exit 0
+}
+
 show_help() {
   cat << EOF
 Usage:
-    -y, --yaml-file         Yaml file with a List of repos to build
-    -t, --threads           Specifies the number of threads to use to do the
-                            the build.  If no number given will generate as many
-                            threads as repos.  Suggested 4 threads
-    -r, --retry-build       Sometimes the build can fail due to resourcing issues
-                            by default we'll retry once.  If you want to retry
-                            more times set a number here or set it to 0 to not retry.
-    -w, write-build-log     Writes the build log even for successful builds
-    -d, --dozzle            Run Dozzle for docker output viewing on port 50999
-    -h, --help              Show's this help message
+
+  Options:
+    -y, --yaml-file <file>      Yaml file with a List of repos to build.
+                                Default ./repos.yml
+    -t, --threads <number>      Specifies the number of threads to use to do the
+                                the build.  If no number given will generate as many
+                                threads as repos.  Suggested 4 threads.
+                                On macs the default is 2 on other systems 0.
+    -r, --retry-build <number>  Sometimes the build can fail due to resourcing issues
+                                by default we'll retry once.  If you want to retry
+                                more times set a number here or set it to 0 to not retry.
+
+  Switches:
+    -w, --write-build-log       Writes the build log even for successful builds
+    -s, --skip-data-check       Skip checking the age of the data directory
+    -b, --skip-build            Allows you to skip the build process.  Useful if you've
+                                already built everything and your developing something.
+    -R, --rebuild-data          Tells the script to remove and rebuild the data directory.
+    
+  Dozzle (useful on Linux):
+    -d, --dozzle                Run Dozzle for docker output viewing on port 50999.
+    -p, --dozzleport <number>   Sets the port doozle should run on if you choose to run
+                                Dozzle (see the -d switch).  Default 50999
+
+  Tasks:
+    -g, --generate-only         Generates the data directory and env files and then exits.
+    -c, --clean                 Cleans up the verify local startup directory and exits.
+
+    -h, --help                  Show's this help message
 EOF
 }
 
+# Set the user information to add to Docker
+REMOVE_DATA_DIR="echo \"Keeping Data Directory.\""
+CLEAN=false
+SKIP_BUILD=false
+GENERATE_ONLY=false
+REBUILD_DATA=false
+SKIP_DATA_CHECK=false
 THREADS=0
 RETRIES=1
 YAML_FILE=repos.yml
@@ -34,6 +101,8 @@ while [ "$1" != "" ]; do
         -r | --retry-build)     shift
                                 RETRIES=$1
                                 ;;
+        -b | --skip-build)      SKIP_BUILD=true
+                                ;;
         -w | --write-build-log) WRITE_BUILD_LOG='-w'
                                 ;;
         -d | --dozzle)          DOZZLE=true
@@ -41,8 +110,16 @@ while [ "$1" != "" ]; do
         -p | --dozzleport)      shift
                                 DOZZLEPORT=$1
                                 ;;
+        -R | --rebuild-data)    REBUILD_DATA=true
+                                ;;
+        -c | --clean)           CLEAN=true
+                                ;;
+        -s | --skip-data-check) SKIP_DATA_CHECK=true
+                                ;;
         -h | --help)            show_help
                                 exit 0
+                                ;;
+        -g | --generate-only)   GENERATE_ONLY=true
                                 ;;
         * )                     echo -e "Unknown option $1...\n"
                                 usage
@@ -52,6 +129,13 @@ while [ "$1" != "" ]; do
 done
 
 set -eu -o pipefail
+
+case $(uname) in
+  Darwin)     STAT="/usr/bin/stat -f %c "
+              ;;
+  *)          STAT="/usr/bin/stat -c %Y"
+              ;;
+esac
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 
@@ -63,7 +147,7 @@ fi
 
 if which rbenv > /dev/null; then
   if ! rbenv versions |grep 2.7.2 > /dev/null; then
-    echo "Using ruby to install ruby 2.7.2..."
+    echo "Using rbenv to install ruby 2.7.2..."
     rbenv install
   fi
 fi
@@ -79,21 +163,35 @@ __     __        _  __         _   _       _        ____  ___
 EOF
 tput sgr0
 
+if [[ $CLEAN == 'true' ]]; then
+  clean_up
+fi
+
+# Options for rebuilding the data directory
+if [[ $SKIP_DATA_CHECK == "false" ]]; then
+  check_data_age
+fi
+
+if [[ $REBUILD_DATA == "true" ]]; then
+  rebuild_data
+fi
+
 # Running generate scripts in docker avoids having to install their
 # dependencies on the host.
 docker build -t verify-local-startup .
-
-# Inlining the following block of commands to docker run rather than putting
-# them in their own script to avoid an extra level of bash indirection
-docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup '
+docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup "
 set -e
+$REMOVE_DATA_DIR
 if ! test -d data; then
   generate/hub-dev-pki.sh
 fi
-./env.sh
-'
+./env.sh"
 
-if test ! "${1:-}" == "skip-build"; then
+if [[ $GENERATE_ONLY == 'true' ]]; then
+  exit 0
+fi
+
+if [[ $SKIP_BUILD == 'true' ]]; then
   bundle check || bundle install
   bundle exec ./build-local.rb -r $RETRIES -y $YAML_FILE -t $THREADS $WRITE_BUILD_LOG
 fi
