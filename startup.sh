@@ -43,6 +43,7 @@ EOF
 
 # Set the user information to add to Docker
 REMOVE_DATA_DIR="echo \"Keeping Data Directory.\""
+CLEAN=false
 GENERATE_ONLY=false
 REBUILD_DATA=false
 SKIP_DATA_CHECK=false
@@ -72,6 +73,8 @@ while [ "$1" != "" ]; do
                                 DOZZLEPORT=$1
                                 ;;
         -R | --rebuild-data)    REBUILD_DATA=true
+                                ;;
+        -c | --clean)           CLEAN=true
                                 ;;
         -s | --skip-data-check) SKIP_DATA_CHECK=true
                                 ;;
@@ -134,14 +137,26 @@ fi
 # Running generate scripts in docker avoids having to install their
 # dependencies on the host.
 docker build -t verify-local-startup .
-docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup "
+if [[ $CLEAN == "true" ]]; then 
+  docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup "
+if [ -d data ]; then
+  rm -r data
+fi
+if [ -f hub.env ]; then
+  rm *.env
+fi
+"
+  echo "Verify local startup has been cleaned up."
+  exit 0
+else
+  docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup "
 set -e
 $REMOVE_DATA_DIR
 if ! test -d data; then
   generate/hub-dev-pki.sh
 fi
 ./env.sh"
-
+fi
 if [[ $GENERATE_ONLY == "true" ]]; then
   exit 0
 fi
