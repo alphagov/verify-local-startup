@@ -33,7 +33,7 @@ if [ -f hub.env ]; then
   rm *.env
 fi
 logfiles=(logs/*.log)
-if [ ${#logfiles[@]} -gt 0 ]; then
+if [ \${#logfiles[@]} -gt 0 ]; then
   rm logs/*.log
 fi
 "
