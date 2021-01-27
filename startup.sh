@@ -191,9 +191,11 @@ if [[ $GENERATE_ONLY == 'true' ]]; then
   exit 0
 fi
 
-if [[ $SKIP_BUILD == 'true' ]]; then
+if [[ $SKIP_BUILD == 'false' ]]; then
   bundle check || bundle install
   bundle exec ./build-local.rb -r $RETRIES -y $YAML_FILE -t $THREADS $WRITE_BUILD_LOG
+else
+  echo "Skipping build process..."
 fi
 
 if [[ $DOZZLE == 'true' ]]; then
