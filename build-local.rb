@@ -5,7 +5,7 @@ require 'os'
 require 'tty-spinner'
 require 'yaml'
 
-BANNER = <<ENDBANNER
+BANNER = '
     ____        _ __    ___                ___
    / __ )__  __(_) /___/ (_)___  ____ _   /   |  ____  ____  _____
   / __  / / / / / / __  / / __ \/ __ `/  / /| | / __ \/ __ \/ ___/
@@ -14,8 +14,8 @@ BANNER = <<ENDBANNER
                               /____/         /_/   /_/👉 😎 👉 Zoop!
 
  Building Apps using Docker, this could take a few minutes...
- 
-ENDBANNER
+
+'
 
 USAGE = <<ENDUSAGE
 Usage:
@@ -268,7 +268,7 @@ def main()
     exit 1
   end
 
-  puts BANNER
+  puts "#{BANNER}"
 
   # Load repos yaml
   repos = YAML.load(File.read(args[:yaml]))
