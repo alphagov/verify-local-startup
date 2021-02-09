@@ -9,7 +9,7 @@ This repository also provides a number of scripts for generating a new Public Ke
 * [Before you start](#before-you-start)
 * [Getting Started](#getting-started)
 * [Stopping the Hub](#stopping-the-hub)
-* [Startup Commandline Options](#Startup-Commandline-Options)
+* [Startup Command line Options](#Startup-Command-line-Options)
 * [Useful Scripts](#useful-scripts)
     * [XMLSecTool in Docker](#XMLSecTool-in-Docker)
     * [Generate PKI](#Generate-PKI)
@@ -19,7 +19,7 @@ This repository also provides a number of scripts for generating a new Public Ke
 
 ## Before you start
 
-You'll need a computer with at least 8GB (for linux systems) or 16GB (for Mac and Windows systems) and at least a 4 core processor.  You'll also need administrator privilages in order to installed the required components listed below.
+You'll need a computer with at least 8GB (for linux systems) or 16GB (for Mac and Windows systems) and at least a 4 core processor.  You'll also need administrator privileges in order to installed the required components listed below.
 
 You will need to install Git, [Docker](https://www.docker.com/get-started) and Ruby 2.7.2.  If you have [rbenv](https://github.com/rbenv/rbenv) installed the script will automatically pull and compile the correct version of ruby for you.
 
@@ -62,7 +62,7 @@ If everything works as expected you should see the following message:
 
 > Started - visit [http://localhost:50130/test-rp](http://localhost:50130/test-rp) to start a journey (may take some time to spin up)
 
-It can take up to 5 minutes for the 13 indivual microservices to get going and for you to make a successful verify journey depending on the age and power of your computer.  If you encounter any issues please [raise an issue](#Support-and-raising-issues).
+It can take up to 5 minutes for the 13 individual microservices to get going and for you to make a successful verify journey depending on the age and power of your computer.  If you encounter any issues please [raise an issue](#Support-and-raising-issues).
 
 ## Stopping the Hub
 
@@ -74,9 +74,9 @@ Stopping the hub is relatively straight forward as we also provide a shutdown sc
 
 This will kill all the hub microservices running in Docker and remove their virtual network for you.  This will not remove the docker containers created by the build process.
 
-## Startup Commandline Options
+## Startup Command line Options
 
-The startup scipt provides a number of command line options and switches which can be accessed from the `--help` option.
+The startup script provides a number of command line options and switches which can be accessed from the `--help` option.
 
 ```
 Usage:
@@ -108,14 +108,14 @@ Usage:
     -g, --generate-only         Generates the data directory and env files and then exits.
     -c, --clean                 Cleans up the verify local startup directory and exits.
 
-    -h, --help                  Show's this help messagee
+    -h, --help                  Show's this help message
 ```
 
-For Mac OS users you'll want to take note of the `-t <number>` option.  This should ideally match the number of CPUs allocated to your Docker virtual machine.  Additionally if you have intermittent build issues you can icrease the build retry cycle with `-r <number>`.  We aware of an issue that when system resources are constrained can result in build failures normally due to failing unit and acceptance tests.
+For Mac OS users you'll want to take note of the `-t <number>` option.  This should ideally match the number of CPUs allocated to your Docker virtual machine.  Additionally if you have intermittent build issues you can increase the build retry cycle with `-r <number>`.  We aware of an issue that when system resources are constrained can result in build failures normally due to failing unit and acceptance tests.
 
-As highlighted in the Getting Started section for Linux users we highly recommend the `-d` option as this launches Dozzle before running the apps giving a convient log viewer for running docker services.  Mac OS users don't need this so much as the Docker App provides a good log viewer.
+As highlighted in the Getting Started section for Linux users we highly recommend the `-d` option as this launches Dozzle before running the apps giving a convenient log viewer for running docker services.  Mac OS users don't need this so much as the Docker App provides a good log viewer.
 
-The startup script manges both the pki and federation config both stored in the data directory as well as the environment variables files.  The script will replace these when they are older than 2 weeks.  However if they become corrupted for any reason its possiblet to supply `-R` option which tells the script to remove the data directory and env files so they can be regenerated.
+The startup script manges both the pki and federation config both stored in the data directory as well as the environment variables files.  The script will replace these when they are older than 2 weeks.  However if they become corrupted for any reason its possible to supply `-R` option which tells the script to remove the data directory and env files so they can be regenerated.
 
 The script currently has two tasks.  These are options which run and then exit before the build process starts.  The first is `--generate-only` which just generates the PKI and environment files and exists.
 
@@ -123,7 +123,7 @@ The second is the `--clean` task which removes the data directory and environmen
 
 ## Useful Scripts
 
-This repository provides a number of useful scripts for use with the Verify Apps.  These including Gernating a new PKI and creating environment files for local running.  Both of these things are done automatically for you as part of `startup.sh` script detailed in the previous section.
+This repository provides a number of useful scripts for use with the Verify Apps.  These include generating a new PKI and creating environment files for local running.  Both of these things are done automatically for you as part of `startup.sh` script detailed in the previous section.
 
 ### XMLSecTool in Docker
 
@@ -133,13 +133,13 @@ Its possible to run XMLSecTool using the verify-local-startup docker image.  To 
 docker run -it -v $(pwd):/verify-local-startup verify-local-startup /bin/bash
 ```
 
-Once in the container its possible to run `xmlsectool` from the commandline without having to set anything up or download the tool.
+Once in the container its possible to run `xmlsectool` from the command line without having to set anything up or download the tool.
 
 ### Generate PKI
 
 `verify-local-startup` can be used to generate an entire PKI federation. Run `./generate/hub-dev-pki.sh` to create the required keys, certificates, federation config data and trust stores in `/data`.
 
-This can also be done using the startup script using the task `--generate-only` which runs the PKI and environemnt generation process and then exits.
+This can also be done using the startup script using the task `--generate-only` which runs the PKI and environment generation process and then exits.
 
 ```sh
 ./startup.sh -g
@@ -147,7 +147,7 @@ This can also be done using the startup script using the task `--generate-only` 
 
 ### Create environment for local running
 
-`generate-env.rb` can generatne a `local.env` file for running Verify apps locally. The script takes a path to output the generated .env file to. It also, optionally, takes which apps (MSA or VSP) need variables added to the .env file.
+`generate-env.rb` can generate a `local.env` file for running Verify apps locally. The script takes a path to output the generated .env file to. It also, optionally, takes which apps (MSA or VSP) need variables added to the .env file.
 
 #### Example
 ```
