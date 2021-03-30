@@ -73,5 +73,3 @@ privateBetaUserAccessRestrictionEnabled: ${IDA_TESTRP_TOKENSERVICE_ENABLED:-"fal
 tokenServiceUrl: ${IDA_TESTRP_TOKENSERVICE_URL:-"http://localhost:53100"}
 tokenServiceUser: ${IDA_TESTRP_TOKENSERVICE_USER:-"UserA"}
 tokenServicePassword: ${IDA_TESTRP_TOKENSERVICE_PASSWORD:-"NotTheRealUserAPassword"}
-
-shouldShowStartWithEidasButton: true

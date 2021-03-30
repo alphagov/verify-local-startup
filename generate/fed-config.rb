@@ -29,10 +29,6 @@ rps = {
   'dev-rp' => {
     'simpleId' => 'test-rp',
     'matchingProcess' => { 'cycle3AttributeName' => 'NationalInsuranceNumber' }
-  },
-  'dev-rp-no-eidas' => {
-    'simpleId' => 'test-rp',
-    'eidasEnabled' => false
   }
 }
 
@@ -53,17 +49,10 @@ translations = {
   }
 }
 
-countries = {
-  'reference' => { 'simpleId' => 'ZZ' },
-  'netherlands' => { 'simpleId' => 'NL' },
-  'spain' => { 'simpleId' => 'ES', 'overriddenSsoUrl' => 'http://spain.country/sso-override' },
-  'sweden' => { 'simpleId' => 'SE', 'enabled' => false },
-}
-
 Dir::mkdir(output_dir) unless Dir::exist?(output_dir)
 
 Dir::chdir(output_dir) do
-  ['idps', 'matching-services', 'transactions', 'countries'].each do |dir|
+  ['idps', 'matching-services', 'transactions'].each do |dir|
     Dir::mkdir(dir) unless Dir::exist?(dir)
   end
 
@@ -114,7 +103,6 @@ Dir::chdir(output_dir) do
           'rpName' => 'Dev RP',
           'analyticsTransactionDescription' => 'DEV RP',
           'enabled' => true,
-          'eidasEnabled' => true,
           'shouldHubSignResponseMessages' => true,
           'userAccountCreationAttributes' => [
             'FIRST_NAME',
@@ -136,17 +124,6 @@ Dir::chdir(output_dir) do
     end
   end
 
-  Dir::chdir('countries') do
-    countries.each do |country, overrides|
-      File.open("#{country}.yml", 'w') do |f|
-        f.write(YAML.dump({
-          'entityId' => "http://#{country}.country/metadata",
-          'simpleId' => 'AA',
-          'enabled' => true
-        }.update(overrides)))
-      end
-    end
-  end
 end
 
 Dir::mkdir(display_locales_dir) unless Dir::exist?(display_locales_dir)
