@@ -197,7 +197,7 @@ services:
     env_file:
       - config/urls.env
     environment:
-      EUROPEAN_IDENTITY_ENABLED: false
+      EUROPEAN_IDENTITY_ENABLED: "false"
       METADATA_SOURCE_URI: ${METADATA_SOURCE_URI}
       ASSERTION_CONSUMER_SERVICE_URL: ${TEST_RP_URL}/matching-service/POST
       MSA_ENTITY_ID: http://dev-rp-ms.local/SAML2/MD
