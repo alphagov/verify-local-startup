@@ -165,6 +165,7 @@ services:
       SENTRY_ENV: "LOCAL_DEV"
     volumes:
       - ./configuration/stub-frontend-fed-config:/fed-config:ro
+      - ./logs/frontend:/verify-frontend/logs
     networks:
       - hub-network
 

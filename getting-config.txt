@@ -1,0 +1,3 @@
+docker run --network verify-local-startup_hub-network -it ef70c61ee675 /bin/bash 
+curl config:50240/config/idps/idp-list-for-sign-in/http:%2F%2Fdev-rp.local%2FSAML2%2FMD
+docker stop verify-local-startup_config_1 && ./startup.sh
