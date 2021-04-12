@@ -4,6 +4,8 @@ require 'thread'
 require 'os'
 require 'tty-spinner'
 require 'yaml'
+require 'json'
+require 'pry'
 
 BANNER = '
     ____        _ __    ___                ___
@@ -20,6 +22,8 @@ BANNER = '
 USAGE = <<ENDUSAGE
 Usage:
     build-local -y yaml-file [-t count] [-r retries] [-h]
+    build-local -l
+    build-local -c compoent
 ENDUSAGE
 
 HELP = <<ENDHELP
@@ -32,6 +36,10 @@ HELP = <<ENDHELP
                             retry more times set a number here or set it to 0 to
                             not retry.
     -w, --write-build-log   Writes the build log even for successful builds
+
+    -l, --list              List compoents by name
+    -c, --component         Specify a compent to rebuild and restart
+
     -h, --help              Show's this help message
 ENDHELP
 
@@ -237,8 +245,75 @@ def generate_env(images)
   print "     Done\n"
 end
 
+def docker_ps
+  output = `docker ps --format '"{{$v1 := split .Image ":"}}{{$shortName := index $v1 0}}{{$shortName}}": { "name": "{{.Names}}", "image": "{{.Image}}", "container": "{{.ID}}" },'`
+  JSON.parse("{ #{output[0..-3]} }")
+end
+
+def list_compoents(repos)
+  puts "Listing compoents:"
+  repos.each do |repo_name, config|
+    if docker_ps[repo_name].nil?
+      running = "[ Stopped ]"
+    else
+      running = "[ Running ]"
+    end
+    puts "#{repo_name.ljust(20)} #{running}"
+  end
+end
+
+def stop_compoent(component_name, spinner)
+  component = docker_ps[component_name]
+  spinner.auto_spin
+  if component.nil?
+    spinner.success("Component not running.")
+  else
+    output = `docker stop #{component["name"]} 2>&1`
+    if $?.success?
+      spinner.success("Service #{component_name} has been stopped.")
+    else
+      spinner.error("Could not stop service #{component_name}")
+      puts "Debug information:\n\tComponent_name = #{component_name}\n\tComponent = #{component}"
+    end
+  end
+end
+
+def build_component(component_name, repos, spinner)
+  images = ""
+  build_image = ImageBuilder.new(
+      repo_name: component_name,
+      config: repos[component_name],
+      spinner: spinner,
+      images: images,
+      script_dir: File.expand_path(File.dirname(__FILE__)),
+      retries: 2,
+      write_success_log: false)
+  build_image.run
+end
+
+def start_component(component_name, spinner)
+  spinner.auto_spin
+  output = `docker-compose --env-file .env up -d #{component_name} 2>&1`
+  if $?.success?
+    spinner.success(" - Service #{component_name} has been started.")
+  else
+    spinner.error(" - Could not start service #{component_name}")
+    puts "Debug information:\n\tComponent_name = #{component_name}\n\tDocker Output = #{output}"
+  end
+end
+
+def role_component(repos, component_name, skip_build = false)
+  loading_spinners = TTY::Spinner::Multi.new("[:spinner] Rolling component #{component_name}", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
+  stop_spinner = loading_spinners.register("[:spinner] Stopping Component", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
+  build_spinner = loading_spinners.register("[:spinner] Building Component", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
+  start_spinner = loading_spinners.register("[:spinner] Starting Component", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
+  stop_compoent(component_name, stop_spinner)
+  build_component(component_name, repos, build_spinner) unless skip_build
+  start_component(component_name, start_spinner)
+end
+
 def main()
-  args = { :yaml=>'repos.yml', :thread_count=>0, :retries=>1, :write_success_log=>false }
+  args = { :yaml=>'repos.yml', :thread_count=>0, :retries=>1, :write_success_log=>false, :list=>false, :component=>nil }
   unflagged_args = []
   next_arg = unflagged_args.first
 
@@ -248,6 +323,8 @@ def main()
       when '-w', '--write-build-log'    then args[:write_success_log] = true
       when '-y', '--yaml-file'          then next_arg = :yaml
       when '-t', '--threads'            then next_arg = :threads
+      when '-l', '--list'               then args[:list] = true
+      when '-c', '--component'          then next_arg = :component
       when '-r', '--retry-build'        then next_arg = :retries
       else
         if next_arg
@@ -268,8 +345,6 @@ def main()
     exit 1
   end
 
-  puts "#{BANNER}"
-
   # Load repos yaml
   repos = YAML.load(File.read(args[:yaml]))
   
@@ -280,21 +355,30 @@ def main()
 
   write_success_log = args[:write_success_log]
 
-  if OS.mac? && thread_count.zero?
-    thread_count = 2
-    puts "For your safety we are using #{thread_count} threads to do the build."
-    puts "You can override this using the -t option."
-  elsif thread_count == 0
-    puts "WARNING: No thread count set... using #{repos.size} threads to do the build."
-    puts "         If the build should fail you might want to try setting a thread count."
-    thread_count = repos.size
+  if args[:list] == true
+    list_compoents(repos)
+  elsif !args[:component].nil?
+    role_component(repos, args[:component])
   else
-    puts "As you asked us we are using #{thread_count} threads to do the build."
+    puts "#{BANNER}"
+
+    if OS.mac? && thread_count.zero?
+      thread_count = 2
+      puts "For your safety we are using #{thread_count} threads to do the build."
+      puts "You can override this using the -t option."
+    elsif thread_count == 0
+      puts "WARNING: No thread count set... using #{repos.size} threads to do the build."
+      puts "         If the build should fail you might want to try setting a thread count."
+      thread_count = repos.size
+    else
+      puts "As you asked us we are using #{thread_count} threads to do the build."
+    end
+    puts ""
+
+    fetch_git_repos(thread_count, repos, write_success_log)
+    images = create_docker_images(thread_count, repos, retries, write_success_log)
+    generate_env(images)
   end
-  puts ""
-  fetch_git_repos(thread_count, repos, write_success_log)
-  images = create_docker_images(thread_count, repos, retries, write_success_log)
-  generate_env(images)
 end
 
 main
