@@ -8,6 +8,7 @@ This repository also provides a number of scripts for generating a new public ke
 
 * [Before you start](#before-you-start)
 * [Getting started](#getting-started)
+* [Managing Components](#managing-components)
 * [Stopping the Hub](#stopping-the-hub)
 * [Startup command line options](#Startup-command-line-options)
 * [Useful Scripts](#useful-scripts)
@@ -63,6 +64,10 @@ If everything works as expected you should see the following message:
 > Started - visit [http://localhost:50130/test-rp](http://localhost:50130/test-rp) to start a journey (may take some time to spin up)
 
 It can take up to 5 minutes for the 13 individual microservices to get going and for you to make a successful verify journey depending on the age and power of your computer.  If you encounter any issues please [raise an issue](#Support-and-raising-issues).
+
+## Managing Components
+
+
 
 ## Stopping the Hub
 

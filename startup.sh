@@ -193,7 +193,7 @@ fi
 
 if [[ $SKIP_BUILD == 'false' ]]; then
   bundle check || bundle install
-  bundle exec ./build-local.rb -r $RETRIES -y $YAML_FILE -t $THREADS $WRITE_BUILD_LOG
+  bundle exec ./lib/build-local.rb -R $RETRIES -y $YAML_FILE -t $THREADS $WRITE_BUILD_LOG
 else
   echo "Skipping build process..."
 fi
