@@ -4,6 +4,11 @@ require 'thread'
 require 'os'
 require 'tty-spinner'
 require 'yaml'
+require 'json'
+require 'colorize'
+
+require_relative 'image_builder'
+require_relative 'repository'
 
 BANNER = '
     ____        _ __    ___                ___
@@ -19,127 +24,29 @@ BANNER = '
 
 USAGE = <<ENDUSAGE
 Usage:
-    build-local -y yaml-file [-t count] [-r retries] [-h]
+    build-local -y yaml-file [-t count] [-R retries] [-h]
+
 ENDUSAGE
 
 HELP = <<ENDHELP
+  Build Process:
     -y, --yaml-file         Yaml file with a List of repos to build
     -t, --threads           Specifies the number of threads to use to do the
                             the build.  If no number given will generate as many
                             threads as repos.  Suggested 4 threads
-    -r, --retry-build       Sometimes the build can fail due to a resourcing issue
+    -R, --retry-build       Sometimes the build can fail due to a resourcing issue
                             by default we'll always retry once.  If you want to
                             retry more times set a number here or set it to 0 to
                             not retry.
     -w, --write-build-log   Writes the build log even for successful builds
+
+  Help:
     -h, --help              Show's this help message
 ENDHELP
 
 THREAD_SUCCESS_MARKS = ["✅","🎉","🎆"]
 SUCCESS_MARK = "🎆 🎉 ✅ 🎉 🎆"
 ERROR_MARK = "❌ 😡 ❌ 😡 ❌"
-
-class Repository
-  def initialize(repo_name:, spinners:)
-    @repo_name = repo_name
-    @spinners = spinners
-    @success = false
-    @spinner = nil
-  end
-
-  def get_repo
-    cmd = "git clone https://github.com/alphagov/#{@repo_name}.git ../#{@repo_name} 2>&1"
-    output = `#{cmd}`
-    unless $?.success?
-      File.write("#{@script_dir}/logs/#{@repo_name}_fetch.log", output, mode: "w")
-      @spinner.error(" failed to clone repository - see #{@script_dir}/logs/#{@repo_name}_fetch.log")
-      @success = false
-      false
-    end
-    @spinner.success
-    true
-  end
-
-  def run
-    have_repo = true
-    unless File.exists?("../#{@repo_name}")
-      @spinner = @spinners.register("[:spinner] Fetching #{@repo_name} from GitHub", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
-      @spinner.auto_spin
-      @success = get_repo
-    else
-      @success = true
-    end
-  end
-
-  def success?
-    return @success
-  end
-end
-
-# This is our worker thread which builds our docker images
-class ImageBuilder
-  attr_accessor :image_var, :messages
-
-  def initialize(repo_name:, config:, spinner:, images:, script_dir:, retries:, write_success_log: false)
-    @repo_name = repo_name
-    @config = config
-    @spinner = spinner
-    @image_var = ""
-    @script_dir = script_dir
-    @success = false
-    @release = "verify-local-startup dev"
-    @retries = retries
-    @write_success_log = write_success_log
-    @output = "Starting build of #{repo_name}...\n"
-  end
-
-  def build_image
-    image_name = "#{@repo_name}:local"
-    build_args = @config.fetch('build-args', []).map { |ba| "--build-arg #{ba.keys[0]}=#{ba.values[0]}" }.join " "
-    cmd = "docker build #{build_args}\
-        --build-arg release=#{@release}\
-        ../#{@config['context']}\
-        -f ../#{@config['context']}/#{@config.fetch('dockerfile', 'Dockerfile')}\
-        -t #{image_name}\
-        2>&1"
-    output = `#{cmd}`
-    if $?.success?
-      if @write_success_log
-        @spinner.success(" - see #{@script_dir}/logs/#{@repo_name}_build.log")
-        @output = @output + output + "\nBuild failed... Unable to retry.\n" 
-        File.write("#{@script_dir}/logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
-      else
-        @spinner.success
-      end
-      @image_var = "#{@config['image_env_var']}=#{image_name}\n"
-      @success = true
-    elsif @retries > 0
-      @output = @output + output + "\nBuild failed... Retrying...\n"
-      @retries = @retries - 1
-      build_image
-    else
-      @output = @output + output + "\nBuild failed... Unable to retry.\n" 
-      File.write("#{@script_dir}/logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
-      @spinner.error(" - see #{@script_dir}/logs/#{@repo_name}_build.log")
-      @success = false
-    end
-  end
-
-  def get_release
-    cmd = "git -C ../#{@config['context']} rev-parse --short HEAD"
-    output = `#{cmd}`
-    @release = output.strip
-  end
-
-  def run
-    get_release
-    build_image
-  end
-
-  def success?
-    return @success
-  end
-end
 
 def fetch_git_repos(thread_count, repos, write_success_log)
   loading_spinners = TTY::Spinner::Multi.new("[:spinner] Fetching Repos", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
@@ -248,7 +155,7 @@ def main()
       when '-w', '--write-build-log'    then args[:write_success_log] = true
       when '-y', '--yaml-file'          then next_arg = :yaml
       when '-t', '--threads'            then next_arg = :threads
-      when '-r', '--retry-build'        then next_arg = :retries
+      when '-R', '--retry-build'        then next_arg = :retries
       else
         if next_arg
           args[next_arg] = arg
@@ -268,8 +175,6 @@ def main()
     exit 1
   end
 
-  puts "#{BANNER}"
-
   # Load repos yaml
   repos = YAML.load(File.read(args[:yaml]))
   
@@ -279,6 +184,8 @@ def main()
   retries = args[:retries].to_i
 
   write_success_log = args[:write_success_log]
+
+  puts "#{BANNER}"
 
   if OS.mac? && thread_count.zero?
     thread_count = 2
@@ -292,6 +199,7 @@ def main()
     puts "As you asked us we are using #{thread_count} threads to do the build."
   end
   puts ""
+
   fetch_git_repos(thread_count, repos, write_success_log)
   images = create_docker_images(thread_count, repos, retries, write_success_log)
   generate_env(images)
