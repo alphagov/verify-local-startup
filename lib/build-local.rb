@@ -6,7 +6,6 @@ require 'tty-spinner'
 require 'yaml'
 require 'json'
 require 'colorize'
-require 'pry'
 
 require_relative 'image_builder'
 require_relative 'repository'
@@ -25,7 +24,7 @@ BANNER = '
 
 USAGE = <<ENDUSAGE
 Usage:
-    build-local -y yaml-file [-t count] [-r retries] [-h]
+    build-local -y yaml-file [-t count] [-R retries] [-h]
 
 ENDUSAGE
 
