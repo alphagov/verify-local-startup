@@ -54,7 +54,8 @@ def list_components(repos)
   status_heading = "Status" + "".ljust(15)
   out = "#{name_heading} #{status_heading} Created\n".bold
   repos.each do |repo_name, config|
-    process = running_info[repo_name] || {"state" => "missing"}
+    process = running_info[repo_name] 
+    process = container_info[repo_name] || {"state" => "missing"} if process.nil?
     running = case process["state"]
     when "running"  then "[ " + " Running ".green + " ]".ljust(10)
     when "missing"  then "[ " + "Not Built".red + " ]".ljust(10)
