@@ -44,7 +44,7 @@ end
 
 def docker_ls
   output = `docker image ls --format '"{{.Repository}}": { "tag": "{{.Tag}}", "image_id": "{{.ID}}", "created": "{{.CreatedAt}}", "created_since": "{{.CreatedSince}}"},'`
-  json = JSON.parse("{ #{output[0..-3]} }")
+  JSON.parse("{ #{output[0..-3]} }")
 end
 
 def list_components(repos)
@@ -54,7 +54,8 @@ def list_components(repos)
   status_heading = "Status" + "".ljust(15)
   out = "#{name_heading} #{status_heading} Created\n".bold
   repos.each do |repo_name, config|
-    process = running_info[repo_name] || {"state" => "missing"}
+    process = running_info[repo_name] 
+    process = container_info[repo_name] || {"state" => "missing"} if process.nil?
     running = case process["state"]
     when "running"  then "[ " + " Running ".green + " ]".ljust(10)
     when "missing"  then "[ " + "Not Built".red + " ]".ljust(10)
@@ -90,20 +91,28 @@ def stop_component(component_name, spinner)
 end
 
 def rebuild_component(repos, component_name)
-  not_running = docker_ps[component_name].nil?
+  component = docker_ps[component_name]
+  not_running = true
+  not_running = component.state != running unless component.nil?
   loading_spinners = TTY::Spinner::Multi.new("[:spinner] Rebuild component #{component_name.bold}", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
   stop_spinner = loading_spinners.register("[:spinner] Stopping Component...", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡") unless not_running
   rm_spinner = loading_spinners.register("[:spinner] Removing old container...", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
   build_spinner = loading_spinners.register("[:spinner] Building new container...", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
-  start_spinner = loading_spinners.register("[:spinner] Starting Component...", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
+  start_spinner = loading_spinners.register("[:spinner] Starting Component...", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡") unless not_running
   stop_spinner.auto_spin unless not_running
   rm_spinner.auto_spin
   build_spinner.auto_spin
-  start_spinner.auto_spin
+  start_spinner.auto_spin unless not_running
   stop_component(component_name, stop_spinner) unless not_running
   remove_component(component_name, rm_spinner)
   build_component(component_name, repos, build_spinner)
-  start_component(component_name, start_spinner) unless not_running
+
+  if not_running
+    puts "\nYou need to start the component as it wasn't running when rebuild was triggered.".red
+    puts "\nTo start the component run:\n\t./component.sh -s #{component_name}"
+  else
+    start_component(component_name, start_spinner)
+  end
 end
 
 def remove_component_wrapper(component_name)
