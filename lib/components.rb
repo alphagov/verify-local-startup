@@ -93,7 +93,7 @@ end
 def rebuild_component(repos, component_name)
   component = docker_ps[component_name]
   not_running = true
-  not_running = component.state != running unless component.nil?
+  not_running = component['state'] != "running" unless component.nil?
   loading_spinners = TTY::Spinner::Multi.new("[:spinner] Rebuild component #{component_name.bold}", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
   stop_spinner = loading_spinners.register("[:spinner] Stopping Component...", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡") unless not_running
   rm_spinner = loading_spinners.register("[:spinner] Removing old container...", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
