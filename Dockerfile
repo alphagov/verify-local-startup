@@ -1,12 +1,12 @@
 # This Dockerfile is for generating the Metadata
 # and environment used for running the HUB.
-FROM ghcr.io/alphagov/verify/golang:1.15.5-alpine3.12 as golang
+FROM golang:1.16.4-alpine3.12 as golang
 
 RUN apk --no-cache upgrade && \
     apk add --no-cache build-base git &&\
     go get -u github.com/cloudflare/cfssl/cmd/...
 
-FROM ghcr.io/alphagov/verify/ruby:2.7.2-alpine3.12
+FROM ruby:2.7.2-alpine3.12
 
 RUN apk --no-cache upgrade && \
     apk add --no-cache build-base ncurses bash git openssl openjdk11 curl
