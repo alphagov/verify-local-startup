@@ -10,7 +10,7 @@ require 'securerandom'
 class ImageBuilder
     attr_accessor :image_var, :messages
   
-    def initialize(repo_name:, config:, spinner:, images:, script_dir:, retries:, write_success_log: false)
+    def initialize(repo_name:, config:, spinner:, images:, script_dir:, retries:, write_success_log: false, include_maven_local:)
       @repo_name = repo_name
       @config = config
       @spinner = spinner
@@ -20,31 +20,25 @@ class ImageBuilder
       @release = "verify-local-startup dev"
       @retries = retries
       @write_success_log = write_success_log
+      @include_maven_local = include_maven_local
       @output = "Starting build of #{repo_name}...\n"
     end
 
     def build_image
       image_name = "#{@repo_name}:local"
       build_args = @config.fetch('build-args', []).map { |ba| "--build-arg #{ba.keys[0]}=#{ba.values[0]}" }.join " "
-      random_namespace = SecureRandom.hex # To prevent race conditions with separate threads
-      temp_m2_dirname = "m2_#{random_namespace}"
-      temp_dockerfile = "Dockerfile_#{random_namespace}"
-      dockerfile_content = insert_maven_local_copy_in_dockerfile(
-        "../#{@config['context']}/#{@config.fetch('dockerfile', 'Dockerfile')}",
-        temp_m2_dirname
-      )
-      File.open("../#{@config['context']}/#{temp_dockerfile}", 'w') { |f| f.write dockerfile_content }
-      FileUtils.cp_r "#{`realpath ~`.strip}/.m2/repository/uk/gov/ida/.", "../#{@config['context']}/#{temp_m2_dirname}"
+      file_paths = handle_maven_local
       cmd = "docker build #{build_args}\
           --build-arg release=#{@release}\
           ../#{@config['context']}\
-          -f ../#{@config['context']}/#{temp_dockerfile}\
+          -f #{file_paths[:dockerfile]}\
           -t #{image_name}\
           2>&1"
       output = `#{cmd}`
-      FileUtils.rm_rf("../#{@config['context']}/#{temp_m2_dirname}")
-      FileUtils.rm_rf("../#{@config['context']}/#{temp_dockerfile}")
-      if $?.success?
+      success = $?
+      tear_down_maven_local_temp_files file_paths
+
+      if success
         if @write_success_log
           @spinner.success(" - see #{@script_dir}/logs/#{@repo_name}_build.log")
           @output = @output + output + "\nBuild failed... Unable to retry.\n" 
@@ -79,6 +73,37 @@ class ImageBuilder
   
     def success?
       return @success
+    end
+
+    def handle_maven_local
+      return {dockerfile: "../#{@config['context']}/#{@config.fetch('dockerfile', 'Dockerfile')}"} unless @include_maven_local
+      maven_local_dir = "#{`realpath ~`.strip}/.m2/repository/uk/gov/ida"
+      unless File.exists?(maven_local_dir)
+        puts "You've told the build to include your Maven local repo with the '-i/--include-maven-local' flag."
+        puts "The directory #{maven_local_dir} doesn't appear to exist though."
+        puts "Please either publish your libs locally (publishToMavenLocal Gradle task) or drop the '-i' flag."
+        exit 1
+      end
+
+      random_namespace = SecureRandom.hex # To prevent race conditions with separate threads
+      temp_m2_dirname = "m2_#{random_namespace}"
+      temp_dockerfile = "Dockerfile_#{random_namespace}"
+      dockerfile_content = insert_maven_local_copy_in_dockerfile(
+        "../#{@config['context']}/#{@config.fetch('dockerfile', 'Dockerfile')}",
+        temp_m2_dirname
+      )
+
+      File.open("../#{@config['context']}/#{temp_dockerfile}", 'w') { |f| f.write dockerfile_content }
+      FileUtils.cp_r "#{`realpath ~`.strip}/.m2/repository/uk/gov/ida/.", "../#{@config['context']}/#{temp_m2_dirname}"
+
+      {dockerfile: "../#{@config['context']}/#{temp_dockerfile}", m2: "../#{@config['context']}/#{temp_m2_dirname}"}
+    end
+
+    def tear_down_maven_local_temp_files(file_paths)
+      return unless @include_maven_local
+
+      FileUtils.rm_rf(file_paths[:dockerfile])
+      FileUtils.rm_rf(file_paths[:m2])
     end
 
     def insert_maven_local_copy_in_dockerfile(dockerfile_path, m2_dir)
