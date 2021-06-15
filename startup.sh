@@ -146,8 +146,8 @@ if ! command -v docker >/dev/null; then
 fi
 
 if which rbenv > /dev/null; then
-  if ! rbenv versions |grep 2.7.2 > /dev/null; then
-    echo "Using rbenv to install ruby 2.7.2..."
+    if ! rbenv versions |grep "$(cat .ruby-version)" > /dev/null; then
+        echo "Using rbenv to install ruby $(cat .ruby-version)..."
     rbenv install
   fi
 fi
