@@ -62,6 +62,8 @@ Usage:
     -b, --skip-build            Allows you to skip the build process.  Useful if you've
                                 already built everything and your developing something.
     -R, --rebuild-data          Tells the script to remove and rebuild the data directory.
+    -i, --include-maven-local   Copy your local maven directory to the Docker images. Allows
+                                you to use SNAPSHOTs of our libraries in the build.
     
   Dozzle (useful on Linux):
     -d, --dozzle                Run Dozzle for docker output viewing on port 50999.
@@ -89,41 +91,44 @@ YAML_FILE=repos.yml
 DOZZLE=false
 DOZZLEPORT=50999
 WRITE_BUILD_LOG=''
+INCLUDE_MAVEN_LOCAL=''
 
 while [ "$1" != "" ]; do
     case $1 in
-        -y | --yaml-file)       shift
-                                YAML_FILE=$1
-                                ;;
-        -t | --threads)         shift
-                                THREADS=$1
-                                ;;
-        -r | --retry-build)     shift
-                                RETRIES=$1
-                                ;;
-        -b | --skip-build)      SKIP_BUILD=true
-                                ;;
-        -w | --write-build-log) WRITE_BUILD_LOG='-w'
-                                ;;
-        -d | --dozzle)          DOZZLE=true
-                                ;;
-        -p | --dozzleport)      shift
-                                DOZZLEPORT=$1
-                                ;;
-        -R | --rebuild-data)    REBUILD_DATA=true
-                                ;;
-        -c | --clean)           CLEAN=true
-                                ;;
-        -s | --skip-data-check) SKIP_DATA_CHECK=true
-                                ;;
-        -h | --help)            show_help
-                                exit 0
-                                ;;
-        -g | --generate-only)   GENERATE_ONLY=true
-                                ;;
-        * )                     echo -e "Unknown option $1...\n"
-                                usage
-                                exit 1
+        -y | --yaml-file)            shift
+                                     YAML_FILE=$1
+                                     ;;
+        -t | --threads)              shift
+                                     THREADS=$1
+                                     ;;
+        -r | --retry-build)          shift
+                                     RETRIES=$1
+                                     ;;
+        -b | --skip-build)           SKIP_BUILD=true
+                                     ;;
+        -w | --write-build-log)      WRITE_BUILD_LOG='-w'
+                                     ;;
+        -d | --dozzle)               DOZZLE=true
+                                     ;;
+        -p | --dozzleport)           shift
+                                     DOZZLEPORT=$1
+                                     ;;
+        -R | --rebuild-data)         REBUILD_DATA=true
+                                     ;;
+        -c | --clean)                CLEAN=true
+                                     ;;
+        -s | --skip-data-check)      SKIP_DATA_CHECK=true
+                                     ;;
+        -h | --help)                 show_help
+                                     exit 0
+                                     ;;
+        -g | --generate-only)        GENERATE_ONLY=true
+                                     ;;
+        -i | --include-maven-local)  INCLUDE_MAVEN_LOCAL='-i'
+                                     ;;
+        * )                          echo -e "Unknown option $1...\n"
+                                     usage
+                                     exit 1
     esac
     shift
 done
@@ -193,7 +198,7 @@ fi
 
 if [[ $SKIP_BUILD == 'false' ]]; then
   bundle check || bundle install
-  bundle exec ./lib/build-local.rb -R $RETRIES -y $YAML_FILE -t $THREADS $WRITE_BUILD_LOG
+  bundle exec ./lib/build-local.rb -R $RETRIES -y $YAML_FILE -t $THREADS $WRITE_BUILD_LOG $INCLUDE_MAVEN_LOCAL
 else
   echo "Skipping build process..."
 fi
