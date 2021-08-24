@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   redis:
-    image: ghcr.io/alphagov/verify/redis:6.0.9
+    image: redis:6.0.9
     volumes:
       - redis-data:/data
       - redis-config:/usr/local/etc/redis/
@@ -13,7 +13,7 @@ services:
       - hub-network
   
   stub-idp-db:
-    image: ghcr.io/alphagov/verify/postgres:12.5
+    image: postgres:12.5
     environment:
       POSTGRES_PASSWORD: docker
     volumes:
@@ -22,7 +22,7 @@ services:
       - hub-network
   
   metadata:
-    image: ghcr.io/alphagov/verify/nginx:latest
+    image: nginx:latest
     ports:
       - "${METADATA_EXTERNAL_PORT}:80"
     volumes:
