@@ -34,7 +34,7 @@ class ImageBuilder
         if @write_success_log
           @spinner.success(" - see #{@script_dir}/logs/#{@repo_name}_build.log")
           @output = @output + output + "\nBuild failed... Unable to retry.\n" 
-          File.write("#{@script_dir}/logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
+          File.write("#{@script_dir}/../logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
         else
           @spinner.success
         end
