@@ -1,12 +1,12 @@
 # This Dockerfile is for generating the Metadata
 # and environment used for running the HUB.
-FROM golang:1.16.4-alpine3.12 as golang
+FROM golang:1.15.15-alpine3.13 as golang
 
 RUN apk --no-cache upgrade && \
     apk add --no-cache build-base git &&\
     go get -u github.com/cloudflare/cfssl/cmd/...
 
-FROM ruby:2.7.2-alpine3.12
+FROM ruby:2.7.3-alpine3.13
 
 RUN apk --no-cache upgrade && \
     apk add --no-cache build-base ncurses bash git openssl openjdk11 curl
