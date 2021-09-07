@@ -30,15 +30,17 @@ ENDUSAGE
 
 HELP = <<ENDHELP
   Build Process:
-    -y, --yaml-file         Yaml file with a List of repos to build
-    -t, --threads           Specifies the number of threads to use to do the
-                            the build.  If no number given will generate as many
-                            threads as repos.  Suggested 4 threads
-    -R, --retry-build       Sometimes the build can fail due to a resourcing issue
-                            by default we'll always retry once.  If you want to
-                            retry more times set a number here or set it to 0 to
-                            not retry.
-    -w, --write-build-log   Writes the build log even for successful builds
+    -y, --yaml-file            Yaml file with a List of repos to build
+    -t, --threads              Specifies the number of threads to use to do the
+                               the build.  If no number given will generate as many
+                               threads as repos.  Suggested 4 threads
+    -R, --retry-build          Sometimes the build can fail due to a resourcing issue
+                               by default we'll always retry once.  If you want to
+                               retry more times set a number here or set it to 0 to
+                               not retry.
+    -w, --write-build-log      Writes the build log even for successful builds
+    -i, --include-maven-local  Copy your local maven directory to the Docker images.
+                               Allows you to use SNAPSHOTs of our libraries in the build.
 
   Help:
     -h, --help              Show's this help message
@@ -86,7 +88,7 @@ def fetch_git_repos(thread_count, repos, write_success_log)
   puts "Successfully fetched all git repositories"
 end
 
-def create_docker_images(thread_count, repos, retries, write_success_log)
+def create_docker_images(thread_count, repos, retries, write_success_log, include_maven_local)
   loading_spinners = TTY::Spinner::Multi.new("[:spinner] Building apps", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
 
   images = ""
@@ -105,7 +107,8 @@ def create_docker_images(thread_count, repos, retries, write_success_log)
         images: images,
         script_dir: script_dir,
         retries: retries,
-        write_success_log: write_success_log)
+        write_success_log: write_success_log,
+        include_maven_local: include_maven_local)
     queue << buildImage
   end
 
@@ -145,17 +148,18 @@ def generate_env(images)
 end
 
 def main()
-  args = { :yaml=>'repos.yml', :thread_count=>0, :retries=>1, :write_success_log=>false }
+  args = { :yaml=>'repos.yml', :thread_count=>0, :retries=>1, :write_success_log=>false, :maven_local=>false }
   unflagged_args = []
   next_arg = unflagged_args.first
 
   ARGV.each do |arg|
     case arg
-      when '-h', '--help'               then args[:help] = true
-      when '-w', '--write-build-log'    then args[:write_success_log] = true
-      when '-y', '--yaml-file'          then next_arg = :yaml
-      when '-t', '--threads'            then next_arg = :threads
-      when '-R', '--retry-build'        then next_arg = :retries
+      when '-h', '--help'                 then args[:help] = true
+      when '-w', '--write-build-log'      then args[:write_success_log] = true
+      when '-i', '--include-maven-local'  then args[:maven_local] = true
+      when '-y', '--yaml-file'            then next_arg = :yaml
+      when '-t', '--threads'              then next_arg = :threads
+      when '-R', '--retry-build'          then next_arg = :retries
       else
         if next_arg
           args[next_arg] = arg
@@ -201,7 +205,7 @@ def main()
   puts ""
 
   fetch_git_repos(thread_count, repos, write_success_log)
-  images = create_docker_images(thread_count, repos, retries, write_success_log)
+  images = create_docker_images(thread_count, repos, retries, write_success_log, args[:maven_local])
   generate_env(images)
 end
 
