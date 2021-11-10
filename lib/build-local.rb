@@ -1,12 +1,14 @@
 #!/usr/bin/env ruby
 
 require 'thread'
+require 'concurrent'
 require 'os'
 require 'tty-spinner'
 require 'yaml'
 require 'json'
 require 'colorize'
 
+require_relative "logger"
 require_relative 'image_builder'
 require_relative 'repository'
 
@@ -30,6 +32,7 @@ ENDUSAGE
 
 HELP = <<ENDHELP
   Build Process:
+    -f, --log-file             Specify a log file to write logs to
     -y, --yaml-file            Yaml file with a List of repos to build
     -t, --threads              Specifies the number of threads to use to do the
                                the build.  If no number given will generate as many
@@ -46,9 +49,13 @@ HELP = <<ENDHELP
     -h, --help              Show's this help message
 ENDHELP
 
-THREAD_SUCCESS_MARKS = ["✅","🎉","🎆"]
+THREAD_SUCCESS_MARKS = ["✅"]
 SUCCESS_MARK = "🎆 🎉 ✅ 🎉 🎆"
 ERROR_MARK = "❌ 😡 ❌ 😡 ❌"
+
+# Setup Logger
+LOGGER = Logger.new('/dev/null')
+LOGGER.level = Logger::INFO
 
 def fetch_git_repos(thread_count, repos, write_success_log)
   loading_spinners = TTY::Spinner::Multi.new("[:spinner] Fetching Repos", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
@@ -82,10 +89,10 @@ def fetch_git_repos(thread_count, repos, write_success_log)
   end
   threads.each { |t| t.join }
   if thread_failed
-    print "Something went wrong while trying to fetch git repositories  Exiting..."
+    LOGGER.error "Something went wrong while trying to fetch git repositories  Exiting..."
     exit 1
   end
-  puts "Successfully fetched all git repositories"
+  LOGGER.info "Successfully fetched all git repositories"
 end
 
 def create_docker_images(thread_count, repos, retries, write_success_log, include_maven_local)
@@ -107,6 +114,7 @@ def create_docker_images(thread_count, repos, retries, write_success_log, includ
         images: images,
         script_dir: script_dir,
         retries: retries,
+        logger: LOGGER,
         write_success_log: write_success_log,
         include_maven_local: include_maven_local)
     queue << buildImage
@@ -132,26 +140,26 @@ def create_docker_images(thread_count, repos, retries, write_success_log, includ
   end
   threads.each { |t| t.join }
   if thread_failed
-    print "Something went wrong while building the images.  Exiting..."
+    LOGGER.error "Something went wrong while building the images."
+    LOGGER.error "Exit Status 1"
     exit 1
   end
-  puts "Build completed successully."
+  LOGGER.info "Build completed successully."
   images
 end
 
 def generate_env(images)
-  print "Generating .env file..."
+  LOGGER.info "Generating .env file..."
   urls = File.read('config/urls.env')
   ports = File.read('config/ports.env')
   File.write(".env", "#{urls}\n#{ports}\n\n# Docker images for docker-compose\n#{images}", mode: 'w')
-  print "     Done\n"
+  LOGGER.info "Done."
 end
 
 def main()
   args = { :yaml=>'repos.yml', :thread_count=>0, :retries=>1, :write_success_log=>false, :maven_local=>false }
   unflagged_args = []
   next_arg = unflagged_args.first
-
   ARGV.each do |arg|
     case arg
       when '-h', '--help'                 then args[:help] = true
@@ -160,6 +168,9 @@ def main()
       when '-y', '--yaml-file'            then next_arg = :yaml
       when '-t', '--threads'              then next_arg = :threads
       when '-R', '--retry-build'          then next_arg = :retries
+      when '-v', '--enable-logging'       then
+        LOGGER.attach('logs/build-local.log')
+        LOGGER.info("Logging to file enabled.")
       else
         if next_arg
           args[next_arg] = arg
@@ -196,9 +207,9 @@ def main()
     puts "For your safety we are using #{thread_count} threads to do the build."
     puts "You can override this using the -t option."
   elsif thread_count == 0
-    puts "WARNING: No thread count set... using #{repos.size} threads to do the build."
+    puts "WARNING: No thread count set... using #{Concurrent.physical_processor_count} threads to do the build."
     puts "         If the build should fail you might want to try setting a thread count."
-    thread_count = repos.size
+    thread_count = Concurrent.physical_processor_count
   else
     puts "As you asked us we are using #{thread_count} threads to do the build."
   end

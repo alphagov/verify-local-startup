@@ -49,6 +49,7 @@ PLATFORMS
 DEPENDENCIES
   OptionParser
   colorize
+  concurrent-ruby
   dotenv
   os
   tty-spinner

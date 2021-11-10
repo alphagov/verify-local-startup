@@ -9,6 +9,7 @@ require 'colorize'
 
 require_relative 'image_builder'
 require_relative 'repository'
+require_relative 'logger'
 
 USAGE = <<ENDUSAGE
 Usage:
@@ -33,9 +34,13 @@ HELP = <<ENDHELP
 
 ENDHELP
 
-THREAD_SUCCESS_MARKS = ["✅","🎉","🎆"]
+THREAD_SUCCESS_MARKS = ["✅"]
 SUCCESS_MARK = "🎆 🎉 ✅ 🎉 🎆"
 ERROR_MARK = "❌ 😡 ❌ 😡 ❌"
+
+# Setup Logger
+LOGGER = Logger.new('/dev/null')
+LOGGER.level = Logger::INFO
 
 def docker_ps
   output = `docker ps -a --format '"{{$v1 := split .Image ":"}}{{$shortName := index $v1 0}}{{$shortName}}": { "name": "{{.Names}}", "image": "{{.Image}}", "container": "{{.ID}}", "state": "{{.State}}", "status": "{{.Status}}" },'`
@@ -85,12 +90,12 @@ def stop_component(component_name, spinner)
       spinner.success
     else
       spinner.error("Could not stop service #{component_name.bold}")
-      puts "Debug information:\n\tComponent_name = #{component_name}\n\tComponent = #{component}"
+      LOGGER.debug "Debug information:\n\tComponent_name = #{component_name}\n\tComponent = #{component}"
     end
   end
 end
 
-def rebuild_component(repos, component_name)
+def rebuild_component(repos, component_name, maven_local)
   component = docker_ps[component_name]
   not_running = true
   not_running = component['state'] != "running" unless component.nil?
@@ -105,11 +110,11 @@ def rebuild_component(repos, component_name)
   start_spinner.auto_spin unless not_running
   stop_component(component_name, stop_spinner) unless not_running
   remove_component(component_name, rm_spinner)
-  build_component(component_name, repos, build_spinner)
+  build_component(component_name, repos, build_spinner, maven_local)
 
   if not_running
     puts "\nYou need to start the component as it wasn't running when rebuild was triggered.".red
-    puts "\nTo start the component run:\n\t./component.sh -s #{component_name}"
+    puts "\nTo start the component run:\n\t./components.sh -s #{component_name}"
   else
     start_component(component_name, start_spinner)
   end
@@ -137,12 +142,12 @@ def remove_component(component_name, spinner)
       spinner.success
     else
       spinner.error("Unable to remove container for component #{component_name}")
-      puts "Debug information:\n\tOutput = #{output}\n\tComponent_name = #{component_name}\n\tComponent = #{component}"
+      LOGGER.debug "Debug information:\n\tOutput = #{output}\n\tComponent_name = #{component_name}\n\tComponent = #{component}"
     end
   end
 end
 
-def build_component(component_name, repos, spinner)
+def build_component(component_name, repos, spinner, include_maven_local)
   images = ""
   build_image = ImageBuilder.new(
       repo_name: component_name,
@@ -151,18 +156,20 @@ def build_component(component_name, repos, spinner)
       images: images,
       script_dir: File.expand_path(File.dirname(__FILE__)),
       retries: 2,
-      write_success_log: false)
+      logger: LOGGER,
+      write_success_log: false,
+      include_maven_local: include_maven_local)
   build_image.run
 end
 
-def start_component_wrapper(repos, component_name)
+def start_component_wrapper(repos, component_name, maven_local)
   build_image = docker_ls[component_name].nil?
   loading_spinners = TTY::Spinner::Multi.new("[:spinner] Starting component #{component_name.green}", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
   start_spinner = loading_spinners.register("[:spinner] Starting...", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
   build_spinner = loading_spinners.register("[:spinner] Building Component", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡") if build_image
   build_spinner.auto_spin if build_image
   start_spinner.auto_spin
-  build_component(component_name, repos, build_spinner) if build_image
+  build_component(component_name, repos, build_spinner, maven_local) if build_image
   start_component(component_name, start_spinner)
 end
 
@@ -172,11 +179,11 @@ def start_component(component_name, spinner)
     spinner.success
   else
     spinner.error(" Could not start service #{component_name.bold}")
-    puts "Debug information:\n\tComponent_name = #{component_name}\n\tDocker Output = #{output}"
+    LOGGER.debug "Debug information:\n\tComponent_name = #{component_name}\n\tDocker Output = #{output}"
   end
 end
 
-def roll_component(repos, component_name, skip_build = false)
+def roll_component(repos, component_name, skip_build = false, maven_local)
   loading_spinners = TTY::Spinner::Multi.new("[:spinner] Rolling component #{component_name}", format: :arrow_pulse, success_mark: SUCCESS_MARK, error_mark: ERROR_MARK)
   stop_spinner = loading_spinners.register("[:spinner] Stopping Component", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
   build_spinner = loading_spinners.register("[:spinner] Building Component", format: :dots, success_mark: "#{THREAD_SUCCESS_MARKS.sample}", error_mark: "😡")
@@ -185,7 +192,7 @@ def roll_component(repos, component_name, skip_build = false)
   build_spinner.auto_spin
   start_spinner.auto_spin
   stop_component(component_name, stop_spinner)
-  build_component(component_name, repos, build_spinner) unless skip_build
+  build_component(component_name, repos, build_spinner, maven_local) unless skip_build
   start_component(component_name, start_spinner)
 end
 
@@ -196,31 +203,36 @@ def main()
     :retries=>1, 
     :write_success_log=>false,
     :action=>nil,
-    :component=>nil
+    :component=>nil,
+    :maven_local=>false
   }
   unflagged_args = []
   next_arg = unflagged_args.first
 
   ARGV.each do |arg|
     case arg
-      when '-h', '--help'               then args[:help] = true
-      when '-y', '--yaml-file'          then next_arg = :yaml
-      when '-l', '--list'               then args[:action] = "list"
-      when '-r', '--restart'            then 
-                                          args[:action] = "restart"
-                                          next_arg = :component
-      when '-s', '--start'              then
-                                          args[:action] = "start"
-                                          next_arg = :component
-      when '-S', '--stop'               then 
-                                          args[:action] = "stop"
-                                          next_arg = :component
-      when '-rm', '--remove'            then
-                                          args[:action] = "remove"
-                                          next_arg = :component
-      when '-rb', '--rebuild'           then
-                                          args[:action] = "rebuild"
-                                          next_arg = :component
+      when '-h', '--help'                 then args[:help] = true
+      when '-y', '--yaml-file'            then next_arg = :yaml
+      when '-l', '--list'                 then args[:action] = "list"
+      when '-v', '--enable-logging'       then
+                                            LOGGER.attach('logs/component.log')
+                                            LOGGER.info("Logging to file enabled.")
+      when '-r', '--restart'              then 
+                                            args[:action] = "restart"
+                                            next_arg = :component
+      when '-s', '--start'                then
+                                            args[:action] = "start"
+                                            next_arg = :component
+      when '-S', '--stop'                 then 
+                                            args[:action] = "stop"
+                                            next_arg = :component
+      when '-rm', '--remove'              then
+                                            args[:action] = "remove"
+                                            next_arg = :component
+      when '-rb', '--rebuild'             then
+                                            args[:action] = "rebuild"
+                                            next_arg = :component
+      when '-i', '--include-maven-local'  then args[:maven_local] = true
       else
         if next_arg
           args[next_arg] = arg
@@ -254,11 +266,11 @@ def main()
   
   case args[:action]
     when "list"     then list_components(repos)
-    when "start"    then start_component_wrapper(repos, args[:component])
+    when "start"    then start_component_wrapper(repos, args[:component], args[:maven_local])
     when "stop"     then stop_component_wrapper(args[:component])
     when "restart"  then roll_component(repos, args[:component])
     when "remove"   then remove_component_wrapper(args[:component])
-    when "rebuild"  then rebuild_component(repos, args[:component])
+    when "rebuild"  then rebuild_component(repos, args[:component], args[:maven_local])
   else
     puts "You need to specify an action."
     puts USAGE
