@@ -5,12 +5,13 @@ require 'colorize'
 require 'fileutils'
 require 'tempfile'
 require 'securerandom'
+require_relative "logger"
 
 # This is our worker thread which builds our docker images
 class ImageBuilder
     attr_accessor :image_var, :messages
   
-    def initialize(repo_name:, config:, spinner:, images:, script_dir:, retries:, write_success_log: false, include_maven_local:)
+    def initialize(repo_name:, config:, spinner:, images:, script_dir:, retries:, logger:, write_success_log: false, include_maven_local:)
       @repo_name = repo_name
       @config = config
       @spinner = spinner
@@ -21,42 +22,45 @@ class ImageBuilder
       @retries = retries
       @write_success_log = write_success_log
       @include_maven_local = include_maven_local
-      @output = "Starting build of #{repo_name}...\n"
+      @output = "Starting build of #{@repo_name}...\n"
+      @logger = logger
+      @thread_message = " Thread: #{@repo_name} : "
     end
 
     def build_image
       image_name = "#{@repo_name}:local"
       build_args = @config.fetch('build-args', []).map { |ba| "--build-arg #{ba.keys[0]}=#{ba.values[0]}" }.join " "
       file_paths = handle_maven_local
-      cmd = "docker build #{build_args}\
-          --build-arg release=#{@release}\
-          ../#{@config['context']}\
-          -f #{file_paths[:dockerfile]}\
-          -t #{image_name}\
-          2>&1"
+      # Made this one line to make it easier to see the command used in the logs
+      cmd = "docker build #{build_args} --build-arg release=#{@release} ../#{@config['context']} -f #{file_paths[:dockerfile]} -t #{image_name} 2>&1"
+      @logger.info "#{@thread_message} Running command: #{cmd}"
       output = `#{cmd}`
-      success = $?
+      @success = $?.success?
+      @logger.debug "#{@thread_message} Success = #{@success}"
       tear_down_maven_local_temp_files file_paths
 
-      if success
+      if @success
+        @logger.info "#{@thread_message} Successfully built #{@repo_name}"
         if @write_success_log
           @spinner.success(" - see #{@script_dir}/../logs/#{@repo_name}_build.log")
           @output = @output + output + "\nBuild failed... Unable to retry.\n" 
+          @logger.info "#{@thread_message} Writing Log to: #{@script_dir}/../logs/#{@repo_name}_build.log"
           File.write("#{@script_dir}/../logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
         else
+          @logger.info "#{@thread_message} No build log file created."
           @spinner.success
         end
         @image_var = "#{@config['image_env_var']}=#{image_name}\n"
-        @success = true
       elsif @retries > 0
-        @output = @output + output + "\nBuild failed... Retrying...\n"
         @retries = @retries - 1
+        @logger.info "#{@thread_message} Failed to build #{@repo_name}... Retrying... Retries left: #{@retries}"
+        @output = @output + output + "\nBuild failed... Retrying...\n"
         build_image
       else
+        @logger.error "#{@thread_message} Build process for #{@repo_name} failed and no retries left."
         @output = @output + output + "\nBuild failed... Unable to retry.\n" 
         File.write("#{@script_dir}/../logs/#{@repo_name}_build.log", "log from command=#{cmd}\n#{output}", mode: "w")
         @spinner.error(" - see #{@script_dir}/../logs/#{@repo_name}_build.log")
-        @success = false
       end
     end
   

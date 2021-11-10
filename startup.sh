@@ -92,6 +92,7 @@ DOZZLE=false
 DOZZLEPORT=50999
 WRITE_BUILD_LOG=''
 INCLUDE_MAVEN_LOCAL=''
+ENABLE_BUILD_LOG=''
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -126,8 +127,10 @@ while [ "$1" != "" ]; do
                                      ;;
         -i | --include-maven-local)  INCLUDE_MAVEN_LOCAL='-i'
                                      ;;
+        -v | --enable-logging)       ENABLE_BUILD_LOG='-v'
+                                     ;;
         * )                          echo -e "Unknown option $1...\n"
-                                     usage
+                                     show_help
                                      exit 1
     esac
     shift
@@ -144,7 +147,6 @@ esac
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 
-# Build a docker image with all of our dependencies for future steps
 if ! command -v docker >/dev/null; then
   >&2 echo "docker: command not found. verify-local-startup requires docker."
   exit 1
@@ -183,7 +185,7 @@ fi
 
 # Running generate scripts in docker avoids having to install their
 # dependencies on the host.
-docker build -t verify-local-startup .
+docker build -t verify-local-startup . > /dev/null
 docker run -t -v "$script_dir:/verify-local-startup/" verify-local-startup "
 set -e
 $REMOVE_DATA_DIR
@@ -198,7 +200,7 @@ fi
 
 if [[ $SKIP_BUILD == 'false' ]]; then
   bundle check || bundle install
-  bundle exec ./lib/build-local.rb -R $RETRIES -y $YAML_FILE -t $THREADS $WRITE_BUILD_LOG $INCLUDE_MAVEN_LOCAL
+  bundle exec ./lib/build-local.rb -R $RETRIES -y $YAML_FILE -t $THREADS $WRITE_BUILD_LOG $INCLUDE_MAVEN_LOCAL $ENABLE_BUILD_LOG
 else
   echo "Skipping build process..."
 fi

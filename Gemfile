@@ -7,4 +7,5 @@ group :development do
   gem 'tty-spinner'
   gem 'os'
   gem 'colorize'
+  gem 'concurrent-ruby'
 end

@@ -14,7 +14,9 @@ Usage:
     -rb, --rebuild               Forces rebuilding of a compoent
                                  NOTE: This removes and rebuilds a component it will also
                                        restart the component if it was running at the time.
-                                       
+
+    -v,  --enbable-logging       Enable logging... logs will be written to logs/components.sh
+
     -h,  --help                  Show's this help message
 EOF
 }
@@ -44,6 +46,8 @@ while [ "$1" != "" ]; do
                                 shift
                                 COMPONENT=$1
                                 ;;
+        -v  | --enable-logging) ENABLE_LOGGING='-v'
+                                ;;
         -h  | --help)           show_help
                                 exit 0
                                 ;;
@@ -60,12 +64,12 @@ if [[ $? != 0 ]]; then
 fi
 
 case $ACTION in
-    list)       bundle exec ./lib/components.rb -l ;;
-    start)      bundle exec ./lib/components.rb -s $COMPONENT ;;
-    restart)    bundle exec ./lib/components.rb -r $COMPONENT ;;
-    stop)       bundle exec ./lib/components.rb -S $COMPONENT ;;
-    remove)     bundle exec ./lib/components.rb -rm $COMPONENT ;;
-    rebuild)    bundle exec ./lib/components.rb -rb $COMPONENT ;;
+    list)       bundle exec ./lib/components.rb -l $ENABLE_LOGGING;;
+    start)      bundle exec ./lib/components.rb -s $COMPONENT $ENABLE_LOGGING;;
+    restart)    bundle exec ./lib/components.rb -r $COMPONENT $ENABLE_LOGGING;;
+    stop)       bundle exec ./lib/components.rb -S $COMPONENT $ENABLE_LOGGING;;
+    remove)     bundle exec ./lib/components.rb -rm $COMPONENT $ENABLE_LOGGING;;
+    rebuild)    bundle exec ./lib/components.rb -rb $COMPONENT $ENABLE_LOGGING;;
     *)          show_help
                 exit 0
 esac
