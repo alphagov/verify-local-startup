@@ -54,7 +54,7 @@ SUCCESS_MARK = "🎆 🎉 ✅ 🎉 🎆"
 ERROR_MARK = "❌ 😡 ❌ 😡 ❌"
 
 # Setup Logger
-LOGGER = Logger.new('/dev/null')
+LOGGER = Logger.new(File::NULL)
 LOGGER.level = Logger::INFO
 
 def fetch_git_repos(thread_count, repos, write_success_log)

@@ -39,7 +39,7 @@ SUCCESS_MARK = "🎆 🎉 ✅ 🎉 🎆"
 ERROR_MARK = "❌ 😡 ❌ 😡 ❌"
 
 # Setup Logger
-LOGGER = Logger.new('/dev/null')
+LOGGER = Logger.new(File::NULL)
 LOGGER.level = Logger::INFO
 
 def docker_ps
