@@ -189,7 +189,7 @@ if( -not $skip_build) {
   if ($logging) {
     $ENABLE_BUILD_LOG_FLAG = '-v'
   }
-  ruby.exe .\lib\build-local.rb -R $retries -y $yaml_file -t $threads $WRITE_BUILD_LOG_FLAG $INCLUDE_MAVEN_LOCAL_FLAG $ENABLE_BUILD_LOG_FLAG
+  ruby ./lib/build-local.rb -R $retries -y $yaml_file -t $threads $WRITE_BUILD_LOG_FLAG $INCLUDE_MAVEN_LOCAL_FLAG $ENABLE_BUILD_LOG_FLAG
 }
 
 if ($dozzle) {
