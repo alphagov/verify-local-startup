@@ -1,4 +1,8 @@
 # As repos get multi-stage builds, migrate them into build-local
+frontend:
+  context: verify-frontend
+  image_env_var: FRONTEND_IMAGE
+
 stub-idp:
   context: verify-stub-idp
   image_env_var: STUB_IDP_IMAGE
@@ -7,6 +11,8 @@ stub-idp:
 msa:
   context: verify-matching-service-adapter
   image_env_var: MSA_IMAGE
+  build-args:
+    - registry_image_jdk: 11.0.11-jre
 
 test-rp:
   context: verify-test-rp
@@ -15,6 +21,7 @@ test-rp:
 config:
   context: verify-hub
   build-args:
+    - registry_image_jdk: 11.0.11-jre
     - hub_app: config
     - conf_dir: configuration/local
   image_env_var: CONFIG_IMAGE
@@ -22,6 +29,7 @@ config:
 policy:
   context: verify-hub
   build-args:
+    - registry_image_jdk: 11.0.11-jre
     - hub_app: policy
     - conf_dir: configuration/local
   image_env_var: POLICY_IMAGE
@@ -29,6 +37,7 @@ policy:
 saml-proxy:
   context: verify-hub
   build-args:
+    - registry_image_jdk: 11.0.11-jre
     - hub_app: saml-proxy
     - conf_dir: configuration/local
   image_env_var: SAML_PROXY_IMAGE
@@ -36,6 +45,7 @@ saml-proxy:
 saml-soap-proxy:
   context: verify-hub
   build-args:
+    - registry_image_jdk: 11.0.11-jre
     - hub_app: saml-soap-proxy
     - conf_dir: configuration/local
   image_env_var: SAML_SOAP_PROXY_IMAGE
@@ -43,6 +53,7 @@ saml-soap-proxy:
 saml-engine:
   context: verify-hub
   build-args:
+    - registry_image_jdk: 11.0.11-jre
     - hub_app: saml-engine
     - conf_dir: configuration/local
   image_env_var: SAML_ENGINE_IMAGE
@@ -50,10 +61,7 @@ saml-engine:
 stub-event-sink:
   context: verify-hub
   build-args:
+    - registry_image_jdk: 11.0.11-jre
     - hub_app: stub-event-sink
     - conf_dir: configuration/local
   image_env_var: STUB_EVENT_SINK_IMAGE
-
-frontend:
-  context: verify-frontend
-  image_env_var: FRONTEND_IMAGE
