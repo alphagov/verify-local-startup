@@ -1,5 +1,9 @@
 # Verify Local startup
 
+>**GOV.UK Verify has closed**
+>
+>This repository is out of date and has been archived
+
 This repository's primary purpose is to allow anyone the ability to build and run the Verify Hub and related microservices.  It makes extensive use of Git, Docker and Ruby to do this.
 
 This repository also provides a number of scripts for generating a new public key infrastructure (PKI) used by the Verify applications.
